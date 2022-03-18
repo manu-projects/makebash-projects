@@ -8,6 +8,24 @@ ssh-generate-certificate:
 # del cliente en el `~/.ssh/authorized_keys`, porque lo hace de forma automática
 	@ssh-copy-id $(USER)@$(IP)
 
+##################################################################################
+
+install-linux-packages: install-mailer gpg-generate-password pass-init
+	@sudo apt install -y yakuake ranger
+
+install-mailer:
+	sudo apt install -y curl isync msmtp pass mutt neomutt
+	-[ ! -d "$(CURRENT_PATH)/mutt-wizard" ] && \
+	git clone https://github.com/LukeSmithxyz/mutt-wizard && cd mutt-wizard && sudo make install && rm -rf mutt-wizard
+
+gpg-generate-password: # (1) primero se debe generar la clave gpg
+	@gpg --full-gen-key
+
+pass-init: # (2) luego creamos una carpeta con `pass` para una clave gpg existente
+	@pass init $(ACCOUNT_GPG)
+
+##################################################################################
+
 install-dev-packages: install-spacemacs preinstall-vscode install-docker
 	@sudo apt update
 	@sudo apt install openssh-server irssi git code gcc clang -y
