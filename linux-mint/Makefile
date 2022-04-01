@@ -10,8 +10,13 @@ ssh-generate-certificate:
 
 ##################################################################################
 
-install-linux-packages: install-mailer gpg-generate-password pass-init
-	@sudo apt install -y yakuake ranger
+install-linux-packages: install-mailer gpg-generate-password pass-init install-lsd
+	@sudo apt install -y yakuake ranger lnav
+
+install-lsd:
+	cd /tmp && \
+	curl -L https://github.com/Peltoche/lsd/releases/download/0.21.0/lsd_0.21.0_amd64.deb > lsd.deb && \
+	sudo dpkg -i lsd.deb
 
 install-mailer:
 	sudo apt install -y curl isync msmtp pass mutt neomutt
@@ -26,9 +31,15 @@ pass-init: # (2) luego creamos una carpeta con `pass` para una clave gpg existen
 
 ##################################################################################
 
-install-dev-packages: install-spacemacs preinstall-vscode install-docker
+create-dotfiles:
+	@mkdir -p ~/dotfiles
+	@cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow .
+#	cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow --adopt -v .
+
+install-dev-packages: install-spacemacs preinstall-vscode install-docker create-dotfiles
 	@sudo apt update
-	@sudo apt install openssh-server irssi git code gcc clang -y
+	@sudo apt install -y openssh-server irssi git code gcc clang stow virtualbox virtualbox-ext-pack
+	@echo "eval $(keychain --eval id_rsa)" >> ~/.bashrc
 
 # https://docs.docker.com/engine/install/ubuntu/
 preinstall-docker:
