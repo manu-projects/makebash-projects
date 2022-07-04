@@ -65,6 +65,9 @@ install-docker: preinstall-docker
 
 # TODO: por el momento no remover el repositorio, porque preguntara por la version de emacs a borrar..
 # luego agregar que borre la 28
+#
+# TODO: si no acepta la clave de servidor de kelleyk/emacs, agregarla
+# con lo sig.: sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key ACA_NUMERO_KEY_QUE_FALLA
 install-emacs:
 	@sudo apt remove --autoremove emacs
 	@sudo add-apt-repository ppa:kelleyk/emacs
