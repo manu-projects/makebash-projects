@@ -75,6 +75,7 @@ install-emacs:
 	@sudo apt install emacs28 -y
 #	@sudo add-apt-repository --remove ppa:kelleyk/emacs
 
+# TODO: chequear el nombre del repositorio si apunta a spacemacs, caso contrario instalar
 install-spacemacs: install-emacs
 	@git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 
