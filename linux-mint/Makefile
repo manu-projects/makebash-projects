@@ -36,7 +36,7 @@ create-dotfiles:
 	@cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow .
 #	cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow --adopt -v .
 
-install-dev-packages: install-spacemacs preinstall-vscode install-docker create-dotfiles
+install-dev-packages: install-spacemacs install-clojure preinstall-vscode install-docker create-dotfiles
 	@sudo apt update
 	@sudo apt install -y openssh-server irssi git code gcc clang stow virtualbox virtualbox-ext-pack
 	@echo "eval $(keychain --eval id_rsa)" >> ~/.bashrc
@@ -79,4 +79,13 @@ preinstall-vscode:
 	@sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
 	@rm -f packages.microsoft.gpg
 
-.PHONY: install-dev-packages preinstall-docker install-docker install-emacs install-spacemacs preinstall-vscode ssh-connect ssh-generate-certificate
+install-clojure:
+# 	1. Clojure CLI tools and common aliases (Additional tools to enhance Clojure development experience)
+		git clone git@github.com:practicalli/clojure-deps-edn.git ~/.clojure/ && \
+# 	2. Clojure CLI tools (Run Clojure REPL for development and production)
+		mkdir -p /tmp && cd /tmp && curl -O https://download.clojure.org/install/linux-install-1.10.3.967.sh && \
+		chmod +x linux-install-1.10.3.967.sh && sudo ./linux-install-1.10.3.967.sh && \
+# 	3. A simple read line for command history, only used by clj
+		sudo apt install -y rlwrap
+
+.PHONY: install-dev-packages preinstall-docker install-docker install-emacs install-spacemacs install-clojure preinstall-vscode ssh-connect ssh-generate-certificate
