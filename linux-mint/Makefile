@@ -91,14 +91,18 @@ preinstall-vscode:
 	@rm -f packages.microsoft.gpg
 
 install-clojure:
-# 	1. Clojure CLI tools and common aliases (Additional tools to enhance Clojure development experience)
-		git clone git@github.com:practicalli/clojure-deps-edn.git ~/.clojure/ && \
-# 	2. Clojure CLI tools (Run Clojure REPL for development and production)
-		mkdir -p /tmp && cd /tmp && curl -O https://download.clojure.org/install/linux-install-1.10.3.967.sh && \
-		chmod +x linux-install-1.10.3.967.sh && sudo ./linux-install-1.10.3.967.sh && \
-# 	3. A simple read line for command history, only used by clj
-		sudo apt install -y rlwrap
-#		4. Leiningen will help you create, build and deploy your Clojure projects.
-		sudo apt install -y leiningen
+# Clojure CLI tools and common aliases (Additional tools to enhance Clojure development experience)
+	$(info Instalando Clojure + Clojure Tools..)
+	@git clone git@github.com:practicalli/clojure-deps-edn.git ~/.clojure/
+
+# Clojure CLI tools (Run Clojure REPL for development and production)
+	@mkdir -p /tmp && cd /tmp && curl -O https://download.clojure.org/install/linux-install-1.10.3.967.sh && \
+	chmod +x linux-install-1.10.3.967.sh && sudo ./linux-install-1.10.3.967.sh
+
+	$(info Instalando paquetes de linux necesarios (rlwrap leinigen)..)
+# A simple read line for command history, only used by clj
+	sudo apt install -y rlwrap
+#	Leiningen will help you create, build and deploy your Clojure projects.
+	sudo apt install -y leiningen
 
 .PHONY: install-dev-packages preinstall-docker install-docker install-emacs install-spacemacs install-clojure preinstall-vscode ssh-connect ssh-generate-certificate
