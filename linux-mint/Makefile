@@ -31,14 +31,15 @@ pass-init: # (2) luego creamos una carpeta con `pass` para una clave gpg existen
 
 ##################################################################################
 
+# TODO: pendiente hasta actualizar dotfiles
 create-dotfiles:
 	@mkdir -p ~/dotfiles
-	@cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow .
+#	@cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow .
 #	cd ~/dotfiles && git clone $(GITHUB_DOTFILES) . && stow --adopt -v .
 
 install-dev-packages: install-spacemacs install-clojure preinstall-vscode install-docker create-dotfiles
 	@sudo apt update
-	@sudo apt install -y openssh-server irssi git code gcc clang stow virtualbox virtualbox-ext-pack
+	@sudo apt install -y neovim openssh-server irssi git code gcc clang stow virtualbox virtualbox-ext-pack
 	@echo "eval $(keychain --eval id_rsa)" >> ~/.bashrc
 
 # https://docs.docker.com/engine/install/ubuntu/
@@ -50,7 +51,10 @@ preinstall-docker:
 # 3. add Docker repository
 	@echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" | sudo tee /etc/apt/sources.list.d/docker.list
 
+# TODO: si usamos live cd de Linux mint cambiar la clave, si no la pedira y fallara la instalacion
+# cambiarla con: passwd mint
 install-docker: preinstall-docker
+	@passwd
 # 1. Install Docker Engine
 	@sudo apt update
 	@sudo apt install -y docker-ce docker-ce-cli containerd.io
@@ -59,12 +63,19 @@ install-docker: preinstall-docker
 # 3. Con `newgrp` habilitamos el cambio de grupo, sin necesidad de hacer `logout`ni `reboot`
 	@newgrp docker
 
+# TODO: por el momento no remover el repositorio, porque preguntara por la version de emacs a borrar..
+# luego agregar que borre la 28
+#
+# TODO: si no acepta la clave de servidor de kelleyk/emacs, agregarla
+# con lo sig.: sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key ACA_NUMERO_KEY_QUE_FALLA
 install-emacs:
+	@sudo apt remove --autoremove emacs
 	@sudo add-apt-repository ppa:kelleyk/emacs
 	@sudo apt update
-	@sudo apt install emacs27 -y
-	@sudo add-apt-repository --remove ppa:kelleyk/emacs
+	@sudo apt install emacs28 -y
+#	@sudo add-apt-repository --remove ppa:kelleyk/emacs
 
+# TODO: chequear el nombre del repositorio si apunta a spacemacs, caso contrario instalar
 install-spacemacs: install-emacs
 	@git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 
