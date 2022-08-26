@@ -105,4 +105,28 @@ install-clojure:
 #	Leiningen will help you create, build and deploy your Clojure projects.
 	sudo apt install -y leiningen
 
-.PHONY: install-dev-packages preinstall-docker install-docker install-emacs install-spacemacs install-clojure preinstall-vscode ssh-connect ssh-generate-certificate
+install-docker-compose:
+	$(info Instalando Docker Compose..)
+# 1. descargamos docker compose
+	cd /tmp && \
+	curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
+# 2. damos permisos de ejecución y movemos al directorio de los ejecutables
+	chmod +x /tmp/docker-compose-linux-x86_64 && sudo mv /tmp/docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+
+# TODO: crear un programming-languages.mk
+install-R-language:
+	sudo apt install r-base
+
+remove-R-language:
+	# removemos el paquete r-base y sus archivos de configuración
+	sudo apt-get purge r-base
+	# removemos paquetes no necesarios y dependencias 
+	sudo apt-get autoremove
+
+install-R-studio:
+	sudo apt-get install gdebi-core
+	cd /tmp && \
+	wget https://download1.rstudio.org/desktop/bionic/amd64/rstudio-2022.02.2-485-amd64.deb && \
+	sudo apt install -f ./rstudio-2022.02.2-485-amd64.deb 
+
+.PHONY: install-dev-packages preinstall-docker install-docker install-docker-compose install-emacs install-spacemacs install-clojure preinstall-vscode ssh-connect ssh-generate-certificate install-R-language remove-R-language install-R-studio
