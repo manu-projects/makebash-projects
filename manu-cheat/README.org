@@ -1,0 +1,32 @@
+#+TITLE: Manu Cheat
+* Intro
+  #+BEGIN_QUOTE
+  Programa sencillo similar al comando ~man~ para crear documentación personalizada
+  de los comandos que más utilices, describiendolo sólo en un archivo .txt
+  #+END_QUOTE
+* Ejemplo
+  #+BEGIN_SRC shell
+    # listará todos los comandos
+    ? help
+
+    # leerá las entradas del archivo ls.txt
+    # con los usos más comunes que hayas escrito
+    ? ls
+
+
+    # leerá las entradas del archivo screen.txt
+    ? screen
+  #+END_SRC
+* Instalación
+  #+BEGIN_SRC shell
+    # se agregará un alias de bash del directorio actual en ~/.bash_aliases
+    # que te permitirá ejecutar el programa en la terminal usando sólo el símbolo de interrogación
+    make init
+  #+END_SRC
+* Configuración
+  #+BEGIN_QUOTE
+  La configuración para documentar un nuevo comando es mínima,
+  creamos un archivo .txt con su nombre y listo.
+
+  Se puede utilizar los .txt ya creados como template
+  #+END_QUOTE
