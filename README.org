@@ -1,0 +1,8 @@
+#+TITLE: Manu Makefiles
+* Motivación
+  #+BEGIN_QUOTE
+  Mi motivación es crear scripts que automatizan tareas sólo cuando aparezca una necesidad,
+  y evitar realizar tareas del tipo repetitivas y tediosas.
+  #+END_QUOTE
+
+  [[file:images/fun-makefile.png]]
