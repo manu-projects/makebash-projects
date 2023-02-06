@@ -1,0 +1,4 @@
+#+TITLE: Manu Simple C Project
+* ¿Para qué sirve?
+  - Crear proyectos simples que utilicen el lenguaje C
+  - Recompila el proyecto cada vez que existan cambios en los archivos ~.c~ y ~.h~
