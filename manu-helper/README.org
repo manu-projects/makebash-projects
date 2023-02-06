@@ -1,20 +1,23 @@
 #+TITLE: Manu Helper
 * Intro
-  #+BEGIN_QUOTE
-  Programa sencillo similar al comando ~man~ para crear una documentación personalizada
-  de los comandos que más utilices en el día a día, describiendolos en un simple archivo .txt
-  pudiendo acceder desde la terminal de forma global con el símbolo ~?~
-  #+END_QUOTE
+** ¿Qué es?
+   - programa sencillo sin tantas dependencias, similar al comando ~man~ para documentar comandos
+   - describe los comandos más utiles en un archivo de texto (/en realidad es .sh pero no hay mucha diferencia/)
+   - accede desde una terminal de forma global con el símbolo ~?~
+** ¿Por qué lo utilizo?
+   - no utilizar ciertos comandos por un tiempo, implíca olvidarse de como usarlos y sus parámetros
+   - resulta tedioso usar ~man comando~ con tantas opciones avanzadas en vez una explicación simple
+   - si no funciona la conexión de red a internet
 * Ejemplo
   #+BEGIN_SRC shell
     # imprimirá un menú de ayuda, opciones de instalación, etc..
     ? help
 
-    # leerá las entradas del archivo ls.org
+    # leerá las entradas del archivo ls.sh
     # con los usos más comunes que hayas escrito
     ? ls
 
-    # leerá las entradas del archivo screen.org
+    # leerá las entradas del archivo screen.sh
     ? screen
   #+END_SRC
 * Instalación y Desinstalación
@@ -30,6 +33,6 @@
 * Configuración
   #+BEGIN_QUOTE
   La configuración para documentar un nuevo comando es mínima
-  1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/~ con la extensión ~.org~
-  2. Listo.! Se pueden utilizar los .org ya creados como template
+  1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/~ con la extensión ~.sh~
+  2. Listo.! Se pueden utilizar los ~.sh~ ya creados como template
   #+END_QUOTE
