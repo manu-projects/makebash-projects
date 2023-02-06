@@ -1,0 +1,10 @@
+#+TITLE: Manu Http Server
+* ¿Qué es?
+  - Simple servidor http que utiliza el paquete npm ~light-server~
+* ¿Para qué sirve?
+  - Ejecutar paquetes npm del proyecto inicializado
+  - Evitar instalar paquetes npm de forma global con -g
+* Requisitos
+  - Requiere tener instalado las siguientes tecnologías
+    1) npm
+    2) nodejs
