@@ -1,3 +1,9 @@
+# contar cantidad de archivos/directorios
+ls | wc -c
+
+# filtrar las entradas del directorio sin usar `grep`
+ls *pdf
+
 # listar archivos ocultos
 ls -la
 
