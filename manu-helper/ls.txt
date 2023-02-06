@@ -1,2 +1,0 @@
-# listar archivos ocultos
-ls -la
