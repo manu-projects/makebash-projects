@@ -1,5 +1,0 @@
-# crear sesión
-screen -S nombre
-
-# listar sesiones
-screen -ls

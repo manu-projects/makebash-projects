@@ -1,8 +1,9 @@
-#+TITLE: Manu Cheat
+#+TITLE: Manu Helper
 * Intro
   #+BEGIN_QUOTE
-  Programa sencillo similar al comando ~man~ para crear documentación personalizada
-  de los comandos que más utilices, describiendolo sólo en un archivo .txt
+  Programa sencillo similar al comando ~man~ para crear una documentación personalizada
+  de los comandos que más utilices en el día a día, describiendolos en un simple archivo .txt
+  pudiendo acceder desde la terminal de forma global con el símbolo ~?~
   #+END_QUOTE
 * Ejemplo
   #+BEGIN_SRC shell
@@ -12,7 +13,6 @@
     # leerá las entradas del archivo ls.txt
     # con los usos más comunes que hayas escrito
     ? ls
-
 
     # leerá las entradas del archivo screen.txt
     ? screen
