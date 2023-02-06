@@ -1,0 +1,27 @@
+#+TITLE: Manu PDF Books
+* ¿Qué es?
+  - Compresor de mútiples archivos ~.pdf~ a un formato ~.tar.gz~
+* ¿Por qué lo utilizo?
+  - Comprimir/Descomprimir múltiples archivos de forma individual con un simple comando
+  - Subir a un repositorio git libros con un alto nivel de compresión (/por default no sube los archivos .pdf sólo los comprimidos/)
+  - Formatear nombre de archivos sin espacios ni mayúsculas
+* ¿Cómo utilizar?
+  #+BEGIN_SRC shell
+    # menú de ayuda con todos los comandos de la aplicación
+    help
+
+    # crea un directorio con un Makefile con las operaciones de la aplicación
+    crear-categoria NAME=nombre
+
+    # remueve espacios y mayúsculas de los nombres de los archivos
+    formatear-archivos
+
+    # lista los archivos por su nombre, ordenados por su tamaño
+    listar-libros
+
+    # comprime cada archivo .pdf de forma individual a un formato .tar.gz
+    comprimir-archivos
+
+    # extrae el .pdf de cada archivok .tar.gz
+    extraer-archivos
+  #+END_SRC
