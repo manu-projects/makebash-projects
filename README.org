@@ -1,8 +1,11 @@
 #+TITLE: Manu Makefiles
+#+NAME: we-love-makefile
+[[file:images/we-love-makefile.png]]
 * Motivación
   #+BEGIN_QUOTE
   Mi motivación es crear scripts que automatizan tareas sólo cuando aparezca una necesidad,
   y evitar realizar tareas del tipo repetitivas y tediosas.
   #+END_QUOTE
 
+  #+NAME: fun-makefile
   [[file:images/fun-makefile.png]]
