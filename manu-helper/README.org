@@ -7,26 +7,29 @@
   #+END_QUOTE
 * Ejemplo
   #+BEGIN_SRC shell
-    # listará todos los comandos
+    # imprimirá un menú de ayuda, opciones de instalación, etc..
     ? help
 
-    # leerá las entradas del archivo ls.txt
+    # leerá las entradas del archivo ls.org
     # con los usos más comunes que hayas escrito
     ? ls
 
-    # leerá las entradas del archivo screen.txt
+    # leerá las entradas del archivo screen.org
     ? screen
   #+END_SRC
-* Instalación
+* Instalación y Desinstalación
   #+BEGIN_SRC shell
     # se agregará un alias de bash del directorio actual en ~/.bash_aliases
     # que te permitirá ejecutar el programa en la terminal usando sólo el símbolo de interrogación
-    make init
+    make install
+
+    # para desinstalar
+    # eliminará el código de ~/.bash_aliases y también el alias vinculada a la shell
+    make remove
   #+END_SRC
 * Configuración
   #+BEGIN_QUOTE
-  La configuración para documentar un nuevo comando es mínima,
-  creamos un archivo .txt con su nombre y listo.
-
-  Se puede utilizar los .txt ya creados como template
+  La configuración para documentar un nuevo comando es mínima
+  1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/~ con la extensión ~.org~
+  2. Listo.! Se pueden utilizar los .org ya creados como template
   #+END_QUOTE
