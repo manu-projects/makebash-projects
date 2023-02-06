@@ -1,12 +1,4 @@
-CURRENT_DIRECTORY = $(shell pwd)
-BASH_ALIASES = ~/.bash_aliases
-BASH_ALIAS=alias ?='make --no-print-directory -C $(CURRENT_DIRECTORY)'
-#BASH_ALIAS=?='make --no-print-directory -C $(CURRENT_DIRECTORY)'
-BASH_ALIAS_ESCAPE_SLASH=$(subst /,\/,$(BASH_ALIAS))
-
-CONFIG_DIRECTORY=.config
-DOC_DIRECTORY=doc
-DOC_EXTENSION=org
+-include .config/Makefile.cfg
 
 DOCUMENTOS=$(wildcard $(DOC_DIRECTORY)/*.$(DOC_EXTENSION))
 COMANDOS= $(notdir $(patsubst %.$(DOC_EXTENSION),%,$(DOCUMENTOS)))
@@ -28,17 +20,20 @@ r remove: ## Remover aplicación Manu-Helper
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(CONFIG_DIRECTORY)/update-bash-aliases
 
-l lista: ## Lista de comandos
+c comandos: ## Lista de comandos
 	@echo 'Lista de comandos'
 	@$(foreach comando,$(COMANDOS), \
 		echo ' -' $(comando);\
 	)
 
 $(COMANDOS):
-	@pygmentize -l sh -P style=rrt $(DOC_DIRECTORY)/$@.$(DOC_EXTENSION)
-#	@cat $@.$(DOC_EXTENSION)
+ifeq (, $(shell which pygmentize))
+	@cat $(DOC_DIRECTORY)/$@.$(DOC_EXTENSION)
+else
+	@pygmentize -l sh -P style=$(PYGMENTIZE_STYLE) $(DOC_DIRECTORY)/$@.$(DOC_EXTENSION)
+endif
 
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install install-utils r remove h help l lista
+.PHONY: i install install-utils r remove h help c comandos
