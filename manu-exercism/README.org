@@ -1,0 +1,3 @@
+#+TITLE: Manu Exercism
+* ¿Para que sirve?
+  - Automatiza la operación de copiar ejercicios del sitio de ~Exercism~ al directorio raíz de tu proyecto de github
