@@ -1,4 +1,5 @@
 #+TITLE: Manu Exercism
+[[file:images/meme-exorcism.png]]
 * ¿Por qué lo utilizo?
   - Configura automáticamente el Workspace de Exercism al directorio del repositorio de github
   - Si cambio de ordenador, me evito configurar a mano el Workspace de Exercism escribiendo la nueva ruta
