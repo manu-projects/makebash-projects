@@ -1,3 +1,20 @@
 #+TITLE: Manu Exercism
-* ¿Para que sirve?
-  - Automatiza la operación de copiar ejercicios del sitio de ~Exercism~ al directorio raíz de tu proyecto de github
+* ¿Por qué lo utilizo?
+  - Configura automáticamente el Workspace de Exercism al directorio del repositorio de github
+  - Si cambio de ordenador, me evito configurar a mano el Workspace de Exercism escribiendo la nueva ruta
+  - Evita usar el nombre por default que asigna Exercism al directorio de ejercicios descargados, puedo elegir dónde
+* Ejemplos de uso
+  #+BEGIN_SRC shell
+    # imprimirá un menú de ayuda, opciones de instalación, etc..
+    help
+
+    # instala el lenguaje Clojure y sus dependencias
+    install-clojure
+
+    # configura el workspace automáticamente en la ruta actual
+    configure-exercism-workspace
+
+    # copia los ejercicios del directorio por default del Workspace de Exercism
+    # a la ruta configurada en Makefile.cfg
+    copy-exercism-exercises
+  #+END_SRC

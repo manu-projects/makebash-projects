@@ -10,7 +10,7 @@ COPY_OPTIONS= --exclude='project.clj' --exclude='HELP.md' \
 	--include='*/' --exclude='*' \
 	--prune-empty-dirs
 
-COPY=rsync -vzr #$(COPY_OPTIONS)
+COPY=rsync -vzr $(COPY_OPTIONS)
 
 DIRECTORIES_EXERCISES_FROM=$(dir $(wildcard $(DIR_EXERCISM_EXERCISES_FROM)/*/))
 
