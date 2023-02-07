@@ -1,5 +1,7 @@
 -include Makefile.cfg
 
+.DEFAULT_GOAL=help
+
 # comandos útiles
 MKDIR=mkdir -p
 
@@ -15,13 +17,14 @@ DIRECTORIES_EXERCISES_FROM=$(dir $(wildcard $(DIR_EXERCISM_EXERCISES_FROM)/*/))
 $(DIR_EXERCISES_TO):
 	@$(MKDIR) $@
 
-configure-exercism-workspace:
+##@ Acciones
+configure-exercism-workspace: ##
 	$(info Configurando el workspace de Exercism para Clojure..)
 	@exercism configure --workspace $(DIR_RELATIVE_ROOT)
 
 # al dejar la ruta como dependencia buscará el target que lo cree si no existiera el directorio,
 # por tanto usará el target que definimos previamente que crea la carpeta
-copy-exercism-exercises: check-directories-exercism $(DIR_EXERCISES_TO)
+copy-exercism-exercises: check-directories-exercism $(DIR_EXERCISES_TO) ##
 	$(info Copiando ejercicios de la carpeta de Exercism al raíz)
 	$(foreach DIR_EXERCISE_FROM, $(DIRECTORIES_EXERCISES_FROM), \
 		$(COPY) $(DIR_EXERCISE_FROM) $(subst $(DIR_EXERCISM_EXERCISES_FROM),$(DIR_EXERCISES_TO),$(DIR_EXERCISE_FROM));\
@@ -41,12 +44,16 @@ download-clojure:
 # TODO: admitir nuevos lenguajes
 # rlwrap, para el historial de comandos, es interno de clj
 # leinigen, para crear los proyectos
-install-clojure: download-clojure
+install-clojure: download-clojure ##
 	$(info Instalando Clojure + Clojure Tools..)
 	 sudo /tmp/$(CLOJURE_INSTALLATION_NAME)
 
 	$(info Instalando paquetes de linux necesarios..)
 	sudo apt install -y rlwrap leinigen
 
+##@ Utilidades
+h help: ## Mostrar menú de ayuda
+	@awk 'BEGIN {FS = ":.*##"; printf "Opciones para usar:\n  make \033[36m\033[0m\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-.PHONY: copy-exercises install-clojure download-clojure configure-exercism-workspace check-directories-exercism
+
+.PHONY: h help copy-exercises install-clojure download-clojure configure-exercism-workspace check-directories-exercism
