@@ -1,0 +1,15 @@
+{
+  "name": "manu-http-server-simple",
+  "version": "1.0.0",
+  "description": "* ¿Qué es?   - Simple servidor http que utiliza el paquete npm ~light-server~ * ¿Para qué sirve?   - Ejecutar paquetes npm del proyecto inicializado   - Evitar instalar paquetes npm de forma global con -g * Requisitos   - Requiere tener instalado las siguientes tecnologías     1) npm     2) nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "light-server": "^2.9.1"
+  }
+}
