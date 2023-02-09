@@ -1,6 +1,6 @@
-#+TITLE: Manu Http Server
+#+TITLE: Manu Http Server Docker
 * ¿Qué es?
-  - Simple servidor http que utiliza el paquete npm ~light-server~
+  - Servidor http
 * ¿Para qué sirve?
   - Ejecutar paquetes npm del proyecto inicializado
   - Evitar instalar paquetes npm de forma global con -g
@@ -8,3 +8,21 @@
   - Requiere tener instalado las siguientes tecnologías
     1) npm
     2) nodejs
+    3) docker
+    4) docker-compose
+* Referencias
+** Referencias Oficiales (npm)
+   1. [[https://docs.npmjs.com/cli/v9/configuring-npm/package-json#engines][package.json engines (docs.npmjs.com)]]
+   2. [[https://docs.npmjs.com/cli/v9/configuring-npm/package-json#dependencies][package.json dependencies (docs.npmjs.com)]]
+   3. [[https://www.npmjs.com/package/node-sass][node-sass (npmjs.com)]]
+   4. [[https://www.npmjs.com/package/light-server][light-server (npmjs.com)]]
+   5. [[https://www.npmjs.com/package/concurrently][concurrently (npmjs.com)]]
+** Referencias Oficiales (docker)
+   1. [[https://www.linuxshelltips.com/install-nodejs-alpine-linux/][13-01-2023, How to install nodejs and npm on alpine linux (linuxshelltips.com)]]
+   2. [[https://nodejs.org/en/docs/guides/nodejs-docker-webapp/][Dockerizing a node.js web app (nodejs.org)]]
+   3. [[https://docs.docker.com/language/nodejs/build-images/][Build your node image (docs.docker.com)]]
+** Referencias Extraoficiales
+   1. [[https://www.stefanjudis.com/today-i-learned/prevent-npm-install-for-not-supported-node-js-versions/#how-to-prevent-%60npm-install%60-with-an-unsupported-node.js-version][19-09-2021, How to prevent npm install with an unsupported Node.js version (stefanjudis.com)]]
+** Referencias Issues
+   1. [[https://stackoverflow.com/questions/37195222/how-to-view-log-output-using-docker-compose-run][10-06-2022, how to view log output using docker-compose run (stackoverflow.com)]]
+   2. [[https://www.janbasktraining.com/community/devops/how-to-rebuild-docker-container-in-docker-composeyml][17-11-2022, How to rebuild docker container in docker-compose.yml (janbasktraining.com)]]

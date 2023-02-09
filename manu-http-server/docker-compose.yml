@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mynodejs:
+    build: .
+    volumes:
+      - type: bind
+        source: ./public
+        target: /usr/src/manu-app
+      - type: bind
+        source: ./node_modules
+        target: /usr/src/manu-app/node_modules
+#      - .:/usr/src/manu-app
+#      - .:/usr/src/manu-app/node_modules
+    ports:
+      - 8000:8000
