@@ -6,15 +6,14 @@ RUN addgroup -S node && \
 
 USER node
 
+# TODO: usar una variable de entorno para las rutas
+WORKDIR /home/user/src/manu-app/public
+COPY --chown=node:node ["public/", "./"]
+
+# TODO: usar una variable de entorno para las rutas
 WORKDIR /home/user/src/manu-app
-
-COPY ["public/", "Makefile", "Makefile.cfg", "npm.mk", "docker.mk", "./"]
-
-RUN pwd
-RUN ls -la .
+COPY --chown=node:node ["Makefile", "Makefile.cfg", "npm.mk", "docker.mk", "./"]
 
 RUN make npm-init
-
-COPY . .
 
 CMD ["make", "npm-run"]
