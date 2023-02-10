@@ -1,5 +1,7 @@
 FROM alpine:3.10
 
+MAINTAINER neverkas
+
 RUN apk add --update make nodejs-current npm
 RUN addgroup -S node && \
     adduser -S node -G node

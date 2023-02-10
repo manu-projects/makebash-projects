@@ -1,5 +1,5 @@
-BIN_HTTP_SERVER = $(NPM_BIN_LOCAL_DIRECTORY)/$(PACKAGE_HTTP_SERVER) $(HTTP_SERVER_PARAMS)
-BIN_NPM_SASS = $(NPM_BIN_LOCAL_DIRECTORY)/$(PACKAGE_CSS_PREPROCESSOR) $(NPM_SASS_PARAMS)
+BIN_HTTP_SERVER = $(NPM_BIN_LOCAL_DIRECTORY)/$(PACKAGE_HTTP_SERVER)
+BIN_CSS_PREPROCESSOR = $(NPM_BIN_LOCAL_DIRECTORY)/$(PACKAGE_CSS_PREPROCESSOR)
 
 ##@ Comandos de NPM
 npm-init: install-npm-packages ## Inicializar proyecto
@@ -11,9 +11,14 @@ ifneq ("$(wildcard $(NPM_BIN_LOCAL_DIRECTORY))", "")
 endif
 
 # Nota: el doble $ es para que NO lo evalué como una macro de GNU Make
-npm-run: check-npm-bin-directory ## Ejecutar Servidor HTTP
-	$(BIN_NPM_SASS) && \
-	$(NPM_BIN_LOCAL_DIRECTORY)/concurrently "$(BIN_HTTP_SERVER)" "$(BIN_NPM_SASS)"
+npm-run: check-npm-bin-directory precompile-scss-files ## Ejecutar Servidor HTTP
+	$(NPM_BIN_LOCAL_DIRECTORY)/concurrently \
+	"$(BIN_HTTP_SERVER) $(HTTP_SERVER_PARAMS)" \
+	"$(BIN_CSS_PREPROCESSOR) $(CSS_PREPROCESSOR_WATCH)"
+
+precompile-scss-files:
+	$(info Compilando archivos .scss a .css)
+	$(BIN_CSS_PREPROCESSOR) $(CSS_PREPROCESSOR_PARAMS)
 
 # Nota: en caso de que el otro target run no funcione
 npm-run-alternative: ## Ejecutar Servidor HTTP (Exportando npm como variable de entorno)
