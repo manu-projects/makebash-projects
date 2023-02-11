@@ -1,15 +1,18 @@
-version: '3'
+version: '3.8'
 services:
-  mynodejs:
-    build: .
+  servidor-http:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      # tty: true # docker run -i
+      # stdin_open: true # docker run -t
     volumes:
-      - .:/usr/src/manu-app
+      # TODO: usar variables para reusar entre los Makefiles y Dockerfile
+      # forma corta de crear el volumen
+      - ./public:/var/www/public
+      # ó podemos crear el mismo tipo volumen más detallado
       # - type: bind
       #   source: ./public
-      #   target: /usr/src/manu-app/public
-      # - type: bind
-      #   source: ./node_modules
-      #   target: /usr/src/manu-app/node_modules
-#      - .:/usr/src/manu-app/node_modules
+      #   target: /var/www/public
     ports:
       - 8000:8000

@@ -2,7 +2,7 @@
 
 # TODO: usar una variable compartida para éste Makefile y en el docker-compose
 # (podría ser una variable de entorno quizás usando export)
-DOCKER_SERVICE=mynodejs
+DOCKER_SERVICE=servidor-http
 
 sh: ## Acceder al contenedor con una terminal interactiva
 	@docker-compose exec -it $(DOCKER_SERVICE) /bin/sh

@@ -16,6 +16,7 @@ npm-run: check-npm-bin-directory precompile-scss-files ## Ejecutar Servidor HTTP
 	"$(BIN_HTTP_SERVER) $(HTTP_SERVER_PARAMS)" \
 	"$(BIN_CSS_PREPROCESSOR) $(CSS_PREPROCESSOR_WATCH)"
 
+# Nota: node-sass no hará el watch de los .scss a menos que primero precompilemos los .scss
 precompile-scss-files:
 	$(info Compilando archivos .scss a .css)
 	$(BIN_CSS_PREPROCESSOR) $(CSS_PREPROCESSOR_PARAMS)
