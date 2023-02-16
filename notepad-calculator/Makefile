@@ -1,4 +1,4 @@
--include Makefile.cfg
+-include config.cfg
 
 .DEFAULT_GOAL=help
 
