@@ -21,8 +21,8 @@ $(TMP_DIR):
 # 1. Removemos los espacios en blanco
 # sed -E 's/[[:space:]]//g'
 #
-# 2. formateamos el texto para Maxima, reemplazando los = por :
-# sed -E 's/([[:alnum:]]+)\=(([[:alnum:]]+[[:punct:]]?[[:alnum:]]*)+)/\1 : \2;/g'
+# 2. formateamos el texto para Maxima, reemplazando los = por : considerando la apertura de paréntesis
+#	sed -E 's/([[:alnum:]]+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \2;/g' \
 #
 # Notas:
 # 1. éste target hace la conversión %.txt en %.mac
@@ -31,7 +31,7 @@ $(TMP_DIR)/%.$(MAXIMA_EXT): %.$(TEXT_EXT)
 	$(info Formateando $< para Maxima..)
 	@cat $< | \
 	sed -E 's/[[:space:]]//g' | \
-	sed -E 's/([[:alnum:]]+)\=(([[:alnum:]]+[[:punct:]]?[[:alnum:]]*)+)/\1 : \2;/g' \
+	sed -E 's/([[:alnum:]]+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \2;/g' \
 	> $@
 
 # Breve explicación sobre como usamos el comando sed con la operación de sustitución
