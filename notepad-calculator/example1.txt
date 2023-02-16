@@ -4,7 +4,6 @@ GP = 10
 X = 10
 M = 10
 stock = 10
-
 PIBapm = C + I + GP - X + M + stock
 
 resultado = PIBapm
