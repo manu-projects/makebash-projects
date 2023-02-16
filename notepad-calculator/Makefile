@@ -20,9 +20,9 @@ $(TMP_DIR):
 $(TMP_DIR)/%.$(MAXIMA_EXT): %.$(TEXT_EXT)
 	$(info Formateando $< para Maxima..)
 	@cat $< | \
-	sed 's/resultado.*$$/print\(&\)/' | \
+	sed 's/$(KEYWORD).*$$/print\(&\)/' | \
 	sed 's/.?*$$/&$$/; s/=/:/' | \
-	sed 's/resultado :/"resultado"\,/' \
+	sed 's/$(KEYWORD):/"$(KEYWORD)"\,/' \
 	> $@
 
 # con la opción --very-quiet no se imprimen los simbolos de input/output %i %o
@@ -33,7 +33,7 @@ $(RESUELTOS_DIR)/%.$(TEXT_EXT): $(TMP_DIR)/%.$(MAXIMA_EXT)
 	sed '/read and interpret .*$$/d' | \
 	sed '/.*\.$(MAXIMA_EXT)$$/d' | \
 	sed '/print.*$$/d' | \
-	sed 's/resultado /resultado = /' | \
+	sed 's/$(KEYWORD)/$(KEYWORD) = /' | \
 	sed '/^$$/d; s/:/ = /' \
 	> $@ && echo "Finalizó el análisis de $<"
 
