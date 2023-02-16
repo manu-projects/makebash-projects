@@ -7,7 +7,7 @@ TMP_DIR=.tmp
 TEXT_FILES=$(wildcard *.$(TEXT_EXT))
 TEXT_FILES_RESUELTOS=$(addprefix $(RESUELTOS_DIR)/,$(TEXT_FILES))
 
-MAXIMA_FILES=$(TEXT_FILES:.txt=.mac)
+MAXIMA_FILES=$(TEXT_FILES:.$(TEXT_EXT)=.$(MAXIMA_EXT))
 MAXIMA_FILES_TMP=$(addprefix $(TMP_DIR)/, $(MAXIMA_FILES))
 
 ##@ Comandos
