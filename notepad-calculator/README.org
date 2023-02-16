@@ -3,9 +3,27 @@
   - Programa que analiza y resuelve operaciones ariméticas de archivos de texto plano con el programa ~Maxima~
   - Los archivos de texto se mantienen inmutables (no se alteran/modifican), son resueltos en un directorio ~resueltos/~
 * ¿Para qué sirve?
-  - Resolver operaciones ariméticas simples de múltiples archivos con un sólo un comando ~make run~
+  - Resolver operaciones ariméticas simples de múltiples archivos con un sólo un comando
   - Declarar variables con operaciones ariméticas de forma sencilla con ~interes = (1 + 100 * 50) ^ 1~
-  - Declarar variables con valores  ~saldo = 5000~ ó también reutilizar otras variables ~saldo = inicial + 500~
+  - Declarar variables con valores ~saldo = 5000~ ó también reutilizar otras variables ~saldo = inicial + 500~
+* ¿Cuáles son las ventajas?
+  1) No requiere aprender lenguajes de programación
+  2) No requiere definir tipo de variables, ni tampoco símbolos especiales
+  3) Un sólo archivo de configuración ~config.cfg~
+* Ejemplo de Uso
+  #+BEGIN_SRC shell
+    # muestra un menú de ayuda
+    make help
+
+    # resuelve todos los archivos de texto del directorio raíz
+    make resolver-archivos
+
+    # lista los archivos por nombre, tamaño y fecha+hora de actualización
+    make lista-archivos-resueltos
+
+    # elimina los archivos resueltos
+    make clean
+  #+END_SRC
 * Requisitos
   - Maxima
 * Referencias (programa Maxima y otros)
@@ -16,13 +34,21 @@
    2. [[http://waltereastes.com/maximabatch.html][Running Maxima Non-Interactively (by Walter Eastes)]]
    3. [[https://phoenixnap.com/kb/bash-math][Bash Math Operations (phoenixnap.com)]]
    4. [[https://www.freecodecamp.org/news/solve-your-math-equation-on-terminal/][How to use your linux terminal as a calculator (Arunachalam B, freecodecamp.org)]]
-* Referencias (comando sed y awk)
+* Referencias (comandos sed + awk)
 ** Referencias Oficiales
    2. [[https://www.gnu.org/software/sed/manual/html_node/Character-Classes-and-Bracket-Expressions.html][Character Classes and Bracket Expressions with sed (gnu.org)]]
    3. [[https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html][Regular expressions with sed which is a stream editor (gnu.org)]]
 ** Referencias Extraoficiales
-   1. [[https://linuxhint.com/sed-capture-group-examples/][Sed examples of capture groups (linuxhint.com)]]
-   2. [[https://www.tutorialspoint.com/unix/unix-regular-expressions.htm][Unix/Linux Regular Expressions with SED (tutorialspoint.com)]]
-   3. [[https://lzone.de/cheat-sheet/sed][sed Cheat Sheet (lzone.de)]]
-   4. [[https://www.cyberciti.biz/faq/using-sed-to-delete-empty-lines/][How to delete empty lines using sed command under Linux (cyberciti.biz)]]
-   5. [[https://www.usessionbuddy.com/post/Awk-Cheatsheet-And-Examples/][Awk cheatsheet and examples (usesessionbuddy.com)]]
+   1. [[https://www.regular-expressions.info/books.html][Books about Regular Expressions (regular-expressions.info)]]
+   2. [[https://linuxhint.com/sed-capture-group-examples/][Sed examples of capture groups (linuxhint.com)]]
+   3. [[https://linuxhint.com/awk_print_last_column_file/][Using the awk command to print the last column from a file (linuxhint.com)]]
+   4. [[https://www.sqlpac.com/en/documents/unix-linux-awk-utilities-tutorial.html][awk, naw and gawk utilities (sqlpac.com)]]
+   5. [[https://www.tutorialspoint.com/unix/unix-regular-expressions.htm][Unix/Linux Regular Expressions with SED (tutorialspoint.com)]]
+   6. [[https://lzone.de/cheat-sheet/sed][sed Cheat Sheet (lzone.de)]]
+   7. [[https://www.cyberciti.biz/faq/using-sed-to-delete-empty-lines/][How to delete empty lines using sed command under Linux (cyberciti.biz)]]
+   8. [[https://www.usessionbuddy.com/post/Awk-Cheatsheet-And-Examples/][Awk cheatsheet and examples (usesessionbuddy.com)]]
+   9. [[https://www.baeldung.com/linux/awk-nawk-gawk-mawk-difference][Difference between awk, nawk, gawk and mawk (baeldung.com)]]
+** Referencias Issues
+   1. [[https://unix.stackexchange.com/questions/226206/how-to-add-a-header-and-or-footer-to-a-sed-or-awk-stream][How to add a header and/or footer to a sed or awk stream? (unix.stackexchange.com)]]
+* Otras Referencias
+  1. [[https://explainshell.com/explain?cmd=ls+-lth+*.txt+%7C+nawk+%27BEGIN%7Bprint+%22%23+Nombre%22%7D+%7Bprint+NR%2C+%24NF%7D%27+%7C+column+-t][ls + nawk + column (explainshell.com)]]
