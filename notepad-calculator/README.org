@@ -8,3 +8,11 @@
   - Resuelve y actualiza las operaciones sobre las variables que llamemos ~resultado~
 * Requisitos
   - Maxima
+* Referencias
+** Referencias Oficiales
+   1. [[https://maxima.sourceforge.io/docs/manual/maxima_8.html][Functions and Variables for command line (maxima.sourceforge.io)]]
+** Referencias Extraoficiales
+   1. [[https://home.csulb.edu/~woollett/mbe.html][Maxima by example (by Tedwoollett)]]
+   2. [[http://waltereastes.com/maximabatch.html][Running Maxima Non-Interactively (by Walter Eastes)]]
+   3. [[https://phoenixnap.com/kb/bash-math][Bash Math Operations (phoenixnap.com)]]
+   4. [[https://www.freecodecamp.org/news/solve-your-math-equation-on-terminal/][How to use your linux terminal as a calculator (Arunachalam B, freecodecamp.org)]]
