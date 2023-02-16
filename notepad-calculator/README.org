@@ -1,0 +1,10 @@
+#+TITLE: Notepad Calculator
+* ¿Qué es?
+  - Programa que analiza y resuelve operaciones ariméticas de archivos de texto plano con el programa ~Maxima~
+  - Los archivos de texto se mantienen inmutables pero son resueltos en un directorio ~resueltos/~
+* ¿Para qué sirve?
+  - Resolver múltiples archivos con un sólo un comando ~make run~
+  - Declarar variables con operaciones ariméticas de forma sencilla
+  - Resuelve y actualiza las operaciones sobre las variables que llamemos ~resultado~
+* Requisitos
+  - Maxima

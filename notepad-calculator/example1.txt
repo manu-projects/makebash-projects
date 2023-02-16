@@ -5,7 +5,6 @@ X = 10
 M = 10
 stock = 10
 
-SBC = X-M
-PIBapm = C + I + GP + X + M + stock
+PIBapm = C + I + GP - X + M + stock
 
 resultado = PIBapm

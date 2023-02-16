@@ -6,6 +6,8 @@ M = 500
 stock = 500
 
 SBC = X-M
-PIBapm = C + I + GP + X - M + stock
+PIBapm = C + I + GP + SBC + stock
 
 resultado = PIBapm
+
+resultado = 2*1
