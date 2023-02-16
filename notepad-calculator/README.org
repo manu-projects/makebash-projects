@@ -1,14 +1,14 @@
 #+TITLE: Notepad Calculator
 * ¿Qué es?
   - Programa que analiza y resuelve operaciones ariméticas de archivos de texto plano con el programa ~Maxima~
-  - Los archivos de texto se mantienen inmutables pero son resueltos en un directorio ~resueltos/~
+  - Los archivos de texto se mantienen inmutables (no se alteran/modifican), son resueltos en un directorio ~resueltos/~
 * ¿Para qué sirve?
-  - Resolver múltiples archivos con un sólo un comando ~make run~
-  - Declarar variables con operaciones ariméticas de forma sencilla
-  - Resuelve y actualiza las operaciones sobre las variables que llamemos ~resultado~
+  - Resolver operaciones ariméticas simples de múltiples archivos con un sólo un comando ~make run~
+  - Declarar variables con operaciones ariméticas de forma sencilla con ~interes = (1 + 100 * 50) ^ 1~
+  - Declarar variables con valores  ~saldo = 5000~ ó también reutilizar otras variables ~saldo = inicial + 500~
 * Requisitos
   - Maxima
-* Referencias
+* Referencias (programa Maxima y otros)
 ** Referencias Oficiales
    1. [[https://maxima.sourceforge.io/docs/manual/maxima_8.html][Functions and Variables for command line (maxima.sourceforge.io)]]
 ** Referencias Extraoficiales
@@ -16,3 +16,13 @@
    2. [[http://waltereastes.com/maximabatch.html][Running Maxima Non-Interactively (by Walter Eastes)]]
    3. [[https://phoenixnap.com/kb/bash-math][Bash Math Operations (phoenixnap.com)]]
    4. [[https://www.freecodecamp.org/news/solve-your-math-equation-on-terminal/][How to use your linux terminal as a calculator (Arunachalam B, freecodecamp.org)]]
+* Referencias (comando sed y awk)
+** Referencias Oficiales
+   2. [[https://www.gnu.org/software/sed/manual/html_node/Character-Classes-and-Bracket-Expressions.html][Character Classes and Bracket Expressions with sed (gnu.org)]]
+   3. [[https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html][Regular expressions with sed which is a stream editor (gnu.org)]]
+** Referencias Extraoficiales
+   1. [[https://linuxhint.com/sed-capture-group-examples/][Sed examples of capture groups (linuxhint.com)]]
+   2. [[https://www.tutorialspoint.com/unix/unix-regular-expressions.htm][Unix/Linux Regular Expressions with SED (tutorialspoint.com)]]
+   3. [[https://lzone.de/cheat-sheet/sed][sed Cheat Sheet (lzone.de)]]
+   4. [[https://www.cyberciti.biz/faq/using-sed-to-delete-empty-lines/][How to delete empty lines using sed command under Linux (cyberciti.biz)]]
+   5. [[https://www.usessionbuddy.com/post/Awk-Cheatsheet-And-Examples/][Awk cheatsheet and examples (usesessionbuddy.com)]]
