@@ -1,0 +1,11 @@
+C = 10
+I = 10
+GP = 10
+X = 2
+M = 500
+stock = 500
+
+SBC = X-M
+PIBapm = C + I + GP + X - M + stock
+
+resultado = PIBapm
