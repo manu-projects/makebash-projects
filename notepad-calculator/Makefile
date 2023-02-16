@@ -11,7 +11,20 @@ MAXIMA_FILES=$(TEXT_FILES:.$(TEXT_EXT)=.$(MAXIMA_EXT))
 MAXIMA_FILES_TMP=$(addprefix $(TMP_DIR)/, $(MAXIMA_FILES))
 
 ##@ Comandos
-run: formatear-textos analizar-textos ## Formatea y analiza todos los textos
+resolver-archivos: formatear-textos analizar-textos ## Formatea y analiza todos los textos
+	@echo "Archivos resueltos!"
+
+# Notas:
+# 1. las columnas que imprime la función PRINT del comando AWK sólo necesitan un símbolo $ como prefijo
+# 2. en GNU Make necesitamos escapar el $ con otro $ delante quedando $$ para que lo tome como caracter en vez de una macro
+lista-archivos-resueltos: ##
+ifeq ("$(wildcard $(RESUELTOS_DIR)/*.$(TEXT_EXT))", "")
+	@echo "No hay archivos resueltos.."
+else
+	@ls -lth --time-style=long-iso $(RESUELTOS_DIR)/*.$(TEXT_EXT) | \
+	nawk 'BEGIN{print "# Nombre Tamaño Fecha Hora"} {print NR, $$NF, $$5, $$6, $$7}' | \
+	column -t
+endif
 
 $(TMP_DIR):
 	@mkdir -p $@
@@ -65,10 +78,10 @@ $(RESUELTOS_DIR)/%.$(TEXT_EXT): $(TMP_DIR)/%.$(MAXIMA_EXT)
 	> $@ && echo "Finalizó el análisis de $<"
 
 formatear-textos: $(TMP_DIR) $(MAXIMA_FILES_TMP)
-	@echo "Textos formateados"
+	@echo "Textos formateados!"
 
 analizar-textos: $(TEXT_FILES_RESUELTOS)
-	@echo "Textos analizados"
+	@echo "Textos analizados!"
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
@@ -78,4 +91,4 @@ clean: ## Remover archivos resueltos
 	@-rm -rvf $(RESUELTOS_DIR)/*.$(TEXT_EXT)
 	@-rm -rf $(TMP_DIR)/*.$(MAXIMA_EXT)
 
-.PHONY: run clean formatear-textos analizar-textos
+.PHONY: run clean formatear-textos analizar-textos resolver-archivos lista-archivos-resueltos
