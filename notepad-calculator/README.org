@@ -4,12 +4,13 @@
   - Los archivos de texto se mantienen inmutables (no se alteran/modifican), son resueltos en un directorio ~resueltos/~
 * ¿Para qué sirve?
   - Resolver operaciones ariméticas simples de múltiples archivos con un sólo un comando
-  - Declarar variables con operaciones ariméticas de forma sencilla con ~interes = (1 + 100 * 50) ^ 1~
-  - Declarar variables con valores ~saldo = 5000~ ó también reutilizar otras variables ~saldo = inicial + 500~
+  - Declarar variables con operaciones ariméticas de forma sencilla como ~capital_con_interes_compuesto = 5000 * (1 + 0.20) ^ 2~
+  - Declarar variables con valores ~capital_invertido=5000~ ó también reutilizar otras variables ~interes_compuesto= capital_invertido * (1 + tasa_interes)^periodo_ahorro~
 * ¿Cuáles son las ventajas?
-  1) No requiere aprender lenguajes de programación
-  2) No requiere definir tipo de variables, ni tampoco símbolos especiales
+  1) No requiere aprender lenguajes de programación, sólo escribir nombres y sus operaciones asociadas
+  2) No requiere definir tipo de variables ó llamado a funciones ó formas particulares para operar
   3) Un sólo archivo de configuración ~config.cfg~
+  4) El poder de cáculo de de un programa específico de matemática llamado ~Maxima~
 * Ejemplo de Uso
   #+BEGIN_SRC shell
     # muestra un menú de ayuda
@@ -50,5 +51,8 @@
    9. [[https://www.baeldung.com/linux/awk-nawk-gawk-mawk-difference][Difference between awk, nawk, gawk and mawk (baeldung.com)]]
 ** Referencias Issues
    1. [[https://unix.stackexchange.com/questions/226206/how-to-add-a-header-and-or-footer-to-a-sed-or-awk-stream][How to add a header and/or footer to a sed or awk stream? (unix.stackexchange.com)]]
+   2. [[https://unix.stackexchange.com/questions/315188/how-to-set-ls-lh-with-time-and-long-date-format-in-descending-order-in-bashrc][how to set ls -lh with time and long date format (unix.stackexchange.com)]]
+   3. [[https://stackoverflow.com/questions/28510228/formatting-ls-output-without-tab-using-awk][formatting ls output without tab using awk? (stackoverflow.com)]]
+   4. [[https://stackoverflow.com/questions/25588755/list-files-based-on-multiple-search-criteria][List files based on multiple search criteria (stackoverflow.com)]]
 * Otras Referencias
   1. [[https://explainshell.com/explain?cmd=ls+-lth+*.txt+%7C+nawk+%27BEGIN%7Bprint+%22%23+Nombre%22%7D+%7Bprint+NR%2C+%24NF%7D%27+%7C+column+-t][ls + nawk + column (explainshell.com)]]
