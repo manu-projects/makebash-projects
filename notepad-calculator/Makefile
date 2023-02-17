@@ -34,8 +34,11 @@ $(TMP_DIR):
 # 1. Removemos los espacios en blanco
 # sed -E 's/[[:space:]]//g'
 #
-# 2. formateamos el texto para Maxima, reemplazando los = por : considerando la apertura de paréntesis
-#	sed -E 's/([[:alnum:]]+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \2;/g' \
+# 2. formateamos el texto para Maxima
+# 2.1 reemplazando los = por :
+# 2.2 considerando las variables como la primer palabra de cada linea y que pueden incluir el símbolo _
+# 2.3 considerando que las operaciones con apertura de paréntesis
+#	sed -E 's/^(([[:alnum:]]|\_)+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \3;/g' \
 #
 # Notas:
 # 1. éste target hace la conversión %.txt en %.mac
@@ -44,8 +47,9 @@ $(TMP_DIR)/%.$(MAXIMA_EXT): %.$(TEXT_EXT)
 	$(info Formateando $< para Maxima..)
 	@cat $< | \
 	sed -E 's/[[:space:]]//g' | \
-	sed -E 's/([[:alnum:]]+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \2;/g' \
+	sed -E 's/^(([[:alnum:]]|\_)+)\=((([[:alnum:]]|\()+[[:punct:]]*[[:alnum:]]*)+)/\1 : \3;/g' \
 	> $@
+
 
 # Breve explicación sobre como usamos el comando sed con la operación de sustitución
 #
@@ -55,7 +59,9 @@ $(TMP_DIR)/%.$(MAXIMA_EXT): %.$(TEXT_EXT)
 # 2. Removemos los espacios en blanco
 # sed -E 's/[[:space:]]//g'
 #
-# 2. Formateamos el texto que entiende Maxima por algo más común, reemplazando los : por =
+# 3. Formateamos el texto que entiende Maxima por algo más común
+# 3.1 reemplazando los : por =
+# 3.2 y las mismas consideraciones que en la conversión de %.mac a %.txt
 # sed -E 's/\(\%i.{1,3}\)([[:alnum:]]+)\:(([[:alnum:]]+[[:punct:]]*)*)(\n)/\1 = /g'
 #
 # 4. Capturamos los resultados, removiendo (%o) y el espacio en blanco, capturar sólo el resultado a la derecha
@@ -65,14 +71,14 @@ $(TMP_DIR)/%.$(MAXIMA_EXT): %.$(TEXT_EXT)
 #	sed -E '/^[[:space:]]*$$/d'
 #
 # Notas:
-# 1. éste target hace la conversión %.txt en %.mac
+# 1. éste target hace la conversión %.mac en %.txt
 # 2. con la opción --very-quiet no se imprimen los simbolos de input/output %i %o pero justamente los necesitamos
 $(RESUELTOS_DIR)/%.$(TEXT_EXT): $(TMP_DIR)/%.$(MAXIMA_EXT)
 	$(info Analizando $< con Maxima..)
 	@maxima --quiet --batch=$< | \
 	sed '/batch.*$$/d; /read and interpret .*$$/d; /.*\.$(MAXIMA_EXT)$$/d' | \
 	sed -E 's/[[:space:]]//g' | \
-	sed -E -z 's/\(\%i.{1,3}\)([[:alnum:]]+)\:(([[:alnum:]]+[[:punct:]]*)*)(\n)/\1 = /g' | \
+	sed -E -z 's/\(\%i.{1,3}\)(([[:alnum:]]|\_)+)\:(([[:alnum:]]+[[:punct:]]*)*)(\n)/\1 = /g' | \
 	sed -E 's/\(\%o.{1,3}\)([0-9]*)/\1/g' | \
 	sed -E '/^[[:space:]]*$$/d' \
 	> $@ && echo "Finalizó el análisis de $<"

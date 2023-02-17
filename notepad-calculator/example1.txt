@@ -3,7 +3,9 @@ I = (2^4)+(10+2)+3
 GP = 10
 X = 10
 M = 10
-stock = 10
-PIBapm = C + I + GP - X + M + stock
+stock_inicial=50
+stock_final = 20+5
+variacion_stock=stock_inicial-stock_final
+PIBapm = C + I + GP - X + M + variacion_stock
 
 resultado = PIBapm
