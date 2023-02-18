@@ -5,14 +5,14 @@
 # 2. $< es una macro especial que toma la primer dependencia de la regla
 %.$(COMPRESSED_FILE_EXTENSION): %.$(BOOK_EXTENSION)
 	@echo "Comprimiendo $* en $@ .."
-	$(TAR_COMPRESS) $@ $<
+	@$(TAR_COMPRESS) $@ $<
 
 # IMPORTANTE:
 # %.pdf: %.tar.gz genería una dependencia circular con %.tar.gz: %.pdf
 #%.pdf:
 %.$(BOOK_EXTENSION):
 	$(info Extrayendo $< $*.)
-	$(TAR_EXTRACT) $*.$(COMPRESSED_FILE_EXTENSION)
+	@$(TAR_EXTRACT) $*.$(COMPRESSED_FILE_EXTENSION)
 
 # IMPORTANTE:
 # 1. Es común pensar de forma algorítmica, iterar sobre una lista de nombres de libros
