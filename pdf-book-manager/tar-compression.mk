@@ -27,7 +27,7 @@
 #		$(foreach libro, $(libros),\
 #		tar -cvzf $(libro).tar.gz $(libro);)
 
-comprimir-archivos: renombrar-archivos $(libros_comprimidos) ##
+comprimir-archivos: $(libros_comprimidos) ##
 	@echo "Listo! archivos comprimidos!"
 
 extraer-archivos: $(archivos_descomprimidos) ##
