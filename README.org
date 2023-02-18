@@ -3,9 +3,18 @@
 [[file:images/we-love-makefile.png]]
 * Motivación
   #+BEGIN_QUOTE
-  Mi motivación es crear scripts que automatizan tareas sólo cuando aparezca una necesidad,
-  y evitar realizar tareas del tipo repetitivas y tediosas.
+  Mi motivación es la automatización de entornos de desarrollo
+  y algunas pequeñas aplicaciones con GNU Make.!
+
+  GNU Make no es sólo una herramienta para automatizar el compilado de programas en C :)
+  es también un lenguaje de programación, dale una oportunidad :D
   #+END_QUOTE
 
   #+NAME: fun-makefile
   [[file:images/fun-makefile.png]]
+* Libros Referentes
+  1. Managing Projects with GNU Make: The Power of GNU Make for Building Anything 3rd Edition
+  2. The GNU Make Book 1st edition by Graham-Cumming, John Paperback
+* Referencias
+** Referencias Oficiales
+   1. [[https://www.gnu.org/software/make/manual/make.pdf][GNU Make Manual (gnu.org)]]
