@@ -9,8 +9,6 @@ MAKEFILE_DEPTH=1
 libros = $(wildcard *.$(BOOK_EXTENSION))
 archivos= $(wildcard *.$(COMPRESSED_FILE_EXTENSION))
 
-# Nota:
-# - Alternativa de sustitución con la función patsubst por ejemplo $(patsubst %.pdf, %.tar.gz, $(libros))
 libros_comprimidos = $(libros:.$(BOOK_EXTENSION)=.$(COMPRESSED_FILE_EXTENSION))
 archivos_descomprimidos = $(archivos:.$(COMPRESSED_FILE_EXTENSION)=.$(BOOK_EXTENSION))
 
@@ -29,13 +27,6 @@ crear-categoria: ## Ex. make crear-categoria NAME=topologias-de-red
 	@$(MKDIR) $(NAME) && \
 	cp .template.mk $(NAME)/Makefile
 
-# Notas:
-# 1. Para listar archivos con misma extensión de múltiples directorios podemos usar el comando ls pasandole ambas rutas
-# por ejemplo ls ruta/*.extension otra-ruta/*.extension
-#
-# 2. Si el comando ls no encuentra el archivo ó patrón pasado por parámetro, lanzará un mensaje al file descriptor 2 STDERR
-# 3. Ocutamos los mensajes de error de ls, redireccionando los mensajes que el comando ls envía al fd 2 stderr al dispositivo nulo /dev/null
-# con el operador de redirección > por ejemplo ls /pupi 2>/dev/null
 listar-libros: ##
 	@$(LS) *.$(BOOK_EXTENSION) */*.$(BOOK_EXTENSION) $(STD_ERR)>$(NULL_DEVICE) | \
 	$(NAWK_LIBROS) | $(COLUMN)
