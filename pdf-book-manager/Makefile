@@ -27,6 +27,9 @@ crear-categoria: ## Ex. make crear-categoria NAME=topologias-de-red
 	@$(MKDIR) $(NAME) && \
 	cp .template.mk $(NAME)/Makefile
 
+descargar: ## Ej. make descargar URL=http://ruta/archivo.pdf
+	@curl -O $(URL)
+
 listar-libros: ##
 	@$(LS) *.$(BOOK_EXTENSION) */*.$(BOOK_EXTENSION) $(STD_ERR)>$(NULL_DEVICE) | \
 	$(NAWK_LIBROS) | $(COLUMN)
