@@ -26,6 +26,7 @@ c comandos: ## Lista de comandos
 		echo ' -' $(comando);\
 	)
 
+
 $(COMANDOS):
 ifeq (, $(shell which pygmentize))
 	@cat $(DOC_DIRECTORY)/$@.$(DOC_EXTENSION)
