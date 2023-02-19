@@ -11,12 +11,14 @@ install-utils:
 	@pip install pygments
 #	sudo apt install -y highlight
 
-i install: install-utils ## Instalar aplicación Manu-Helper
+ri re-install: remove install
+
+i install: install-utils ## Instalar aplicación
 	@echo "$(BASH_ALIAS)" >> $(BASH_ALIASES) && \
 	chmod u+x $(CONFIG_DIRECTORY)/update-bash-aliases && \
 	$(CONFIG_DIRECTORY)/update-bash-aliases
 
-r remove: ## Remover aplicación Manu-Helper
+r remove: ## Remover aplicación
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(CONFIG_DIRECTORY)/update-bash-aliases
 
@@ -26,7 +28,7 @@ c comandos: ## Lista de comandos
 		echo ' -' $(comando);\
 	)
 
-
+# TODO: parámetros de pygmentize como macro en un archivo de configuración
 $(COMANDOS):
 ifeq (, $(shell which pygmentize))
 	@cat $(DOC_DIRECTORY)/$@.$(DOC_EXTENSION)
@@ -37,4 +39,4 @@ endif
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install install-utils r remove h help c comandos
+.PHONY: i install ri re-install install-utils r remove h help c comandos
