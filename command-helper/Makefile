@@ -2,9 +2,11 @@
 -include config.cfg
 
 DOC_COMANDOS = $(wildcard $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
+DOC_SHORTCUTS = $(wildcard $(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
 # Nota: $(patsubst pattern, replacement, text)
-COMANDOS= $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
+COMANDOS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
+SHORTCUTS = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS)))
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
@@ -31,10 +33,26 @@ c comandos: ## Lista de comandos
 		echo ' -' $(comando);\
 	)
 
+# TODO: agregar en la lista de comandos si tiene shortcut
+s shortcuts: ## Lista de shortcuts
+	@echo 'Lista de shortcuts'
+	@$(foreach shortcut,$(SHORTCUTS), \
+		echo ' -' $(shortcut);\
+	)
+
+# TODO: personalizar header del comando bat
+# TODO: evitar lógica repetida de las ramificaciones del if-else
+# TODO: no se puede validar la existencia del archivo con el ifeq y la macro $@ porque
+# (interpreto ifeq no valida en tiempo de ejecución)
 $(COMANDOS):
-	@bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION)
+	@if [ -s $(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
+		bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
+		$(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
+	else \
+		bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+	fi;
 
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help c comandos
+.PHONY: i install ri re-install install-utils r remove h help c comandos s shortcuts
