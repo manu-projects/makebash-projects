@@ -1,4 +1,4 @@
-# Atajos Simples
+#+NAME: Atajos Simples
 | Atajo    | Descripción                                                     |
 |----------+-----------------------------------------------------------------|
 | Ctrl a : | Permite escribir el nombre del atajo similar a editor vim       |
@@ -8,8 +8,7 @@
 | Ctrl a x | Bloquea la sesión actual (requiere clave de la sesión de linux) |
 | Ctrl a \ | Cierra todas las ventanas de la sesión actual                   |
 
-# Atajos Extra
-# (Si queremos manejar múltiples ventanas en la misma terminal)
+#+NAME:Atajos si queremos manejar múltiples ventanas en la misma terminal
 | Atajo      | Descripción                                                    |
 |------------+----------------------------------------------------------------|
 | Ctrl a     | Dividir la terminal verticalmente                              |
