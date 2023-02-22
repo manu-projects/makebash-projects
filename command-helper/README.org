@@ -17,7 +17,7 @@
     # con los usos más comunes que hayas escrito
     ? ls
 
-    # leerá las entradas del archivo doc/commands/screen.sh y también doc/shortcuts/screen.org (si los tuviera)
+    # leerá las entradas del archivo doc/linux-shell/commands/screen.sh y también doc/linux-shell/shortcuts/screen.org (si los tuviera)
     ? screen
   #+END_SRC
 * Instalación y Desinstalación
@@ -32,8 +32,10 @@
   #+END_SRC
 * Configuración
   #+BEGIN_QUOTE
-  La configuración para documentar un nuevo comando es mínima
-  1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/commands/~ con la extensión ~.sh~
-  2. También podemos crear una tabla de los shortcuts del comando en ~doc/shortcuts/~ con la extensión ~.org~
+  La configuración para documentar un nuevo comando de la terminal de linux es mínima
+  1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/linux-shell/commands/~ con la extensión ~.sh~
+  2. También podemos crear una tabla de los shortcuts del comando en ~doc/linux-shell/shortcuts/~ con la extensión ~.org~
   3. Listo! podemos reutilizar los archivos creados como template
+
+  Documentar comandos de aplicaciones es lo mismo, pero usamos el directorio ~doc/applications/commands~ y ~doc/applications/shortcuts/~
   #+END_QUOTE
