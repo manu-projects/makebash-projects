@@ -11,25 +11,9 @@ COMANDOS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
 # Nota: $(filter-out pattern, text)
 COMANDOS_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS),$(COMANDOS))
 
-##@ Utilidades
-h help: ## Mostrar menú de ayuda
-	@awk 'BEGIN {FS = ":.*##"; printf "\nOpciones para usar:\n  make \033[36m\033[0m\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+.DEFAULT_GOAL=help
 
-install-utils:
-	@sudo aptitude install -y bat
-
-ri re-install: remove install
-
-i install: install-utils ## Instalar aplicación
-	@echo "$(BASH_ALIAS)" >> $(BASH_ALIASES) && \
-	chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases && \
-	$(UTILS_DIRECTORY)/update-bash-aliases
-
-# TODO: chequear patrón de sustitución
-r remove: ## Remover aplicación
-	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
-	$(UTILS_DIRECTORY)/update-bash-aliases
-
+##@ Acciones
 c commands: listado-comandos listado-comandos-con-shortcuts ## Listado de Comandos documentados
 
 listado-comandos:
@@ -56,6 +40,26 @@ $(COMANDOS):
 	else \
 		bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
 	fi;
+
+##@ Utilidades
+h help: ## Mostrar menú de ayuda
+	@awk 'BEGIN {FS = ":.*##"; printf "\nOpciones para usar:\n  make \033[36m\033[0m\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+install-utils:
+	@sudo aptitude install -y bat
+
+ri re-install: remove install
+
+i install: install-utils ## Instalar aplicación
+	@echo "$(BASH_ALIAS)" >> $(BASH_ALIASES) && \
+	chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases && \
+	$(UTILS_DIRECTORY)/update-bash-aliases
+
+# TODO: chequear patrón de sustitución
+r remove: ## Remover aplicación
+	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
+	$(UTILS_DIRECTORY)/update-bash-aliases
+
 
 %:
 	$(error NO existe el comando)
