@@ -30,7 +30,7 @@ r remove: ## Remover aplicación
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(UTILS_DIRECTORY)/update-bash-aliases
 
-c comandos: listado-comandos listado-comandos-con-shortcuts ## Listado de Comandos documentados
+c commands: listado-comandos listado-comandos-con-shortcuts ## Listado de Comandos documentados
 
 listado-comandos:
 	@echo 'Lista de Comandos'
@@ -60,4 +60,4 @@ $(COMANDOS):
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help c comandos s shortcuts listado-comandos listado-comandos-con-shortcuts
+.PHONY: i install ri re-install install-utils r remove h help c commands s shortcuts listado-comandos listado-comandos-con-shortcuts
