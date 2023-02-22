@@ -1,44 +1,59 @@
 -include utils/utils.mk
 -include config.cfg
 
-DOC_COMANDOS = $(wildcard $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
-DOC_SHORTCUTS = $(wildcard $(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
+DOC_COMANDOS_LINUX = $(wildcard $(DOC_COMMANDS_LINUX_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
+DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
+
+DOC_COMANDOS_APPS = $(wildcard $(DOC_COMMANDS_APPS_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
+DOC_SHORTCUTS_APPS = $(wildcard $(DOC_SHORTCUTS_APPS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
 # Nota: $(patsubst pattern, replacement, text)
-SHORTCUTS = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS)))
-COMANDOS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
+COMANDOS_LINUX = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS_LINUX)))
+SHORTCUTS_LINUX = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS_LINUX)))
+
+COMANDOS_APPS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS_APPS)))
+SHORTCUTS_APPS = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS_APPS)))
+
+COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 
 # Nota: $(filter-out pattern, text)
-COMANDOS_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS),$(COMANDOS))
+COMANDOS_LINUX_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_LINUX),$(COMANDOS_LINUX))
+COMANDOS_APPS_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_APPS),$(COMANDOS_APPS))
 
 .DEFAULT_GOAL=help
 
 ##@ Acciones
-c commands: listado-comandos listado-comandos-con-shortcuts ## Listado de Comandos documentados
-
-listado-comandos:
+l linux-commands: ## Listado Comandos de terminal Linux
 	@echo 'Lista de Comandos'
-	@$(foreach comando,$(COMANDOS_WITHOUT_SHORTCUTS), \
-		echo ' -' $(comando);\
-	)
+	@$(foreach comando,$(COMANDOS_LINUX_WITHOUT_SHORTCUTS), echo ' -' $(comando);)
 	@echo ''
-
-listado-comandos-con-shortcuts:
 	@echo 'Comandos + Shortcuts'
-	@$(foreach shortcut,$(SHORTCUTS), \
-		echo ' -' $(shortcut);\
-	)
+	@$(foreach shortcut,$(SHORTCUTS_LINUX), echo ' -' $(shortcut);)
 
-# TODO: personalizar header del comando bat
+a applications-commands: ## Listado Comandos de Aplicaciones
+	@echo 'Lista de Comandos para Aplicaciones'
+	@$(foreach comando,$(COMANDOS_APPS_WITHOUT_SHORTCUTS), echo ' -' $(comando);)
+	@echo ''
+	@echo 'Comandos + Shortcuts'
+	@$(foreach shortcut,$(SHORTCUTS_APPS), echo ' -' $(shortcut);)
+
+# TODO: reducir código bash
 # TODO: evitar lógica repetida de las ramificaciones del if-else
 # TODO: no se puede validar la existencia del archivo con el ifeq y la macro $@ porque
 # (interpreto ifeq no valida en tiempo de ejecución)
 $(COMANDOS):
-	@if [ -s $(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
-		bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
-		$(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
+	@if [ -s $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) ]; then \
+		if [ -s $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
+			bat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
+		else \
+		bat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+		fi; \
 	else \
-		bat $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+		if [ -s $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
+			bat $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
+		else \
+		bat $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+		fi; \
 	fi;
 
 ##@ Utilidades
@@ -60,8 +75,7 @@ r remove: ## Remover aplicación
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(UTILS_DIRECTORY)/update-bash-aliases
 
-
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help c commands s shortcuts listado-comandos listado-comandos-con-shortcuts
+.PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands listado-comandos-linux
