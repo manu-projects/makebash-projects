@@ -5,8 +5,11 @@ DOC_COMANDOS = $(wildcard $(DOC_DIRECTORY)/$(DOC_COMMANDS_DIRECTORY)/*.$(DOC_COM
 DOC_SHORTCUTS = $(wildcard $(DOC_DIRECTORY)/$(DOC_SHORTCUTS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
 # Nota: $(patsubst pattern, replacement, text)
-COMANDOS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
 SHORTCUTS = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS)))
+COMANDOS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS)))
+
+# Nota: $(filter-out pattern, text)
+COMANDOS_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS),$(COMANDOS))
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
@@ -27,15 +30,17 @@ r remove: ## Remover aplicación
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(UTILS_DIRECTORY)/update-bash-aliases
 
-c comandos: ## Lista de comandos
-	@echo 'Lista de comandos'
-	@$(foreach comando,$(COMANDOS), \
+c comandos: listado-comandos listado-comandos-con-shortcuts ## Listado de Comandos documentados
+
+listado-comandos:
+	@echo 'Lista de Comandos'
+	@$(foreach comando,$(COMANDOS_WITHOUT_SHORTCUTS), \
 		echo ' -' $(comando);\
 	)
+	@echo ''
 
-# TODO: agregar en la lista de comandos si tiene shortcut
-s shortcuts: ## Lista de shortcuts
-	@echo 'Lista de shortcuts'
+listado-comandos-con-shortcuts:
+	@echo 'Comandos + Shortcuts'
 	@$(foreach shortcut,$(SHORTCUTS), \
 		echo ' -' $(shortcut);\
 	)
@@ -55,4 +60,4 @@ $(COMANDOS):
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help c comandos s shortcuts
+.PHONY: i install ri re-install install-utils r remove h help c comandos s shortcuts listado-comandos listado-comandos-con-shortcuts
