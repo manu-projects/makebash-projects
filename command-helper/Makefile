@@ -1,4 +1,5 @@
 -include utils/utils.mk
+-include utils/unix-utils.mk
 -include config.cfg
 
 DOC_COMANDOS_LINUX = $(wildcard $(DOC_COMMANDS_LINUX_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
@@ -7,54 +8,50 @@ DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.$(DOC_SHORTC
 DOC_COMANDOS_APPS = $(wildcard $(DOC_COMMANDS_APPS_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
 DOC_SHORTCUTS_APPS = $(wildcard $(DOC_SHORTCUTS_APPS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
-# Nota: $(patsubst pattern, replacement, text)
-COMANDOS_LINUX = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS_LINUX)))
-SHORTCUTS_LINUX = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS_LINUX)))
-
-COMANDOS_APPS = $(notdir $(patsubst %.$(DOC_COMMANDS_EXTENSION),%,$(DOC_COMANDOS_APPS)))
-SHORTCUTS_APPS = $(notdir $(patsubst %.$(DOC_SHORTCUTS_EXTENSION),%,$(DOC_SHORTCUTS_APPS)))
-
+# Problema: no era necesario utilizar patsubst, sólo necesitabas usar la basename
+COMANDOS_LINUX = $(basename $(notdir $(DOC_COMANDOS_LINUX)))
+COMANDOS_APPS = $(basename $(notdir $(DOC_COMANDOS_APPS)))
 COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
-
-# Nota: $(filter-out pattern, text)
-COMANDOS_LINUX_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_LINUX),$(COMANDOS_LINUX))
-COMANDOS_APPS_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_APPS),$(COMANDOS_APPS))
 
 .DEFAULT_GOAL=help
 
+$(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
+	@truncate -s 0 $@
+	@$(foreach comando, $^,\
+		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+		>> $@;\
+	)
+
+$(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
+	@truncate -s 0 $@
+	@$(foreach comando, $^,\
+		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+		>> $@;\
+	)
+
 ##@ Acciones
-l linux-commands: ## Listado Comandos de terminal Linux
+l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 	@echo 'Lista de Comandos'
-	@$(foreach comando,$(COMANDOS_LINUX_WITHOUT_SHORTCUTS), echo ' -' $(comando);)
-	@echo ''
-	@echo 'Comandos + Shortcuts'
-	@$(foreach shortcut,$(SHORTCUTS_LINUX), echo ' -' $(shortcut);)
+	@cat $< | $(NAWK_HEADERS)
 
-a applications-commands: ## Listado Comandos de Aplicaciones
+a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@echo 'Lista de Comandos para Aplicaciones'
-	@$(foreach comando,$(COMANDOS_APPS_WITHOUT_SHORTCUTS), echo ' -' $(comando);)
-	@echo ''
-	@echo 'Comandos + Shortcuts'
-	@$(foreach shortcut,$(SHORTCUTS_APPS), echo ' -' $(shortcut);)
+	@cat $< | $(NAWK_HEADERS)
 
-# TODO: reducir código bash
-# TODO: evitar lógica repetida de las ramificaciones del if-else
-# TODO: no se puede validar la existencia del archivo con el ifeq y la macro $@ porque
-# (interpreto ifeq no valida en tiempo de ejecución)
-$(COMANDOS):
-	@if [ -s $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) ]; then \
-		if [ -s $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
-			bat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
-		else \
-		bat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
-		fi; \
+# TODO: no se puede validar la existencia del archivo con el ifeq y la macro $@ porque el ifeq de GNU Make no valida en tiempo de ejecución (?)
+$(COMANDOS_LINUX):
+	@if [ -s $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
+		$(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
 	else \
-		if [ -s $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
-			bat $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
-		else \
-		bat $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
-		fi; \
-	fi;
+		$(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+	fi
+
+$(COMANDOS_APPS):
+	@if [ -s $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
+		$(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
+	else \
+		$(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
+	fi
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
@@ -78,4 +75,4 @@ r remove: ## Remover aplicación
 %:
 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands listado-comandos-linux
+.PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands
