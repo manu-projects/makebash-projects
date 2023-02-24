@@ -1,0 +1,84 @@
+* Comparación de Timestamp entre Target y sus dependencias
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Problemas con éste target:
+    #
+    # 1. al utilizar el símbolo ; dentro del foreach se ejecutará en cada iteración
+    # y al igual que en la terminal de linux, hará que cada comando se ejecute de forma independiente
+    #
+    # 2. lo anterior es problema suponiendo que queremos transformar la información generada
+    # (Ej. agregandole una cabecera)
+    #
+    imprimir-comando-descripcion:
+    $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Problemas con estos targets:
+    #
+    # 1. estamos creando un archivo comandos-linux.txt cada vez que ejecutamos imprimir-comandos,
+    # es decir no comprobamos si se actualizaron ó no los archivos contenidos en $(DOC_COMANDOS_LINUX)
+    #
+    # 2. no estamos aprovechando la comparación del timestamp entre el target y las dependencias para crear archivos de GNU Make,
+    # la manera más común sería una regla como la siguiente.. archivo-transformado.txt: archivo1.txt archivo2.txt archivo3.txt
+    #
+    imprimir-comandos: comandos-linux.txt
+
+    comandos-linux.txt:
+    $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
+
+    $(foreach comando, $(DOC_COMANDOS_LINUX),\
+    cat $(comando) | sed -n '1p' | \
+    nawk '{print "$(basename $(notdir $(comando))) " $$0}' | \
+    sed 's/##/\|/g' >> $@;\
+    )
+  #+END_SRC
+* Función Basename
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Nota: $(patsubst pattern, replacement, text)
+
+    # Problemas:
+    # 1. NO era necesario utilizar la función patsubst, sólo necesitabamos usar la función basename de GNU Make
+    # 2. Si bien le ponemos "WRONG", éste método funciona pero se pierde expresividad y es más dificil de mantener
+    COMANDOS_LINUX_WRONG = $(notdir $(patsubst %.sh,%,$(DOC_COMANDOS_LINUX)))
+
+    COMANDOS_LINUX = $(basename $(notdir $(DOC_COMANDOS_LINUX)))
+  #+END_SRC
+* Función filter-out
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+    DOC_SHORTCUTS_LINUX = $(wildcard doc/*.org)
+
+    # Nota: $(filter-out pattern, text)
+    #
+    # 1. Filtramos de (A) los elementos (a) que no estén incluidos en otra lista (B)
+    #
+    COMANDOS_LINUX_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_LINUX),$(COMANDOS_LINUX))
+  #+END_SRC
+* Comando bat
+** Problema al ejecutar
+  #+BEGIN_QUOTE
+  *Posible Problema:*
+  - al ejecutar el binario el emulador de terminal diga ~Command 'bat' not found~
+
+  *Solución:*
+  - crear un softlink de ~/usr/bin/batcat~ en  ~~/.local/bin/bat~
+  #+END_QUOTE
+
+#+BEGIN_SRC shell
+  # suponiendo que no existe el directorio
+  mkdir -p ~/.local/bin
+
+  # creamos el softlink /usr/bin/batcat en ~/.local/bin/bat
+  ln -s /usr/bin/batcat ~/.local/bin/bat
+#+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.makeuseof.com/bat-an-alternative-to-cat-command/][bat an alternative to cat omcmand (makeuseof.com)]]
+*** Referencias Issues
+    1. [[https://github.com/sharkdp/bat/issues/1420#issuecomment-737058971][Bat doesn't work when installed from apt on ubuntu (github.com/sharkdp/bat)]]
