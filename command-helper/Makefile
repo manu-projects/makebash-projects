@@ -16,14 +16,14 @@ COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 .DEFAULT_GOAL=help
 
 $(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
-	@truncate -s 0 $@
+	@$(TRUNCATE_CLEAR_CONTENT) $@
 	@$(foreach comando, $^,\
 		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
 		>> $@;\
 	)
 
 $(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
-	@truncate -s 0 $@
+	@$(TRUNCATE_CLEAR_CONTENT) $@
 	@$(foreach comando, $^,\
 		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
 		>> $@;\
