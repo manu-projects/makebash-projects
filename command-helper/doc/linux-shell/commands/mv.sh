@@ -1,3 +1,5 @@
+## Mover directorios y archivos
+
 # mover todos los archivos y directorios a un directorio, excluyendo el directorio destino
 mv $(ls --ignore=apps/) apps/
 

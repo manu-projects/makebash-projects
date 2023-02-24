@@ -1,3 +1,5 @@
+## Editor de texto basado en Vim
+
 # Desactivar las palabras resaltadas hasta la próxima búsqueda
 :noh
 

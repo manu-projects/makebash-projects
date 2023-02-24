@@ -1,3 +1,5 @@
+## Comprimir/Descomprimir archivos y directorios
+
 # extraer archivos en la ruta actual
 # - (x) extract : extraer
 # - (v) verbose: describe los pasos de forma verbosa

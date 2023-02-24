@@ -1,3 +1,5 @@
+## Listar directorios y archivos
+
 # contar cantidad de archivos/directorios
 ls | wc -c
 
