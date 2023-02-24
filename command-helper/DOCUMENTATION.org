@@ -28,13 +28,7 @@
     imprimir-comandos: comandos-linux.txt
 
     comandos-linux.txt:
-    $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
-
-    $(foreach comando, $(DOC_COMANDOS_LINUX),\
-    cat $(comando) | sed -n '1p' | \
-    nawk '{print "$(basename $(notdir $(comando))) " $$0}' | \
-    sed 's/##/\|/g' >> $@;\
-    )
+      $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
   #+END_SRC
 * Función Basename
   #+BEGIN_SRC makefile
