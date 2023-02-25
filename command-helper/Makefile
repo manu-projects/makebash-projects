@@ -16,20 +16,33 @@ COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 
 .DEFAULT_GOAL=help
 
-
 $(eval edit:;@:)
 
+# TODO: refactor, definir una función de Makefile que reciba por parámetro el nombre de target y las dependencias
 $(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
 	@$(TRUNCATE_CLEAR_CONTENT) $@
 	@$(foreach comando, $^,\
-		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+		cat $(comando) | \
+		sed -n '$(CONTENT_NUMBER_LINE_CATEGORY),$(CONTENT_NUMBER_LINE_DESCRIPTION)p' | \
+		nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
+		sed -E 's/^\#\# ($(CONTENT_TAG_CATEGORY))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
+		sed -E 's/^\#\# ($(CONTENT_TAG_DESCRIPTION))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
+		tr --delete '\n' | tr ';' '\n' | \
+		nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
 		>> $@;\
 	)
 
+# TODO: refactor, definir una función de Makefile que reciba por parámetro el nombre de target y las dependencias
 $(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
 	@$(TRUNCATE_CLEAR_CONTENT) $@
 	@$(foreach comando, $^,\
-		cat $(comando) | sed -n '$(NUMBER_LINE_DESCRIPTION)p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+		cat $(comando) | \
+		sed -n '$(CONTENT_NUMBER_LINE_CATEGORY),$(CONTENT_NUMBER_LINE_DESCRIPTION)p' | \
+		nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
+		sed -E 's/^\#\# ($(CONTENT_TAG_CATEGORY))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
+		sed -E 's/^\#\# ($(CONTENT_TAG_DESCRIPTION))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
+		tr --delete '\n' | tr ';' '\n' | \
+		nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
 		>> $@;\
 	)
 

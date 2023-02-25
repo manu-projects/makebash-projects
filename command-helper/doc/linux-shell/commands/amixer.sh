@@ -1,4 +1,5 @@
-## Controla el volumen del sistema
+## CATEGORIA: audio
+## DESCRIPCION: controla el volumen del sistema
 
 # modificar el volumen principal al 50%
 # (usar %+ y %- para incrementar y decrementar el valor actual)

@@ -1,4 +1,5 @@
-## Observar cambios de estado en archivos y directorios
+## CATEGORIA: operaciones con archivos
+## DESCRIPCION: observar cambios de estado en archivos y directorios
 
 # observar cambios en un directorio (nuevos archivos, carpetas, ..)
 watch ls videos-favoritos/

@@ -1,1 +1,2 @@
-# shell interactiva
+## CATEGORIA: shell
+## DESCRIPCION: shell interactiva

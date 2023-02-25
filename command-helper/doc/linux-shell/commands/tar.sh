@@ -1,4 +1,5 @@
-## Comprimir/Descomprimir archivos y directorios
+## CATEGORIA: archivador
+## DESCRIPCION: comprimir/descomprimir archivos y directorios
 
 # extraer archivos en la ruta actual
 # - (x) extract : extraer

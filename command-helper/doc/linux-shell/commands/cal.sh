@@ -1,4 +1,5 @@
-## Muestra un Calendario
+## CATEGORIA: otros
+## DESCRIPCION: calendario
 
 # mostrar el mes actual del calendario (mes actual, año actual)
 cal

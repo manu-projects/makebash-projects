@@ -1,4 +1,5 @@
-## Multiplexor de terminales (crear multiples instancias de terminal en una sesión)
+## CATEGORIA: terminales
+## DESCRIPCION: multiplexor de terminales (crear multiples instancias de terminal en una sesión)
 
 # crear una sesión con nombre
 screen -S nombre

@@ -1,4 +1,5 @@
-## Editor de texto basado en Vim
+## CATEGORIA: editor de texto
+## DESCRIPCION: editor de texto basado en Vim
 
 # Desactivar las palabras resaltadas hasta la próxima búsqueda
 :noh

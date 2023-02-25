@@ -1,4 +1,5 @@
-## Recorta el tamaño de un archivo (ó bien se dice truncar un archivo)
+## CATEGORIA: operaciones con archivos
+## DESCRIPCION: recorta el tamaño de un archivo (ó bien se dice truncar un archivo)
 
 # Limpiar el contenido del archivo, lo deja con 0 Bytes
 truncate -s 0 archivo.txt
