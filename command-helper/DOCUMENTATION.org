@@ -76,3 +76,79 @@
     1. [[https://www.makeuseof.com/bat-an-alternative-to-cat-command/][bat an alternative to cat omcmand (makeuseof.com)]]
 *** Referencias Issues
     1. [[https://github.com/sharkdp/bat/issues/1420#issuecomment-737058971][Bat doesn't work when installed from apt on ubuntu (github.com/sharkdp/bat)]]
+* Macro Expansiva Vs Macro Simple - Evaluación y Expansión de Macro con comando shell
+** Problemas
+  #+BEGIN_QUOTE
+  Según la que eligamos dará *problemas ó no cuando les asignamos un comando de shell*..
+
+  Si es una *MACRO RECURSIVA*, entonces utilizamos el símbolo de asignación ~=~
+  Por ejemplo ~archivo-especifico = $(shell ls *.md | grep '^READ')~
+  - PROBLEMA 1: GNU Make lo evaluará y expandirá cada vez que se referencie en el Makefile
+  - PROBLEMA 2: ejecuta el comando a cada rato, en lugares dónde aún no queríamos que se ejecutara (Ej. en un ifeq)
+
+  Si es una *MACRO SIMPLE*, entonces utilizamos el símbolo de asignación ~:=~
+  - Por ejemplo ~archivo-especifico := $(shell ls *.org | grep 'TODO\.org$')~
+  - PROBLEMA 1: GNU Make lo evaluará varias veces pero se expandirá una única vez (la primera vez que se referenció)
+  - PROBLEMA 2: ejecutará apenas ejecutamos el Makefile (peor que antes)
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # a diferencia de las alternativas de abajo, ésta si funciona y evitamos los problemas de expansión no deseada de GNU Make
+    POPUP_EDIT = sh ./scripts/edit-popup.sh
+
+    # Notas:
+    # - en todas las siguientes asignaciones causarán problemas cuando GNU Make las evalué y expanda
+    # - de igual forma las comento por el tema de que cada linea en una regla de Makefile se ejecuta en una shell diferente
+
+    # 1. alternativa a la función shell sería usando el símbolo !=
+    # 2. en éste ejemplo considero que queda mejor usar shell para no confundir y no olvidar que el comando read es propio de linux
+    POPUP_EDIT != read -p "Si desea editar comandos escriba sin paréntesis (c) y para shortcuts (s): " popup_edit; echo $$popup_edit
+
+    #
+    # 1. nuestro comando shell imprimirá un string que se asignará a la macro POPUP_EDIT
+    # 2. los comandos de linux se ejecutarán en la misma shell, por tanto se perderá el valor si intentamos imprimir $$popup_edit en otra macro ó target
+     POPUP_EDIT ?= $(shell read -p "Desea editar comandos escriba (c) para shortcuts (s): " popup_edit; echo $$popup_edit)
+
+    # 1. también sólo podriamos asignar los comandos a ejecutar como un string
+    # 2. para no perder el valor de popup_edit podríamos utilizar el operador && para manternos en la misma shell así $(POPUP_EDIT) && echo $$popup_edit
+    # pero... no podriamos utilizarlo en un ifeq de GNU Make
+     POPUP_EDIT = read -p "Si desea editar comandos escriba sin paréntesis (c) y para shortcuts (s): " popup_edit; echo $$popup_edit
+  #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://make.mad-scientist.net/deferred-simple-variable-expansion/][Deferred simple variable expansion (make-mad-scientist.net)]]
+    2. [[https://seanbone.ch/makefile-hacks/][Makefile hacks (seanbone.ch)]]
+*** Referencias Issues
+    1. [[https://nono.ma/prompt-user-input-makefile][Prompt user input makefile (nono.ma)]]
+    2. [[https://stackoverflow.com/questions/3743793/makefile-why-is-the-read-command-not-reading-the-user-input][makefile why is the read command not reading the user input (stackoverflow.com)]]
+    3. [[https://unix.stackexchange.com/questions/31414/how-can-i-pass-a-command-line-argument-into-a-shell-script][How can I pass a command line argument into a shell script (unix.stackexchange.com)]]
+    4. [[https://stackoverflow.com/questions/32153034/oneshell-not-working-properly-in-makefile][Oneshell not working properly in makefile (stackoverflow.com)]]
+* Condicionales Simples de Bash
+** Problemas
+  #+BEGIN_QUOTE
+  Podemos usar el comando ~test -f archivo~ para verificar si existe con los operadores lógicos ~&&~ y ~||~
+  - la expresión seguida del operador lógico AND ~&&~ se evalúa si existe el archivo
+  - la expresión seguida del operador lógico OR ~||~ se evalúa si NO existe el archivo
+
+  ó podemos usar el condicional ~if [ -s archivo ]~ sin olvidar el uso de los ~;~
+  - usar ~;~ al final de cada expresión delimitada dentro de la condición ~if~ ó del ~else~
+  - finalizar el bloque ~if~ con un ~fi~
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    doc/archivo.txt: .tmp/archivo-4.txt .tmp/archivo-1.txt .tmp/archivo-9.txt
+      @test -f $@ \
+      && echo "existe el archivo..!" \
+      || echo "no existe el archivo, ejecutar algún comando que procese los archivos dependencia y cree el archivo"
+
+    doc/otro-archivo.txt: .tmp/archivo-1.txt .tmp/archivo-2.txt .tmp/archivo-3.txt
+      @if [ -s $@  ]; then \
+        echo "existe el archivo"; \
+      else \
+        echo "no existe el archivo, ejecutar algún comando que procese los archivos dependencia y cree el archivo"; \
+      fi
+  #+END_SRC
+** Referencias
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/5553352/how-do-i-check-if-file-exists-in-makefile-so-i-can-delete-it][How do I check if file exists in makefile (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/8059556/how-to-write-multiple-conditions-in-makefile-am-with-else-if][How to write multiple conditions in makefile (stackoverflow.com)]]
