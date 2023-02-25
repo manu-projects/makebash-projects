@@ -2,18 +2,22 @@
 -include utils/unix-utils.mk
 -include config.cfg
 
+#SHELL=/bin/bash
+
 DOC_COMANDOS_LINUX = $(wildcard $(DOC_COMMANDS_LINUX_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
 DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
 DOC_COMANDOS_APPS = $(wildcard $(DOC_COMMANDS_APPS_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
 DOC_SHORTCUTS_APPS = $(wildcard $(DOC_SHORTCUTS_APPS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
-# Problema: no era necesario utilizar patsubst, sólo necesitabas usar la basename
 COMANDOS_LINUX = $(basename $(notdir $(DOC_COMANDOS_LINUX)))
 COMANDOS_APPS = $(basename $(notdir $(DOC_COMANDOS_APPS)))
 COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 
 .DEFAULT_GOAL=help
+
+
+$(eval edit:;@:)
 
 $(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
 	@$(TRUNCATE_CLEAR_CONTENT) $@
@@ -38,20 +42,40 @@ a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@echo 'Lista de Comandos para Aplicaciones'
 	@cat $< | $(NAWK_HEADERS)
 
-# TODO: no se puede validar la existencia del archivo con el ifeq y la macro $@ porque el ifeq de GNU Make no valida en tiempo de ejecución (?)
+# Notas:
+# - comando TEST para validar existencia de archivos.. test -f archivo.txt && echo "existe" || echo "no existe"
+# - no se puede validar la existencia del archivo con el ifeq + wildcard + la macro $@ porque.. ifeq de GNU Make no valida en tiempo de ejecución
+#.ONESHELL:
 $(COMANDOS_LINUX):
-	@if [ -s $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
-		$(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
-	else \
-		$(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
-	fi
+# 1. validamos si pasó el parámetro "edit"
+ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
+# 1.1 confirmamos que tipo de modificación se desea, ejecutamos un sh y pasamos por parámetro las rutas del archivo .sh y .org
+# (delegamos la responsabilidad en un .sh por la complejidad de evaluar y expandir macros con comandos de shell de éste tipo y comparar con el ifeq de GNU Make)
+	@$(POPUP_EDIT) \
+	$(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
+	$(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION)
+# 1.2 flujo alternativo, si no pasó el parámetro "edit" entonces imprimimos los comandos ó shortcuts
+# (en las notas describimos como funciona el comando TEST)
+else
+	@test -f $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
+	&& $(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
+	|| $(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION)
+endif
 
 $(COMANDOS_APPS):
-	@if [ -s $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) ]; then \
-		$(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION); \
-	else \
-		$(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION); \
-	fi
+#1. validamos si pasó el parámetro "edit"
+ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
+# 1.1 confirmamos que tipo de modificación se desea, ejecutamos un sh y pasamos por parámetro las rutas del archivo .sh y .org
+	@$(POPUP_EDIT) \
+	$(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
+	$(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION)
+# 1.2 flujo alternativo, si no pasó el parámetro "edit" entonces imprimimos los comandos ó shortcuts
+# (en las notas describimos como funciona el comando TEST)
+else
+	@test -f $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
+	&& $(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
+	|| $(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION)
+endif
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
@@ -72,7 +96,7 @@ r remove: ## Remover aplicación
 	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
 	$(UTILS_DIRECTORY)/update-bash-aliases
 
-%:
-	$(error NO existe el comando)
+# %:
+# 	$(error NO existe el comando)
 
 .PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands
