@@ -31,6 +31,7 @@
     make remove
   #+END_SRC
 * Configuración
+** Documentando comandos y shortcuts
   #+BEGIN_QUOTE
   La configuración para documentar un nuevo comando de la terminal de linux es mínima
   1. Creamos el archivo con el nombre del comando a documentar en el directorio ~doc/linux-shell/commands/~ con la extensión ~.sh~
@@ -39,3 +40,22 @@
 
   Documentar comandos de aplicaciones es lo mismo, pero usamos el directorio ~doc/applications/commands~ y ~doc/applications/shortcuts/~
   #+END_QUOTE
+** Metadata al documentar
+   Al comienzo de cada archivo ~.sh~ debe tener las siguientes dos lineas (es importante respetar el formato)
+   - ~## CATEGORIA: texto~ clasifica el comando en un grupo particular
+   - ~## DESCRIPCION: texto~ describe el comando en si, que es lo que hace
+
+   #+BEGIN_QUOTE
+   El siguiente sería un ejemplo del archivo ~doc/commands/ls.sh~ para entender la metadata
+   #+END_QUOTE
+
+   #+BEGIN_SRC shell
+     ## CATEGORIA: operaciones con archivo
+     ## DESCRIPCION: listar archivos y directorios
+
+     # listar archivos ocultos
+     ls -la
+
+     # listar archivos ordenados por tamaño del archivo
+     ls -ls
+   #+END_SRC
