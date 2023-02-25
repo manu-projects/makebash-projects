@@ -1,3 +1,9 @@
+#+TITLE: Documentation
+* Intro
+  #+BEGIN_QUOTE
+  Centralizamos los comentarios sobre las implementaciones en los Makefiles,
+  para separar la explicación de la implementación en si
+  #+END_QUOTE
 * Comparación de Timestamp entre Target y sus dependencias
   #+BEGIN_SRC makefile
     DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
@@ -152,3 +158,106 @@
 *** Referencias Issues
     1. [[https://stackoverflow.com/questions/5553352/how-do-i-check-if-file-exists-in-makefile-so-i-can-delete-it][How do I check if file exists in makefile (stackoverflow.com)]]
     2. [[https://stackoverflow.com/questions/8059556/how-to-write-multiple-conditions-in-makefile-am-with-else-if][How to write multiple conditions in makefile (stackoverflow.com)]]
+* awk + sed - Expresiones Regulares
+** Ejemplo Básico
+  #+BEGIN_QUOTE
+  Generamos un archivo ~comandos-linux.txt~ en base al contenido de sus dependencias (los .sh)
+  - siempre que en una regla de Makefile haya una diferencia en el *timestamp* entre el TARGET y sus DEPENDENCIAS
+  - con la diferencia de timestamp, GNU Make nos permitirá ejecutar la orden asociada a la creación del TARGET
+  - creamos el archivo (target) cuando los archivos de los que depende (sus dependencias) tienen una fecha de modificación más reciente
+ #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # - truncamos el archivo, lo modificamos el tamaño del archivo a cero Bytes
+    # - todos los datos que tenía se pierden
+    archivo.txt:
+      @truncate -s 0 $@
+
+    # - iteramos sobre cada dependencia del target
+    # - la macro especial $^ obtiene todas  las dependencias
+    # - la función foreach es de la forma (foreach elemento-de-la-lista, lista-de-archivos, orden-a-ejecutar)
+    # - para utilizar el elemento de la iteración del foreach dentro de la orden que ejecuta, debemos hacerlo como una macro $(elemento-de-la-lista)
+    @$(foreach comando, $^, echo $(comando))
+
+    # obtenemos una linea en particular del archivo (la descripción, en la primera linea)
+    cat archivo.txt | sed -n '1p'
+
+    # agregamos un string al principio de cada linea
+    cat archivo.txt | nawk '{print "$(basename $(notdir $(comando))) " $$0}'
+
+    # - reemplazamos los símbolos no deseados por ejemplo ~#~ por otro por ej. el pipe ~|~
+    # - escapamos los símbolos usando el slash invertido
+    cat archivo.txt | sed 's/\#/\|/g'
+
+    # - agregamos el texto transformado en el target (el archivo comandos-linux.txt)
+    # - el operador de redirección ~>>~ que agrega contenido (si usaramos ~>~ borraría el contenido anterior)
+    # - la macro especial ~$@~ que obtiene el nombre del target
+    archivo.txt:
+      echo "texto transformado" >> $@
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    comandos-linux.txt: doc/ls.sh doc/mv.sh doc/tar.sh doc/curl.sh
+      @$(TRUNCATE_CLEAR_CONTENT) $@
+      @$(foreach comando, $^,\
+      cat $(comando) | sed -n '1p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+      >> $@;\
+    )
+  #+END_SRC
+** Ejemplo
+  #+BEGIN_SRC makefile
+    comandos-linux.txt: doc/ls.sh doc/mv.sh doc/tar.sh doc/curl.sh
+      @$(TRUNCATE_CLEAR_CONTENT) $@
+      @$(foreach comando, $^,\
+        cat $(comando) | \
+        sed -n '1,2p' | \
+        nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
+        sed -E 's/\#\# (CATEGORIA)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
+        sed -E 's/\#\# (DESCRIPCION)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
+        tr --delete '\n' | tr ';' '\n' | \
+        nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
+        >> $@;\
+      )
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    # extraemos sólo las lineas 1 y 2 del archivo
+    cat archivo.txt | sed -n '1,2p'
+
+    # - agregamos al principio de cada linea un texto, en éste caso la macro comando
+    # - la función notdir obtiene el nombre del archivo (con la extensión, usaremos basename para removerla)
+    # - la función basename obtiene el nombre del archivo sin la extensión
+    # - usamos $$0 en vez de $0 para que GNU Make no la tome como una macro de Makefile si que la escape é interprete un caracter y sea un parámetro del comando awk
+    cat archivo.txt | nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}'
+
+    # - en las regex es típico usar paréntesis para los Grupos de Captura (Capture Group) es decir son "Construcciones de Agrupamiento de Expresiones Regulares"
+    # - en awk obtenemos el contenido de los Grupos de Captura con \1 \2 .. \n siendo n el número del grupo de captura del que queremos el contenido
+    cat archivo.txt | sed -E 's/\#\# (CATEGORIA)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g'
+
+    # - al final de cada columna de awk le agregamos un símbolo ; como centinela para detectar el fin de linea
+    cat archivo.txt | sed -E 's/\#\# (DESCRIPCION)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g'
+
+    # borramos los saltos de linea
+    cat archivo.txt | tr --delete '\n'
+
+    # reemplazamos los ; por saltos de linea (antes los habíamos agregado para diferenciar el fin de linea)
+    cat archivo.txt | tr ';' '\n'
+
+    # - indicamos que el separador de las columnas en el símbolo | (el pipe)
+    # - transformamos el texto manipulando el orden de las columnas $1 $2 $3 detectadas por awk
+    # (recordando que agregamos un $ al principio $$1 $$2 .. porque si nó GNU Make lo tomará como una macro, y queremos que lo tome como un caracter)
+    cat archivo.txt | nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}'
+  #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://learn.microsoft.com/es-es/dotnet/standard/base-types/grouping-constructs-in-regular-expressions][Construcciones de agrupamiento en expresiones regulares (learn.mirosoft.com)]]
+*** Referencias Extraoficiales
+    1. [[http://w3.unpocodetodo.info/utiles/regex-en-javascript.php][Grupos de captura en JavaScript (w3.unpocodetodo.info)]]
+    2. [[https://bioinf.comav.upv.es/courses/unix/expresiones_regulares.html][POSIX, Cuantificadores, Puntos de anclaje, Sustituciones, Escape de Caracteres (bioinf.comav.upv.es)]]
+    3. [[https://www.linuxteck.com/sed-commands-in-linux/][sed commands in linux (linuxteck.com)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/63952656/using-awk-to-set-first-character-to-lowercase-unix][using awk to set first character to lowercase unix (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/2609552/how-can-i-use-as-an-awk-field-separator][how can I use as an awk field separator (stackoverflow.com)]]
+    3. [[https://stackoverflow.com/questions/1251999/how-can-i-replace-each-newline-n-with-a-space-using-sed][how can I replace each newline n with a space using sed command (stackoverflow.com)]]
+    4. [[https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-in-regular-expressions][what is a non capturing group in regular expressions (stackoverflow.com)]]
+    5. [[https://superuser.com/questions/112834/how-to-match-whitespace-in-sed][how to match whitespace in sed command (superuser.com)]]
