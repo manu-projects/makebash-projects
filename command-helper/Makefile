@@ -27,8 +27,7 @@ $(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
 		nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
 		sed -E 's/^\#\# ($(CONTENT_TAG_CATEGORY))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
 		sed -E 's/^\#\# ($(CONTENT_TAG_DESCRIPTION))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
-		tr --delete '\n' | tr ';' '\n' | \
-		nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
+		tr --delete '\n' | tr ';' '\n' \
 		>> $@;\
 	)
 
@@ -41,19 +40,18 @@ $(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
 		nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
 		sed -E 's/^\#\# ($(CONTENT_TAG_CATEGORY))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
 		sed -E 's/^\#\# ($(CONTENT_TAG_DESCRIPTION))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
-		tr --delete '\n' | tr ';' '\n' | \
-		nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
+		tr --delete '\n' | tr ';' '\n' \
 		>> $@;\
 	)
 
 ##@ Acciones
 l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 	@echo 'Lista de Comandos'
-	@cat $< | $(NAWK_HEADERS)
+	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
 
 a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@echo 'Lista de Comandos para Aplicaciones'
-	@cat $< | $(NAWK_HEADERS)
+	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
 
 # Notas:
 # - comando TEST para validar existencia de archivos.. test -f archivo.txt && echo "existe" || echo "no existe"
