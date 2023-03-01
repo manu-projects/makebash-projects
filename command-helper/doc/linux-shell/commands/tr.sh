@@ -1,5 +1,5 @@
 ## CATEGORIA: operaciones con la (stdin) y (stdout)
-## DESCRIPCION: a
+## DESCRIPCION: manipular, modificar ó eliminar texto (similar al comando sed)
 
 # transformar texto a mayúsculas
 echo "clojure for the brave and true.pdf" | tr 'a-z' 'A-Z' # a-z toma un rango de caracteres
