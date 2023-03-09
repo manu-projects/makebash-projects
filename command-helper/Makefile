@@ -54,6 +54,54 @@ a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
 
 # Notas:
+# 1. La opción elegida en el menú será capturada por xargs
+# 2. La opción capturada será el target que pasaremos por parámetro al propio Makefile para ejecutar
+# 3. Con $(MAKE) se invoca a si mismo el Makefile
+# 4. El motivo del redireccionamiento se explica en el target linux-create-doc
+create-doc: ## Crear documentación de Linux ó de una Aplicación
+	$(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+	| xargs -I % $(MAKE) --no-print-directory %
+
+# Notas:
+# 1. el comando xargs requiere utilizarlo la forma xargs -I % sh -c 'comando1 %; comando2 %; ..'
+# para pasar el mismo parámetro % a multiples comandos en la misma shell
+#
+# 2. el símbolo % que usamos en los nombres de los ficheros, es el parámetro capturado por el comando xargs con la opción -I
+#
+# 3. el comando whiptail escribe sobre stdout (fd 2) por tanto creamos un nuevo File Descriptor (3),
+# que apunta al stdout (fd 1), para luego redireccionar el stdout->stderr, y redireccionar el stderr->nuevo fd 3 (que apunta al stdout)
+linux-create-doc:
+	whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
+	| xargs -I % sh -c '\
+	$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
+	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
+	echo "Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
+	echo "Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; \
+	' \
+
+app-create-doc:
+	whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
+	| xargs -I % sh -c '\
+	$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_APPS_DIRECTORY)/.template $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
+	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_APPS_DIRECTORY)/.template $(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
+	echo "Se creó el archivo $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
+	echo "Se creó el archivo$(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; \
+	'
+# TODO: el comando read lo pasa de largo, quizás por el redireccionamiento (?)
+#
+#linux-create-doc:
+#	printf "Nombre del Comando de Linux a documentar: " \
+#	&& read NOMBRE \
+#	&& echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+#	&& echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+
+#app-create-doc:
+#	printf "Nombre de la Aplicación a documentar: " \
+#	&& read NOMBRE \
+#	&& echo $(DOC_COMMANDS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+#	&& echo $(DOC_SHORTCUTS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+
+# Notas:
 # - comando TEST para validar existencia de archivos.. test -f archivo.txt && echo "existe" || echo "no existe"
 # - no se puede validar la existencia del archivo con el ifeq + wildcard + la macro $@ porque.. ifeq de GNU Make no valida en tiempo de ejecución
 #.ONESHELL:

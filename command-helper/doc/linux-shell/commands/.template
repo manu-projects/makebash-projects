@@ -1,0 +1,8 @@
+## CATEGORIA: clasificar comando
+## DESCRIPCION: describir comando
+
+# un comentario, imprimimos un hola
+echo "hola"
+
+# otro comentario, imprimimos un chau
+echo "chau"

@@ -11,3 +11,6 @@ TRUNCATE_CLEAR_CONTENT=truncate -s 0
 # luego es utilizado al listar los comandos por la segunda columna (categoria)
 # Ej. cat comandos.txt | sort -t "|" -k 2
 SORT_BY_COLUMN = sort -t "|" -k
+
+COPY_NOT_OVERWRITE=rsync --ignore-existing
+# alternativa al rsync --ignore-existing es cp --no-clobber

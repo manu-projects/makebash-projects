@@ -6,3 +6,8 @@ BASH_ALIAS=alias ?='make --no-print-directory -C $(CURRENT_DIRECTORY)'
 BASH_ALIAS_ESCAPE_SLASH=$(subst /,\/,$(BASH_ALIAS))
 
 POPUP_EDIT = sh ./scripts/edit-popup.sh $(TEXT_EDITOR)
+
+MENU_CREATE_DOC=whiptail --title "Crear documentación" \
+								--menu "Elegir una opción" 30 80 5 \
+								"linux-create-doc" "Documentación de Linux" \
+								"app-create-doc" "Documentación de una Aplicación"

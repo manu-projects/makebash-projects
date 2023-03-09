@@ -1,0 +1,8 @@
+## CATEGORIA: clasificar aplicación
+## DESCRIPCION: describir aplicación
+
+# un comentario, imprimimos un hola
+echo "hola"
+
+# otro comentario, imprimimos un chau
+echo "chau"
