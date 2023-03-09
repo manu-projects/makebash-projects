@@ -16,8 +16,6 @@ COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 
 .DEFAULT_GOAL=help
 
-$(eval edit:;@:)
-
 # TODO: refactor, definir una función de Makefile que reciba por parámetro el nombre de target y las dependencias
 $(DOC_LINUX).txt: $(DOC_COMANDOS_LINUX)
 	@$(TRUNCATE_CLEAR_CONTENT) $@
@@ -59,8 +57,31 @@ a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 # 3. Con $(MAKE) se invoca a si mismo el Makefile
 # 4. El motivo del redireccionamiento se explica en el target linux-create-doc
 create-doc: ## Crear documentación de Linux ó de una Aplicación
-	$(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+	@$(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
 	| xargs -I % $(MAKE) --no-print-directory %
+
+edit-doc: ## Editar documentación de Linux ó de una Aplicación
+	@$(MENU_EDIT_DOC) 3>&1 1>&2 2>&3 \
+	| xargs -I % $(MAKE) --no-print-directory %
+
+# TODO: posibilidad de un whiptail --menu con los comandos como items
+# TODO: refactor, lógica repetida
+# Alternativa read -p "texto" VARIABLE sería.. echo "texto: " && read VARIABLE
+linux-edit-commands:
+	@read -p "Nombre del Comando de Linux a editar: " NOMBRE </dev/tty \
+	&& $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION)
+
+linux-edit-shortcuts:
+	@read -p "Nombre del Comando de Linux a editar: " NOMBRE </dev/tty \
+	&& $(TEXT_EDITOR) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+
+app-edit-commands:
+	@read -p "Nombre de la Aplicación a editar: " NOMBRE </dev/tty \
+	&& $(TEXT_EDITOR) $(DOC_COMMANDS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION)
+
+app-edit-shortcuts:
+	@read -p "Nombre de la Aplicación a editar: " NOMBRE </dev/tty \
+	&& $(TEXT_EDITOR) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
 
 # Notas:
 # 1. el comando xargs requiere utilizarlo la forma xargs -I % sh -c 'comando1 %; comando2 %; ..'
@@ -77,7 +98,7 @@ linux-create-doc:
 	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
 	echo "Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
 	echo "Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; \
-	' \
+	'
 
 app-create-doc:
 	whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
@@ -87,54 +108,16 @@ app-create-doc:
 	echo "Se creó el archivo $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
 	echo "Se creó el archivo$(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; \
 	'
-# TODO: el comando read lo pasa de largo, quizás por el redireccionamiento (?)
-#
-#linux-create-doc:
-#	printf "Nombre del Comando de Linux a documentar: " \
-#	&& read NOMBRE \
-#	&& echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
-#	&& echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
 
-#app-create-doc:
-#	printf "Nombre de la Aplicación a documentar: " \
-#	&& read NOMBRE \
-#	&& echo $(DOC_COMMANDS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
-#	&& echo $(DOC_SHORTCUTS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
-
-# Notas:
-# - comando TEST para validar existencia de archivos.. test -f archivo.txt && echo "existe" || echo "no existe"
-# - no se puede validar la existencia del archivo con el ifeq + wildcard + la macro $@ porque.. ifeq de GNU Make no valida en tiempo de ejecución
-#.ONESHELL:
 $(COMANDOS_LINUX):
-# 1. validamos si pasó el parámetro "edit"
-ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
-# 1.1 confirmamos que tipo de modificación se desea, ejecutamos un sh y pasamos por parámetro las rutas del archivo .sh y .org
-# (delegamos la responsabilidad en un .sh por la complejidad de evaluar y expandir macros con comandos de shell de éste tipo y comparar con el ifeq de GNU Make)
-	@$(POPUP_EDIT) \
-	$(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
-	$(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION)
-# 1.2 flujo alternativo, si no pasó el parámetro "edit" entonces imprimimos los comandos ó shortcuts
-# (en las notas describimos como funciona el comando TEST)
-else
 	@test -f $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
 	&& $(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
 	|| $(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION)
-endif
 
 $(COMANDOS_APPS):
-#1. validamos si pasó el parámetro "edit"
-ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
-# 1.1 confirmamos que tipo de modificación se desea, ejecutamos un sh y pasamos por parámetro las rutas del archivo .sh y .org
-	@$(POPUP_EDIT) \
-	$(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) \
-	$(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION)
-# 1.2 flujo alternativo, si no pasó el parámetro "edit" entonces imprimimos los comandos ó shortcuts
-# (en las notas describimos como funciona el comando TEST)
-else
 	@test -f $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
 	&& $(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
 	|| $(BAT) $(DOC_COMMANDS_APPS_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION)
-endif
 
 ##@ Utilidades
 h help: ## Mostrar menú de ayuda
