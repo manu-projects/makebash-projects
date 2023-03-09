@@ -11,7 +11,11 @@ DOC_COMANDOS_APPS = $(wildcard $(DOC_COMMANDS_APPS_DIRECTORY)/*.$(DOC_COMMANDS_E
 DOC_SHORTCUTS_APPS = $(wildcard $(DOC_SHORTCUTS_APPS_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
 COMANDOS_LINUX = $(basename $(notdir $(DOC_COMANDOS_LINUX)))
+SHORTCUTS_LINUX = $(basename $(notdir $(DOC_SHORTCUTS_LINUX)))
+
 COMANDOS_APPS = $(basename $(notdir $(DOC_COMANDOS_APPS)))
+SHORTCUTS_APPS = $(basename $(notdir $(DOC_SHORTCUTS_APPS)))
+
 COMANDOS = $(COMANDOS_LINUX) $(COMANDOS_APPS)
 
 .DEFAULT_GOAL=help
@@ -64,24 +68,35 @@ edit-doc: ## Editar documentación de Linux ó de una Aplicación
 	@$(MENU_EDIT_DOC) 3>&1 1>&2 2>&3 \
 	| xargs -I % $(MAKE) --no-print-directory %
 
-# TODO: posibilidad de un whiptail --menu con los comandos como items
 # TODO: refactor, lógica repetida
-# Alternativa read -p "texto" VARIABLE sería.. echo "texto: " && read VARIABLE
-linux-edit-commands:
-	@read -p "Nombre del Comando de Linux a editar: " NOMBRE </dev/tty \
-	&& $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION)
+LINUX_COMMANDS_LIST=$(shell cat $(DOC_LINUX).txt | nawk -F '|' '{print $$1 "::" $$2}' | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' | tr '\\' '\n')
+APPS_COMMANDS_LIST=$(shell cat $(DOC_APPS).txt | nawk -F '|' '{print $$1 "::" $$2}' | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' | tr '\\' '\n')
+
+# TODO: refactor, lógica repetida
+MENU_EDIT_LINUX_COMMANDS=whiptail \
+	--title "Editar documentación de Linux" \
+	--menu "Elegir una opción" 0 0 5 $(LINUX_COMMANDS_LIST)
+
+MENU_EDIT_APPS_COMMANDS=whiptail \
+	--title "Editar documentación de una Aplicación" \
+	--menu "Elegir una opción" 0 0 5 $(APPS_COMMANDS_LIST)
+
+# TODO: refactor, lógica repetida
+linux-edit-commands: $(DOC_LINUX).txt
+	$(MENU_EDIT_LINUX_COMMANDS)  3>&1 1>&2 2>&3 \
+	| xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
 
 linux-edit-shortcuts:
-	@read -p "Nombre del Comando de Linux a editar: " NOMBRE </dev/tty \
-	&& $(TEXT_EDITOR) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+	$(MENU_EDIT_LINUX_COMMANDS)  3>&1 1>&2 2>&3 \
+	| xargs -I % $(TEXT_EDITOR) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)
 
 app-edit-commands:
-	@read -p "Nombre de la Aplicación a editar: " NOMBRE </dev/tty \
-	&& $(TEXT_EDITOR) $(DOC_COMMANDS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION)
+	$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
+	| xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
 
 app-edit-shortcuts:
-	@read -p "Nombre de la Aplicación a editar: " NOMBRE </dev/tty \
-	&& $(TEXT_EDITOR) $(DOC_SHORTCUTS_APPS_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+	$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
+	| xargs -I % $(TEXT_EDITOR) $(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)
 
 # Notas:
 # 1. el comando xargs requiere utilizarlo la forma xargs -I % sh -c 'comando1 %; comando2 %; ..'
