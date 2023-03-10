@@ -1,6 +1,7 @@
 -include utils/utils.mk
 -include utils/unix-utils.mk
 -include config.cfg
+-include utils/menus.mk
 
 #SHELL=/bin/bash
 
@@ -60,6 +61,7 @@ a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 # 2. La opción capturada será el target que pasaremos por parámetro al propio Makefile para ejecutar
 # 3. Con $(MAKE) se invoca a si mismo el Makefile
 # 4. El motivo del redireccionamiento se explica en el target linux-create-doc
+# TODO: refactor, lógica repetida
 create-doc: ## Crear documentación de Linux ó de una Aplicación
 	@$(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
 	| xargs -I % $(MAKE) --no-print-directory %
@@ -69,33 +71,20 @@ edit-doc: ## Editar documentación de Linux ó de una Aplicación
 	| xargs -I % $(MAKE) --no-print-directory %
 
 # TODO: refactor, lógica repetida
-LINUX_COMMANDS_LIST=$(shell cat $(DOC_LINUX).txt | nawk -F '|' '{print $$1 "::" $$2}' | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' | tr '\\' '\n')
-APPS_COMMANDS_LIST=$(shell cat $(DOC_APPS).txt | nawk -F '|' '{print $$1 "::" $$2}' | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' | tr '\\' '\n')
-
-# TODO: refactor, lógica repetida
-MENU_EDIT_LINUX_COMMANDS=whiptail \
-	--title "Editar documentación de Linux" \
-	--menu "Elegir una opción" 0 0 5 $(LINUX_COMMANDS_LIST)
-
-MENU_EDIT_APPS_COMMANDS=whiptail \
-	--title "Editar documentación de una Aplicación" \
-	--menu "Elegir una opción" 0 0 5 $(APPS_COMMANDS_LIST)
-
-# TODO: refactor, lógica repetida
 linux-edit-commands: $(DOC_LINUX).txt
-	$(MENU_EDIT_LINUX_COMMANDS)  3>&1 1>&2 2>&3 \
+	@$(MENU_EDIT_LINUX_COMMANDS)  3>&1 1>&2 2>&3 \
 	| xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
 
 linux-edit-shortcuts:
-	$(MENU_EDIT_LINUX_COMMANDS)  3>&1 1>&2 2>&3 \
+	@$(MENU_EDIT_LINUX_SHORTCUTS)  3>&1 1>&2 2>&3 \
 	| xargs -I % $(TEXT_EDITOR) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)
 
 app-edit-commands:
-	$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
+	@$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
 	| xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
 
 app-edit-shortcuts:
-	$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
+	@$(MENU_EDIT_APPS_COMMANDS)  3>&1 1>&2 2>&3 \
 	| xargs -I % $(TEXT_EDITOR) $(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)
 
 # Notas:
@@ -107,21 +96,23 @@ app-edit-shortcuts:
 # 3. el comando whiptail escribe sobre stdout (fd 2) por tanto creamos un nuevo File Descriptor (3),
 # que apunta al stdout (fd 1), para luego redireccionar el stdout->stderr, y redireccionar el stderr->nuevo fd 3 (que apunta al stdout)
 linux-create-doc:
-	whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
+	@whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
 	| xargs -I % sh -c \
 	'$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
 	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
 	echo "Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
 	echo "Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)";'
 
+# TODO: lógica repetida con linux-create-doc
 app-create-doc:
-	whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
+	@whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
 	| xargs -I % sh -c \
 	'$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_APPS_DIRECTORY)/.template $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
 	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_APPS_DIRECTORY)/.template $(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
 	echo "Se creó el archivo $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
 	echo "Se creó el archivo$(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; '
 
+# TODO: lógica repetida con COMANDOS_APPS
 $(COMANDOS_LINUX):
 	@test -f $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
 	&& $(BAT) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.$(DOC_COMMANDS_EXTENSION) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$@.$(DOC_SHORTCUTS_EXTENSION) \
