@@ -47,7 +47,7 @@ $(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
 		>> $@;\
 	)
 
-##@ Acciones
+##@ Listar documentación
 l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 	@echo 'Lista de Comandos'
 	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
@@ -55,6 +55,8 @@ l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@echo 'Lista de Comandos para Aplicaciones'
 	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
+
+##@ Creación y Edición de documentación
 
 # Notas:
 # 1. La opción elegida en el menú será capturada por xargs
@@ -98,19 +100,19 @@ app-edit-shortcuts:
 linux-create-doc:
 	@whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
 	| xargs -I % sh -c \
-	'$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
+	"$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
 	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
-	echo "Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
-	echo "Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)";'
+	echo 'Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION);' \
+	echo 'Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION);'"
 
 # TODO: lógica repetida con linux-create-doc
 app-create-doc:
 	@whiptail --inputbox "Escriba el nombre del comando" 25 80 --title "Crear Documentación de Linux" 3>&1 1>&2 2>&3 \
 	| xargs -I % sh -c \
-	'$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_APPS_DIRECTORY)/.template $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
+	"$(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_APPS_DIRECTORY)/.template $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION); \
 	$(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_APPS_DIRECTORY)/.template $(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION); \
-	echo "Se creó el archivo $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)"; \
-	echo "Se creó el archivo$(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION)"; '
+	echo 'Se creó el archivo $(DOC_COMMANDS_APPS_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION);' \
+	echo 'Se creó el archivo$(DOC_SHORTCUTS_APPS_DIRECTORY)/%.$(DOC_SHORTCUTS_EXTENSION);'"
 
 # TODO: lógica repetida con COMANDOS_APPS
 $(COMANDOS_LINUX):
@@ -128,19 +130,31 @@ h help: ## Mostrar menú de ayuda
 	@awk 'BEGIN {FS = ":.*##"; printf "\nOpciones para usar:\n  make \033[36m\033[0m\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 install-utils:
+ifeq ("$(shell which bat)","")
 	@sudo aptitude install -y bat
+endif
 
 ri re-install: remove install
 
-i install: install-utils ## Instalar aplicación
-	@echo "$(BASH_ALIAS)" >> $(BASH_ALIASES) && \
-	chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases && \
-	$(UTILS_DIRECTORY)/update-bash-aliases
+check-installed:
+ifeq ($(APP_INSTALLED), true)
+	$(error La aplicación ya está instalada)
+endif
 
-# TODO: chequear patrón de sustitución
-r remove: ## Remover aplicación
-	sed -i "/$(BASH_ALIAS_ESCAPE_SLASH)/d" $(BASH_ALIASES) && \
-	$(UTILS_DIRECTORY)/update-bash-aliases
+i install: check-installed install-utils ## Instalar aplicación
+	@$(BOX_CONFIRM_INSTALL) \
+	&& test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+	&& (echo $(BASH_ALIAS) >> $(BASH_ALIASES_FILE) \
+		&& chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases \
+		&& $(UTILS_DIRECTORY)/update-bash-aliases) \
+	|| true
+
+r remove: ## Desinstalar aplicación
+	@$(BOX_CONFIRM_UNINSTALL) \
+	&& test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+	&& sed -i "/^alias $(BASH_ALIAS_SYMBOL)='make.*APP_AUTHOR=$(APP_AUTHOR)/d" $(BASH_ALIASES_FILE) \
+	&& $(UTILS_DIRECTORY)/update-bash-aliases \
+	|| true
 
 # %:
 # 	$(error NO existe el comando)

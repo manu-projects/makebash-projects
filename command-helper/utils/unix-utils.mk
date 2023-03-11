@@ -14,3 +14,10 @@ SORT_BY_COLUMN = sort -t "|" -k
 
 COPY_NOT_OVERWRITE=rsync --ignore-existing
 # alternativa al rsync --ignore-existing es cp --no-clobber
+
+# - el $? NO es una macro de GNU Make, es propio de linux y guarda el Estado de Salida luego de ejecutar un comando de linux (programas)
+EXIT_STATUS=$(shell echo $$?)
+
+# - el valor 0 indíca que el comando de linux se ejecutó con éxito
+# (se le pasaron opciones que posee, parámetros válidos como rutas, ...)
+EXIT_STATUS_SUCCESS=0
