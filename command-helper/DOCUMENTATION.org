@@ -261,3 +261,102 @@
     3. [[https://stackoverflow.com/questions/1251999/how-can-i-replace-each-newline-n-with-a-space-using-sed][how can I replace each newline n with a space using sed command (stackoverflow.com)]]
     4. [[https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-in-regular-expressions][what is a non capturing group in regular expressions (stackoverflow.com)]]
     5. [[https://superuser.com/questions/112834/how-to-match-whitespace-in-sed][how to match whitespace in sed command (superuser.com)]]
+* Comandos xargs y whiptail + Llamado recursivo a un Makefile
+** Posibles Escenarios
+*** Escenario (1) con GNU Make
+    #+BEGIN_QUOTE
+    1) Interactuamos con el usuario mediante un cuadro de diálogo
+    2) Usaremos el programa ~whiptail~ para la interfáz del cuadro de diálogo
+    3) Redireccionamos el stderr al stdout para capturar lo que escribe ~whiptail~
+    4) Capturamos el valor de salida de ~whiptail~ con ~xargs~ para crear nuevos archivos a partir de otros (templates)
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      # alternativa al `rsync --ignore-existing` sería `cp --no-clobber`
+      COPY_NOT_OVERWRITE=rsync --ignore-existing
+
+      DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+      DOC_SHORTCUTS_LINUX_DIRECTORY=doc/linux-shell/shortcuts
+
+      MENU_CREATE_DOC_LINUX= whiptail \
+        --inputbox "Escriba el nombre del comando" 25 80 \
+        --title "Crear Documentación de Linux"
+
+      linux-create-doc:
+        $(MENU_CREATE_DOC_LINUX) 3>&1 1>&2 2>&3 \
+        | xargs -I % sh -c "\
+        $(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.sh; \
+        $(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.org; \
+        echo 'Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.sh;' \
+        echo 'Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.org'; \
+        "
+    #+END_SRC
+*** Escenario (2) con GNU Make - Makefile recursivo
+    #+BEGIN_QUOTE
+    1) Capturamos la opción elegida del menu de ~whiptail~ con ~xargs~
+    2) La *opción capturada* será el nombre del ~target~ que pasaremos por parámetro al mismo ~Makefile~ para ejecutar
+    3) Con ~$(MAKE)~ se invoca a si mismo el Makefile
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      # Notas:
+      # 1. es necesario definir los targets linux-create-doc y app-create-doc
+      # 2. al confirmarle a whiptail una opción, la enviará al stdout (file descriptor 1, la pantalla)
+      # y GNU Make interpretará que el resultado es el nombre de un target
+      # (si no existen esos targets GNU Make lanzará un error de que deben definirse en el Makefile)
+      MENU_CREATE_DOC=whiptail \
+        --title "Crear documentación" \
+        --menu "Elegir una opción" 30 80 5 \
+        "linux-create-doc" "Documentación de Linux" \
+        "app-create-doc" "Documentación de una Aplicación"
+
+      create-doc:
+        $(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(MAKE) --no-print-directory %
+    #+END_SRC
+*** Escenario Alternativo - Usando comando read
+   #+BEGIN_SRC makefile
+     linux-create-doc:
+       read -p "Nombre del Comando de Linux a documentar: " NOMBRE \
+       && echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+       && echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+
+     # otra alternativa
+     linux-create-doc:
+       printf "Nombre del Comando de Linux a documentar: " && read NOMBRE \
+       && echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+       && echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+   #+END_SRC
+** Comando xargs - Mismo parámetro a múltiples comandos
+   #+BEGIN_QUOTE
+   El comando ~xargs~ requiere utilizarlo la forma ~xargs -I % sh -c 'comando1 %; comando2 %; ..'~
+   cuando queremos pasar el mismo parámetro ~%~ a multiples comandos en la misma Shell
+
+   El símbolo ~%~ que usamos en los nombres de los ficheros, es el parámetro capturado por el comando ~xargs~ con la opción ~-I~
+   #+END_QUOTE
+** Comando whiptail - Redirección entre File Descriptors
+*** Problema
+    - el comando ~whiptail~ por defecto escribe sobre el ~stderr~ (fd 2)
+    - necesitamos redireccionar el ~stderr~ (fd 2) al ~stdout~ (fd 1)
+*** Solución 1 - Utilizar la terminal activa /dev/tty
+    - utilizar el operador de redirección ~>~ de la forma ~file descriptor>&otro fd~
+    - redireccionar STDERR a STDOUT y luego STDOUT a la terminal activa (la que está en uso)
+
+    #+BEGIN_QUOTE
+    Planteandolo quedaría ~2>&1 > /dev/tty~
+    1) ~2>&1~ redireccionamos el STDERR (file descriptor 2) a STDOUT (file descriptor 1)
+    2) ~> /dev/tty~ redireccionamos el STDOUT a la terminal activa (la que está en uso)
+    #+END_QUOTE
+*** Solución 2 - Crear nuevo file descriptor
+    - utilizar el operador de redirección ~>~ de la forma ~file descriptor>&otro fd~
+    - crear un *File Descriptor* adicional que guarde la referencia del stdout
+
+    #+BEGIN_QUOTE
+    Planteandolo quedaría ~3>&1 1>&2 2>&3~
+    1) ~3>&1~ creamos un nuevo File Descriptor (fd 3) que guarda la referencia del stdout (fd 1)
+    2) ~1>&2~ redireccionamos el stdout->stderr
+    3) ~2>&3~ redireccionamos el stderr->nuevo file descriptor (fd 3, el que apuntaba al stdout)
+    #+END_QUOTE
+** Referencias
+*** Referencias Extraoficiales
+    1) [[https://phoenixnap.com/kb/xargs-command][xargs Command examples (phoenixnap.com)]]
