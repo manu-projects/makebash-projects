@@ -360,3 +360,97 @@
 ** Referencias
 *** Referencias Extraoficiales
     1) [[https://phoenixnap.com/kb/xargs-command][xargs Command examples (phoenixnap.com)]]
+* Comandos read y whiptail - Redirección de la Terminal activa /dev/tty
+** Formas de Redirección utilizadas
+*** Operador Pipe (|)
+    - *redirecciona el STDOUT* como STDIN de otro comando
+    - ejemplo ~ls *.txt | grep ^b~ (listar todos los archivos de texto plano que empiecen con la letra b)
+*** Operador (<)
+    - *redirecciona el contenido de un archivo* como STDIN de un comando
+    - ejemplo ~tr 'a-z' 'A-Z' < alumnos.txt~ (convertimos todos caracteres en mayúsculas)
+
+    #+BEGIN_QUOTE
+    En el posible escenario (1) planteado, que combinamos los comandos ~whiptail~ y ~read~
+    - Redireccionamos el *contenido de la terminal en uso* (activa) ~/dev/tty~ con el operador de redirección ~<~
+    - ES FUNDAMENTAL la redirección ~< /dev/tty~ caso contrario.. el comando ~read~ FALLARÁ..
+    #+END_QUOTE
+** Posibles Escenarios
+*** Escenario (1) con GNU Make - Comando read
+    #+BEGIN_QUOTE
+    Primero la interacción con ~whiptail~ (no es el tema de interés al menos en éste escenario)
+    1) Utilizamos ~whiptail~ para mostrar una caja de dialogo
+    2) Redireccionamos los *File Descriptor* (STDERR -> STDOUT) para
+       - porque por default escriben en el *STDERR* (fd 2)
+       - utilizar la salida de ~whiptail~ como entrada de otro comando con el operador pipe ~|~
+       - pasar por parámetro el resultado de ~whiptail~ al propio ~Makefile~ con el comando ~xargs~
+       - el parámetro recibido por el ~Makefile~, lo interpeta *GNU Make* como el nombre de un target (que debe estar definido en el Makefile)
+    3) Elegida una opción de ~whiptail~, la llamada recursiva ~$(MAKE)~ recibe el nombre del target pasado por parámetro por ~xargs~
+    #+END_QUOTE
+
+    #+BEGIN_QUOTE
+    Segundo la interacción con el comando ~read~ y el operador de redireccion ~<~ (éste era el tema de interés)
+    1) Solicitamos por *STDIN* (fd 0) que ingrese el nombre del comando ó aplicación con el comando ~read~
+    2) Redireccionamos el *contenido de la terminal en uso* (activa) ~/dev/tty~ con el operador de redirección ~<~
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      MENU_CREATE_DOC=whiptail \
+      --title "Crear documentación" \
+      --menu "Elegir una opción" 30 80 5 \
+      "linux-create-doc" "Documentación de Linux" \
+      "app-create-doc" "Documentación de una Aplicación"
+
+      # No es necesario utilizar la opción -I, la utilizamos para asignarle un símbolo al parámetro que recibe xargs (el %)
+      # y que se entienda que se lo estamos pasando por parámetro al llamado recursivo $(MAKE)
+      create-doc:
+        $(MENU_CREATE_DOC) 2>&1 > /dev/tty \
+        | xargs $(MAKE) --no-print-directory
+
+      # alternativa al 2>&1 >/dev/tty
+      # create-doc:
+      #  $(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+      #  | xargs -I % $(MAKE) --no-print-directory %
+
+      # Notas:
+      # 1. Una alternativa a ~read -p "texto" VARIABLE~ sería ~echo "texto: " && read VARIABLE~
+      linux-create-doc:
+      read -p "Nombre del Comando de Linux a documentar: " NOMBRE < /dev/tty \
+      && $(TEXT_EDITOR) $$NOMBRE.sh
+
+      app-create-doc:
+      read -p "Nombre de la Aplicación a documentar: " NOMBRE < /dev/tty \
+      && $(TEXT_EDITOR) $$NOMBRE.org
+
+      .PHONY: create-doc linux-create-doc app-create-doc
+    #+END_SRC
+*** Escenario (2) con GNU Make - Comando whiptail con cuadro de dialogo
+    #+BEGIN_SRC makefile
+      LINUX_COMMANDS_LIST=ls ps find tee
+      LINUX_SHORTCUTS_LIST=neovim screen
+
+      MENU_EDIT_LINUX_COMMANDS=whiptail \
+        --title "Editar documentación de Linux" \
+        --menu "Elegir una opción" 0 0 5 $(LINUX_COMMANDS_LIST)
+
+      MENU_EDIT_LINUX_SHORTCUTS=whiptail \
+        --title "Editar documentación de Linux" \
+        --menu "Elegir una opción" 0 0 5 $(LINUX_SHORTCUTS_LIST)
+
+      linux-edit-commands: linux-shell.txt
+        $(MENU_EDIT_LINUX_COMMANDS) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
+
+      linux-edit-shortcuts:
+        $(MENU_EDIT_LINUX_SHORTCUTS) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
+    #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/monitor-keyboard-drivers][Difference between /dev/tty and /dev/tty0 (baeldung.com)]]
+    2. [[https://linuxhandbook.com/redirection-linux/][Explained: input, output and error redirection in linux (linuxhandbook.com)]]
+    3. [[https://linuxhandbook.com/read-command/][Practical examples of the read command in Linux (linuxhandbook.com)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/229530/how-linux-uses-dev-tty-and-dev-tty0][How linux uses dev/tty and dev/tty0 (unix.stackexchange.com)]]
+    2. [[Https://stackoverflow.com/questions/39631144/why-command-read-doesnt-work][Why command read doesn't work (stackoverflow.com)]]
+    3. [[https://stackoverflow.com/questions/6674327/redirect-all-output-to-file-in-bash/6674383#6674383][Redirect all output to file in bash (stackoverflow.com)]]
+    4. [[https://stackoverflow.com/questions/1562666/bash-scripts-whiptail-file-select][Bash scripts whiptail file select (stackoverflow.com)]]
