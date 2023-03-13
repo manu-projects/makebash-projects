@@ -23,7 +23,8 @@ whiptail --title "Borrar archivos" --yesno "Desea confirmar la acción?" 10 50 -
 # - el último parámetro de whiptail con --inputbox es opcional, será el valor por default que sugerirá escribir
 # - el operador pipe (|) redirecciona el STDOUT (que escribió whiptail) como STDIN al comando xargs
 # - el comando xargs -I %, le define el símbolo % al input que le redireccionado por el operador pipe
-whiptail --title "Crear usuario" --inputbox "Escriba el nombre de usuario" 10 50 "root" 2>&1 1>/dev/tty \
+# - 3>&1 2>&1 2>&3 tiene mismo objetivo que 2>&1 1>/dev/tty, pero creando un nuevo File Descriptor (3) que referencia al STDOUT (fd 1) y al que redireccionará el STDERR (fd 2)
+whiptail --title "Crear usuario" --inputbox "Escriba el nombre de usuario" 10 50 "root" 3>&1 1>&2 2>&3 \
     | xargs -I % echo "Hola %"
 
 # alternativa al whiptail --inputbox (pero sin la interfáz de whiptail)
