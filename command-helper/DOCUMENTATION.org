@@ -536,3 +536,40 @@
      # ésta fue la macro utilizada, que no arroja errores
      SHORTCUTS_LINUX_FORMAT=$(shell echo $(SHORTCUTS_LINUX) | sed -E 's/([[:alpha:]]+) /\1|/g')
    #+END_SRC
+* GNU Make - Macro con comandos de Shell (awk + sed + tr)
+** Objetivo
+   - Adaptar el texto de un archivo que está de la forma ~dato1|dato2|~ a algo como ~"dato1" "dato2"~ seguidos de un salto de linea ~\n~
+   - Crear un menú con el comando ~whiptail --menu~ con el texto transformado
+** Problema
+   1) Leer el contenido de un archivo de texto plano (.txt) que tiene columnas delimitadas por el símbolo pipe ~|~
+   2) Cambiar el separador de columnas ~|~ por otro ~::~ con ~awk~ para facilitar la sustitución con ~sed~
+   3) Sustituir los textos de las columnas separadas por ~::~ de la forma ~"palabra" "otra"~ seguido de un slash invertido ~\~
+   4) Agregar saltos de linea al final de cada columna
+** Solución
+  #+BEGIN_QUOTE
+  - si utilizamos ~!/patron/~ en ~awk~, filtramos el contenido de un archivo, usando el ~!~ como una negación ~NOT~
+  - la solución actual con ~sed~ se complicaba el borrar lineas con varios patrones)
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # faltan algunas macros, NO se agregaron enfocar ésta solución
+    DOC_LINUX=linux-shell
+
+    LINUX_COMMANDS_LIST=$(shell cat $(DOC_LINUX).txt \
+      | nawk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' \
+      | tr '\\' '\n')
+
+    # Nota: Si usamos el operador != en vez de la función $(shell ) no cumplirá su propósito el slash invertido
+    LINUX_SHORTCUTS_LIST=$(shell cat $(DOC_LINUX).txt \
+      | awk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/([[:alpha:]]+)::(.+)/\"\1\" \"\2\"\\/g' \
+      | awk '/$(SHORTCUTS_LINUX_FORMAT)/' \
+      | tr '\\' '\n')
+  #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/delete-lines-containing-string-from-file][Delete lines containing string from file (baeldung.com)]]
+    2. [[https://phoenixnap.com/kb/awk-command-in-linux][awk command in linux (phoenixnap.com)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/318839/awk-negative-regular-expression][awk negative regular expression (unix.stackexchange.com)]]
