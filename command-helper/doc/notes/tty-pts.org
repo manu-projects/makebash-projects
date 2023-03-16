@@ -1,22 +1,28 @@
 #+CATEGORIA: TTY y PTS
 #+DESCRIPCION: pendiente
 * Shortcuts
+** Tabla Comparativa
+   | Shortcut         | Descripción                                                                       | origen                        |
+   |------------------+-----------------------------------------------------------------------------------+-------------------------------|
+   | Alt + Ctrl + T   | abrir un Emulador de Terminal                                                     | desde una sesión X            |
+   | Alt + Ctrl + FN  | abrir una Consola Virtual en pantalla completa (/siendo N un entero entre 1 y 7/) | desde una sesión X            |
+   | Ctrl + Shift + T | abrir una Pseudo Terminal (pts)                                                   | desde un Emulador de Terminal |
+   | Alt + FN         | abrir una Consola Virtual en pantalla completa (/siendo N un entero entre 1 y 7/) | desde una Consola Virtual     |
+   |------------------+-----------------------------------------------------------------------------------+-------------------------------|
 ** Sesión X
-   - si estamos dentro de una *Sesión X*, abrimos un *Emulador de Terminal* con ~Alt + Ctrl + T~
+   - dentro de una *Sesión X*, podemos abrimos un *Emulador de Terminal*
 ** Emulador de Terminal (Konsole, xterm, Gnome Terminal, ..)
-   - si estamos en un *Emulador de Terminal*, accedemos las *Consolas Virtuales* con ~Alt + Ctrl + F3~, ~Alt + Ctrl + F4~, ..
+   - desde en un *Emulador de Terminal*, creamos una ó varias (pts) *Pseudo Terminales* (pts1, pts2, ...)
 ** Pseudo-terminales (/dev/pts/1, /dev/pts/2, ...)
-   - Si estamos en un *Emulador de Terminal*, creamos una (pts) *Pseudo Terminal* con ~Alt + Shift + T~
+   - son controladas por el *Emulador de Terminal* que las creó
 ** Consolas Virtuales (/dev/tty1, /dev/tty2, ..)
-   - si estamos dentro de una *Consola Virtual*, NO se necesita el ~Ctrl~ es decir.. ~Alt + F3~, ~Alt + F4~, ..
-   - si presionamos ~Alt + F7~ "por lo general" volvemos a la *Sesión X* (el GUI Desktop)
-   - son *archivos de Dispositivos de Caracteres* (archivos especiales) ~/dev/tty1~, ~/dev/tty2~, ..
+   - si presionamos ~Alt + F7~ "por lo general" volvemos a la *Sesión X* (el Graphical Desktop, Escritorio con Interfáz Gráfica)
 * Stdin, Stdout, Stderr
-  - son archivos especiales (Enlaces Simbólicos) que apuntan a los File Descriptor (archivos) 0, 1, 2
-  - ejemplo ~ls -l /dev/{fd,stdin,stdout,stderr}~
+  - son archivos especiales (Enlaces Simbólicos) que apuntan a los *File Descriptor* (archivos) 0, 1, 2
+  - podemos comprobar lo anterior con ~ls -l /dev/{fd,stdin,stdout,stderr}~
 * File Descriptors (0, 1, 2)
   - son archivos especiales (Enlaces Simbólicos) que apuntan a la (PTS) Pseudoterminal en uso
-  - ejemplo ~ls -l /dev/fd/{0,1,2}~
+  - podemos comprobrar lo anterior con ~ls -l /dev/fd/{0,1,2}~
 * Redireccionar a stdout, file descriptor 0, Consola Virtual (tty), Pseudo Terminal activa (pts)
   - Si usamos el operador de redirección (>) el resultado será el mismo para los siguientes
 
@@ -41,7 +47,8 @@
   - podemos ver que es son un *tipo de archivo de Dispositivo de Caracteres* con
     - para ver las tty ~ls -l /dev/tty{0,1,2,3,4,5,6,7}~
     - para ver las pts ~ls -l /dev/pts/{0,1,2,3}~ (recordemos que creań desde un Emulador de Terminal, Ej. Konsole)
-* ptmx
-  - (ptmx) refiere a *Pseudo TTY Multiplexor Maestro*
-  - si un *Emulador de Terminal* lo abre, éste devuelve un *File Descriptor de un (ptm)* y el *File Descriptor de un (pts)*
+* Pseudo TTY Multiplexor Maestro (/dev/ptmx)
+  - si un *Emulador de Terminal* lo abre, éste devuelve
+    - un *File Descriptor de un (ptm)*
+    - un *File Descriptor de un (pts)*
   - podemos ver que es un *tipo de archivo de Dispositivo de Caracteres* con ~ls -l /dev/ptmx~
