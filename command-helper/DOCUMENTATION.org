@@ -455,7 +455,7 @@
     3. [[https://stackoverflow.com/questions/6674327/redirect-all-output-to-file-in-bash/6674383#6674383][Redirect all output to file in bash (stackoverflow.com)]]
     4. [[https://stackoverflow.com/questions/1562666/bash-scripts-whiptail-file-select][Bash scripts whiptail file select (stackoverflow.com)]]
 * GNU Make - Pasar parámetros sin valor asociado con MAKECMDGOALS y filter
-** Escenario
+** Problema
    #+BEGIN_QUOTE
    1) Queremos pasar un parámetro a un target sin asignarle un valor
    2) Ejecutar en la terminal de comandos ~make mkdir editar~ en vez de ~make editar-comando=mkdir~
@@ -487,3 +487,52 @@
 *** Comando test
   - lo usamos ara *validar existencia de archivos*
   - utilizado de la forma ~test -f archivo.txt && echo "existe" || echo "no existe"~
+* GNU Make - Macro con comandos de Shell y utilizada como parámetro a otra función Shell
+** Problema
+   #+BEGIN_QUOTE
+   1) Transformar el texto de un target (en este ej. es ~SHORTCUTS_LINUX~)
+   2) Agregar saltos de linea (el caracter especial ~\n~) con el comando de linux ~sed~, porque las *funciones de sustitución de GNU Make* no lo hacen
+   3) *Pasar por parámetro la macro* con el texto transformado con ~sed~ al comando linux ~awk~ para *filtrar contenido de un archivo* de texto plano
+   #+END_QUOTE
+** Sugerencias
+  #+BEGIN_QUOTE
+  Si usamos una ~Macro (A)~ que transforma e imprime el texto de otra ~Macro (B)~,
+  y esa la ~Macro (A)~ la utilizamos como un comando dentro de una regla para crear un Target/Objetivo,
+  entonces *GNU Make* buscará en el Makefile los targets con esos nombres..
+
+  Si ese no era nuestra meta y no habíamos definido targets con esos nombres,
+  entonces *GNU Make* FALLARÁ diciendo que *NO encontró los targets* para crear el target principal (dónde se incluyó la macro)
+
+  En este ejemplo utilizamos la ~Macro (A)~ como parámetro de un comando de linux
+  #+END_QUOTE
+** Solución
+  #+BEGIN_SRC makefile
+    DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+    DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.org)
+    SHORTCUTS_LINUX = $(basename $(notdir $(DOC_SHORTCUTS_LINUX)))
+
+    # Notas:
+    # 1. formateamos la lista de palabras, reemplazando los espacios por el pipe | como separador
+    # 2. permite controlar el contenido del archivo con el comando de linux AWK
+    SHORTCUTS_LINUX_FORMAT=$(shell echo $(SHORTCUTS_LINUX) | sed -E 's/([[:alpha:]]+) /\1|/g')
+
+    # Notas:
+    # 1. si usamos el operador != en vez de la función $(shell ) no cumplía su propósito el slash invertido
+    # 2. en véz de borrar lineas con el comando sed y su opción /d, se prefirió filtrar filas con awk que también permite patrones (más fácil)
+    LINUX_SHORTCUTS_LIST=$(shell cat commands-linux-shell.txt \
+      | awk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/([[:alpha:]]+)::(.+)/\"\1\" \"\2\"\\/g' \
+      | awk '/$(SHORTCUTS_LINUX_FORMAT)/' \
+      | tr '\\' '\n')
+  #+END_SRC
+** Soluciones fallidas
+   #+BEGIN_SRC makefile
+     # el comando `tr` no cumplía su propósito a diferencia del comando `sed`
+     SHORTCUTS_LINUX_FORMAT_FAIL = $(shell echo $(SHORTCUTS_LINUX) | tr '[:space:]' '\|')
+
+     # el operador de redirección <<< falla
+     SHORTCUTS_LINUX_FORMAT_FAIL = sed -E 's/([[:alpha:]]+) /\1|/g' <<< "$(SHORTCUTS_LINUX)"
+
+     # ésta fue la macro utilizada, que no arroja errores
+     SHORTCUTS_LINUX_FORMAT=$(shell echo $(SHORTCUTS_LINUX) | sed -E 's/([[:alpha:]]+) /\1|/g')
+   #+END_SRC
