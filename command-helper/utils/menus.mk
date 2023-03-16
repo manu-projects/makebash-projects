@@ -9,6 +9,10 @@ BOX_CONFIRM_UNINSTALL=whiptail \
 	--yesno "¿Está seguro de confirmar acción?" 0 0 \
 	--no-button "Cancelar" --yes-button "Confirmar"
 
+MENU_SHOW_NOTES=whiptail \
+	--title "Mostrar documentación en Notas" \
+	--menu "Elegir una opción" 0 0 5 $(NOTES_LIST)
+
 # TODO: refactor, lógica repetida
 MENU_EDIT_LINUX_COMMANDS=whiptail \
 	--title "Editar documentación de Linux" \
@@ -69,4 +73,9 @@ APPS_SHORTCUTS_LIST=$(shell cat $(DOC_APPS).txt \
 	| awk -F '|' '{print $$1 "::" $$2}' \
 	| sed -E 's/([[:alpha:]]+)::(.+)/\"\1\" \"\2\"\\/g' \
 	| awk '/$(SHORTCUTS_APPS_FORMAT)/' \
+	| tr '\\' '\n')
+
+NOTES_LIST=$(shell cat $(DOC_NOTES).txt \
+	| nawk -F '|' '{print $$1 "::" $$2}' \
+	| sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' \
 	| tr '\\' '\n')

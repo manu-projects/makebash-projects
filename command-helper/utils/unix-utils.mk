@@ -1,4 +1,5 @@
 BAT=bat --line-range $(NUMBER_LINE_BEGIN_DOCUMENTATION):
+EDITOR_NOTE=bat --line-range $(NUMBER_LINE_BEGIN_DOC_NOTES):
 
 NAWK_HEADERS=nawk 'BEGIN{print "Comando | Categoría | Descripción"} {print $$0}' | column -t -s "|"
 

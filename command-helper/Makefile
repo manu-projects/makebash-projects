@@ -5,6 +5,8 @@
 
 #SHELL=/bin/bash
 
+DOC_NOTES_FILES = $(wildcard $(DOC_NOTES_DIRECTORY)/*.$(DOC_NOTES_EXTENSION))
+
 DOC_COMANDOS_LINUX = $(wildcard $(DOC_COMMANDS_LINUX_DIRECTORY)/*.$(DOC_COMMANDS_EXTENSION))
 DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.$(DOC_SHORTCUTS_EXTENSION))
 
@@ -47,6 +49,18 @@ $(DOC_APPS).txt: $(DOC_COMANDOS_APPS)
 		>> $@;\
 	)
 
+$(DOC_NOTES).txt: $(DOC_NOTES_FILES)
+	@$(TRUNCATE_CLEAR_CONTENT) $@
+	@$(foreach nota, $^,\
+		cat $(nota) | \
+		sed -n '$(CONTENT_NUMBER_LINE_CATEGORY),$(CONTENT_NUMBER_LINE_DESCRIPTION)p' | \
+		nawk 'BEGIN{print "$(basename $(notdir $(nota)))|" } {print $$0}' | \
+		sed -E 's/^\#\+($(CONTENT_TAG_CATEGORY))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
+		sed -E 's/^\#\+($(CONTENT_TAG_DESCRIPTION))\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
+		tr --delete '\n' | tr ';' '\n' \
+		>> $@;\
+	)
+
 ##@ Listar documentación
 l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 	@echo 'Lista de Comandos'
@@ -55,6 +69,10 @@ l linux-commands: $(DOC_LINUX).txt ## Listado Comandos de terminal Linux
 a applications-commands: $(DOC_APPS).txt ## Listado Comandos de Aplicaciones
 	@echo 'Lista de Comandos para Aplicaciones'
 	@cat $< | $(SORT_BY_COLUMN) 2 | $(NAWK_ORDER_FIELDS) | $(NAWK_HEADERS)
+
+n notes: $(DOC_NOTES).txt ## Notas sugeridas
+	@$(MENU_SHOW_NOTES) 3>&1 1>&2 2>&3 \
+	| xargs -I % $(EDITOR_NOTE) $(DOC_NOTES_DIRECTORY)/%.$(DOC_NOTES_EXTENSION)
 
 ##@ Creación y Edición de documentación
 
@@ -159,4 +177,4 @@ r remove: ## Desinstalar aplicación
 # %:
 # 	$(error NO existe el comando)
 
-.PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands
+.PHONY: i install ri re-install install-utils r remove h help l linux-commands a applications-commands n notes
