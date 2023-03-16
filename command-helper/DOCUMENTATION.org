@@ -158,7 +158,7 @@
 *** Referencias Issues
     1. [[https://stackoverflow.com/questions/5553352/how-do-i-check-if-file-exists-in-makefile-so-i-can-delete-it][How do I check if file exists in makefile (stackoverflow.com)]]
     2. [[https://stackoverflow.com/questions/8059556/how-to-write-multiple-conditions-in-makefile-am-with-else-if][How to write multiple conditions in makefile (stackoverflow.com)]]
-* awk + sed - Expresiones Regulares
+* Comandos awk + sed - Expresiones Regulares
 ** Ejemplo Básico
   #+BEGIN_QUOTE
   Generamos un archivo ~comandos-linux.txt~ en base al contenido de sus dependencias (los .sh)
@@ -454,3 +454,36 @@
     2. [[Https://stackoverflow.com/questions/39631144/why-command-read-doesnt-work][Why command read doesn't work (stackoverflow.com)]]
     3. [[https://stackoverflow.com/questions/6674327/redirect-all-output-to-file-in-bash/6674383#6674383][Redirect all output to file in bash (stackoverflow.com)]]
     4. [[https://stackoverflow.com/questions/1562666/bash-scripts-whiptail-file-select][Bash scripts whiptail file select (stackoverflow.com)]]
+* GNU Make - Pasar parámetros sin valor asociado con MAKECMDGOALS y filter
+** Escenario
+   #+BEGIN_QUOTE
+   1) Queremos pasar un parámetro a un target sin asignarle un valor
+   2) Ejecutar en la terminal de comandos ~make mkdir editar~ en vez de ~make editar-comando=mkdir~
+   #+END_QUOTE
+** Solución
+  #+BEGIN_SRC makefile
+    DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+    TEXT_EDITOR=vim
+
+    # necesario para poder usar la palabra `edit` como parámetro de cualquier target
+    $(eval edit:;@:)
+
+    $(COMANDOS_LINUX):
+    # 1. validamos si pasó el parámetro "edit" en la terminal de comandos, al ejecutar make instanciando un target incluido la macro $(COMANDOS_LINUX)
+    ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
+    # 1.1 abrimos el archivo en modo de edición con algún programa (Ej. vim, nano, ..)
+      $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+    # 1.2 flujo alternativo, si no pasó el parámetro "edit",
+    # entonces sólo imprimimos el contenido del archivo
+    else
+      cat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+    endif
+
+      @test -f $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh \
+        && cat $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+        || true
+  #+END_SRC
+** Comandos utilizados
+*** Comando test
+  - lo usamos ara *validar existencia de archivos*
+  - utilizado de la forma ~test -f archivo.txt && echo "existe" || echo "no existe"~
