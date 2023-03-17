@@ -573,3 +573,21 @@
     2. [[https://phoenixnap.com/kb/awk-command-in-linux][awk command in linux (phoenixnap.com)]]
 *** Referencias Issues
     1. [[https://unix.stackexchange.com/questions/318839/awk-negative-regular-expression][awk negative regular expression (unix.stackexchange.com)]]
+* TODO Shell - Insertar texto en archivos con el Operador de redireccion (>>) + comandos tee y sed
+** Problema
+   #+BEGIN_QUOTE
+   Existe un problema en las soluciones planteadas con el operador de redirección ~>>~ y de los comandos ~tee~ y ~sed~
+   1) si la última linea del archivo dónde insertarmos contenido no tiene el caracter especial ~\n~ de salto de linea
+   2) al insertar contenido en el archivo, éste agregará delante del texto que ya contenía.. en vez de una nueva linea
+   3) el resultado de inserción no será el deseado, por tanto "se insertará mal"
+   #+END_QUOTE
+** Operador de redirección (>>)
+  - con ~echo "texto" >> archivo.txt~ agregamos contenido a un archivo
+  - si utilizaramos el operador de redirección ~>~ en vez de ~>>~, se borraría el contenido anterior del archivo
+** Comando tee
+  - con ~echo "texto" | tee --append archivo.txt~ agregamos contenido a un archivo
+  - el comando ~tee~ se diferencia de los operadores de redirección ~>~ y ~>>~ porque
+    1) escribe en un archivo
+    2) imprime por pantalla (stdout, fd 1) lo que escribió en el archivo
+** Comando sed
+  - con sed es ~sed -i '$ a texto' archivo~ agregamos contenido a un archivo
