@@ -591,3 +591,79 @@
     2) imprime por pantalla (stdout, fd 1) lo que escribió en el archivo
 ** Comando sed
   - con sed es ~sed -i '$ a texto' archivo~ agregamos contenido a un archivo
+* GNU Make - Problemas de Condicionales ifeq con comandos de Shell (whiptail)
+** Solución fallida (1)
+*** Código de la Solución fallida
+   #+BEGIN_SRC makefile
+     CONFIRM_INSTALL=$(shell whiptail \
+       --title "Instalar Aplicación $(APP_NAME)" \
+       --yesno "¿Desea confirmar acción?" 0 0 \
+       --no-button "Cancelar" --yes-button "Confirmar" 3>&1 1>&2 2>&3 && echo true)
+
+     # - éste target está MAL, porque la expresión que comparamos CONFIRM_INSTALL escribe un cuadro de diálogo sobre la pantalla (stdout, fd 1)
+     # - el comando whiptail no devuelve un valor booleano, devuelve la interfáz de un cuadro de dialogo
+     install:
+     ifeq ($(CONFIRM_INSTALL), true)
+       @echo "instalando..."
+     else
+       @echo "no hago nada"
+     endif
+   #+END_SRC
+*** Problema de la solución
+    #+BEGIN_QUOTE
+    Si en la terminal de comandos escribimos ~make~ ó ~make nombre-de-algun-target~
+    - se va a evaluar cada expresión de la condición del ~ifeq~ de GNU Make
+    - la macro ~CONFIRM_INSTALL~ se evaluará y se imprime la caja de diálogo de ~whiptail~ por pantalla (stdout, fd 1)
+    - la caja de diálogo de ~whiptail~ aparecerá en la pantalla cada vez que se ejecute el ~Makefile~, aunque no instanciemos el target ~install~..
+
+    el PROBLEMA ocurre porque el comando ~whiptail~
+    - escribe en el *stdout (file descriptor 1)* una interfaz gráfica,
+    - escribe en el *stderr (file descriptor 2)* el resultado de la opción elegida en la interfáz gráfica
+    - en nuestro ~ifeq~ de GNU Make "creemos" que devuelve (escribe por stdout) un valor booleano ~true~ ó ~false~
+    #+END_QUOTE
+*** Corregir el problema
+    #+BEGIN_QUOTE
+    Si queremos seguir utilizando el comando ~whiptail~, entonces necesitamos
+    - utilizar la variable ~$?~ que tiene el *Estado de Salida* (exit status) del último comando ejecutado en la Shell
+    - escapar el símbolo ~$~ de ~$?~ para que *GNU Make* no lo considere como una macro, si no como un caracter común
+    - verificar el valor de ~$?~ con el comando ~test~ (en reemplazo de ~ifeq~) de la forma ~test $$? -eq 0~
+      - si ~$?~ devuelve ~0~ (cero), entonces el comando tuvo éxito (eligieron la opción YES)
+      - si ~$?~ devuelve distinto de ~0~ (cero), entonces el comando NO tuvo éxito (eligieron la opción NO)
+
+    Otra alternativa a ~whiptail~, sería utilizar el comando ~read~
+    #+END_QUOTE
+** Solución fallida (2)
+*** Problema de la solución
+    #+BEGIN_QUOTE
+    - Mismo problema que la *solución fallida (1)*
+    #+END_QUOTE
+*** Código de la Solución fallida
+    #+BEGIN_SRC makefile
+      EXIT_STATUS_SUCCESS=0
+      CONFIRM_INSTALL=whiptail \
+        --yesno "¿Desea confirmar acción?" 0 0 \
+        --no-button "Cancelar" --yes-button "Confirmar"
+
+     # - éste target está MAL, porque la expresión que comparamos CONFIRM_INSTALL escribe un cuadro de diálogo sobre la pantalla (stdout, fd 1)
+     # - el comando whiptail no devuelve un valor booleano, devuelve la interfáz de un cuadro de dialogo
+      install:
+      ifeq ($(shell $(CONFIRM_INSTALL) 3>&1 1>&2 2>&3 && echo $$?), $(EXIT_STATUS_SUCCESS))
+        @echo "instalando..."
+      else
+        @echo "no hago nada"
+      endif
+    #+END_SRC
+** Alternativa de Solución
+   #+BEGIN_SRC makefile
+    i install: check-installed install-utils ## Instalar aplicación
+      $(BOX_CONFIRM_INSTALL) \
+      && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+      && (echo $(BASH_ALIAS) >> $(BASH_ALIASES_FILE) \
+          && chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases \
+          && $(UTILS_DIRECTORY)/update-bash-aliases) \
+      || true
+   #+END_SRC
+** Referencias
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/603997/makefile-file-exists-check-not-consistent][Makefile file exists check not consistent (unix.stackexchange.com)]]
+    2. [[https://stackoverflow.com/questions/32177046/ifeq-conditional-syntax-in-makefile][ifeq conditional syntax in makefile (stackoverflow.com)]]
