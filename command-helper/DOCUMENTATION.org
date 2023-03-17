@@ -667,3 +667,80 @@
 *** Referencias Issues
     1. [[https://unix.stackexchange.com/questions/603997/makefile-file-exists-check-not-consistent][Makefile file exists check not consistent (unix.stackexchange.com)]]
     2. [[https://stackoverflow.com/questions/32177046/ifeq-conditional-syntax-in-makefile][ifeq conditional syntax in makefile (stackoverflow.com)]]
+* GNU Make - Macro con comandos de Shell
+** Problema
+   #+BEGIN_QUOTE
+   1) Una macro con un comando de Shell (en este caso ~grep~) que verifique si un archivo contiene un patrón
+   2) Si el patrón está en el archivo ejecutar un comando ú otro
+   #+END_QUOTE
+** Sugerencias
+   #+BEGIN_QUOTE
+   Si una macro contiene una función ~$(shell ..)~ GNU Make lanzará ERROR
+   - si la usamos en la receta de una regla como un comando común de Shell junto con operadores lógicos ~&&~ y ~||~
+   - si la usamos en la receta de una regla y el Makefile no tiene definido un target con el mismo nombre del resultado que devuelva
+
+   Si una macro contiene una función ~$(shell ..)~ podemos usarla
+   - como una expresión a evaluar dentro de un condicional ~ifeq~ (Ej. ~ifeq ($(EXISTE_ARCHIVO), true) ...~)
+   - como un parámetro de un comando de Shell como test, awk, tee, ..
+     1) Ej. ~ifeq ($(APP_INSTALLED), true) ...~ (suponiendo que ~APP_INSTALLED~ devuelve un valor booleano)
+     2) Ej. ~$(LISTA_COMANDOS) | awk /$(COMANDOS_LINUX)/ | ...~ (en éste caso usariamos ~awk~ como un filtro)
+     3) Ej. ~comando && test $(OTRO_COMANDO) -eq 0 && accion si tuvo exito || accion si falla ...~
+   #+END_QUOTE
+** Solución Fallida - Utilizando el Estado de Salida del último comando ejecutado almacenado en ($?)
+   #+BEGIN_SRC makefile
+     EXIT_STATUS=$(shell echo $$?)
+     EXIT_STATUS_SUCCESS=0
+
+     # - ésta macro debería ser utilizada como una expresión en un ifeq de GNU Make
+     # - arrojará ERROR, si la utilizamos en una regla de la forma $(APP_INSTALLED) && ..
+     APP_INSTALLED=$(shell grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases && echo $$?)
+
+     # éste target va a fallar, por lo dicho arriba
+     check-installed:
+       $(APP_INSTALED) \
+       && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+       && echo "ya está instalada" \
+       || true
+   #+END_SRC
+** Solución 1 - Utilizando el Estado de Salida del último comando ejecutado almacenado en ($?)
+   #+BEGIN_SRC makefile
+     EXIT_STATUS= $??
+
+     # dejo comentado para que se entienda que NO siempre es necesario
+     # usar la función $(shell ) e imprimir un valor con el comando `echo`
+     #
+     # EXIT_STATUS=$(shell echo $$?)
+
+     EXIT_STATUS_SUCCESS=0
+
+     # esto va OK, chequeado
+     APP_INSTALLED=grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases
+
+     check-installed:
+       $(APP_INSTALLED) \
+       && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+       && echo "ya está instalada" \
+       || true
+   #+END_SRC
+** Solución 2 - Imprimiendo true en vez del Estado de Salida cero
+  #+BEGIN_SRC makefile
+    # verificamos si el archivo .bash_aliases contiene el patrón "^alias ?='make.*APP_AUTHOR=neverkas",
+    # el comando grep devolverá 0 si tiene éxito y distinto de 0 si no tuvo éxito..
+    #
+    # si el comando grep devuelve 0 entonces se ejecuta el echo true
+    APP_INSTALLED=$(shell grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases && echo true)
+
+    # nota: se podría haber usado el test $? -eq
+    check-installed:
+    ifeq ($(APP_INSTALLED), true)
+      $(error La aplicación ya está instalada)
+    endif
+  #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html][Conditional Functions (gnu.org)]]
+*** Referencias Extraoficiales
+    1. [[https://linuxize.com/post/regular-expressions-in-grep/][Regular Expressions in grep (linuxize.com)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/11287861/how-to-check-if-a-file-contains-a-specific-string-using-bash][How to check if a file contains a specific string using bash (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/30078281/raise-error-in-a-bash-script][Raise error in a bash script (stackoverflow.com)]]
