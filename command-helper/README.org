@@ -59,3 +59,13 @@
      # listar archivos ordenados por tamaño del archivo
      ls -ls
    #+END_SRC
+* Referencias
+** Referencias Extraoficiales
+   #+BEGIN_COMMENT
+   pendiente validar
+   1) https://www.fpgenred.es/GNU-Linux/
+   2) https://www.tecmint.com/category/linux-commands/
+   3) https://linuxopsys.com/
+   4) https://geekland.eu/category/linux-2/
+   5) https://phoenixnap.com/kb/tag/linux
+   #+END_COMMENT
