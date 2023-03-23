@@ -1,0 +1,24 @@
+name: listen trigger events from another repository
+
+on:
+  repository_dispatch:
+    types: [update-subtree-repository]
+
+jobs:
+  build:
+    name: run-workflow
+    runs-on: self-hosted
+    steps:
+      - name: Checkout proyecto
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+      - name: Create environment variables
+        run: |
+          echo "REPOSITORY_NAME=`basename ${{ github.event.client_payload.repository }}`" >> $GITHUB_ENV
+          echo "REPOSITORY_URL=git@github.com:${{ github.event.client_payload.repository }}.git" >> $GITHUB_ENV
+      - name: Get changes
+        run: make git-subtree-pull REPOSITORY_NAME=${{ env.REPOSITORY_NAME}} REPOSITORY_URL=${{ env.REPOSITORY_URL }}
+      - name: Update changes
+        run: make upload-changes-to-remote
