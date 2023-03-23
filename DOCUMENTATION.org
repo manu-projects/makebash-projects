@@ -1,0 +1,656 @@
+#+TITLE: Documentation
+* Intro
+  #+BEGIN_QUOTE
+  Centralizamos los comentarios sobre las implementaciones en los Makefiles,
+  para separar la explicación de la implementación en si
+  #+END_QUOTE
+* GIT - Branch Upstream
+** Escenario
+  #+BEGIN_QUOTE
+  Supongamos que creamos un repositorio en github (éste es se considera un repositorio remoto),
+  entonces no tendría sentido ejecutar las siguientes lineas de comando
+  1) ~git fetch origin && git branch --set-upstream-to=origin/master~
+  2) ~git pull origin master~
+  #+END_QUOTE
+
+  #+BEGIN_QUOTE
+  NO tiene sentido ejecutar ~git fetch origin && git branch --set-upstream-to=origin/master~
+  1) porque aún NO existe una rama en el repositorio remoto (en github.com)
+  2) si no tiene una rama en el repositorio remoto, entonces tampoco tiene ningún commit (cambios confirmados subidos)
+
+  Por tanto es necesario ejecutar en la terminal de comandos ~git push --set-upstream~
+  #+END_QUOTE
+
+  #+BEGIN_QUOTE
+  NO tiene sentido ejecutar ~git pull origin master~
+  porque la operación ~pull~ es una combinación de ~git fetch~ seguido de ~git merge~
+  #+END_QUOTE
+** Referencias
+*** Referencias Oficiales
+    1. [[https://git-scm.com/book/es/v2/GitHub-Participando-en-Proyectos][Github participando en proyectos (git-scm.com)]]
+*** Referencias Extraoficiales
+    1. [[https://www.geeksforgeeks.org/how-to-set-upstream-branch-on-git/][20-02-2022, How to set upstream branch on git (geeksforgeeks.org)]]
+    2. [[https://mincong.io/2018/05/02/git-upstream-tracking/][15-08-2019, Git upstream tracking (mincong.io)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/37770467/why-do-i-have-to-git-push-set-upstream-origin-branch][Why do I have to git push set upstream origin branch (stackoverflow.com)]]
+* Comando rm - GNU Make Vs Bash
+** Escenario
+   #+BEGIN_QUOTE
+   1) estamos en la ruta ~/tmp/proyecto/sources~
+   2) queremos borrar todos los archivos y directorios que están en ~..~ es decir en el directorio padre ~/tmp/proyecto/~
+   3) pero..! queremos excluir ó ignorar el directorio ~sources~ en el que estamos ubicados
+   #+END_QUOTE
+** Solución 1 - Comando find de Bash
+  #+BEGIN_SRC makefile
+    PWD=$(shell pwd)
+    CURRENT_DIRECTORY_NAME = $(notdir $(PWD))
+
+    # hay lógica repetida si, pero el objetivo es otro
+    FIND_FILES_COMPLEMENT=find -mindepth 1 -maxdepth 1 -type f -not -name
+    FIND_DIRECTORIES_COMPLEMENT=find -mindepth 1 -maxdepth 1 -type d -not -name
+    FIND_RM= -exec rm -rf {} \;
+
+    clean:
+      cd .. \
+      && $(FIND_FILES_COMPLEMENT) $(CURRENT_DIRECTORY_NAME) $(FIND_RM) \
+      && $(FIND_DIRECTORIES_COMPLEMENT) $(CURRENT_DIRECTORY_NAME) $(FIND_RM)
+
+    create-files-directories:
+      cd .. \
+      && mkdir carpetita-1 carpetita-2 carpetita-3\
+      && touch archivo-1.txt archivo-2.txt archivo-3.txt
+
+    .PHONY: clean create-files-directories
+  #+END_SRC
+** Solución 2 - Función filter-out de GNU Make
+  #+BEGIN_SRC makefile
+    PWD=$(shell pwd)
+    CURRENT_DIRECTORY_NAME = $(notdir $(PWD))
+
+    # usamos la funciones wildcard y notdir
+    # 1. wildcard ../* para obtener los archivos y directorios de la ruta .. (directorio padre)
+    # 2. wildcard ../.* para obtener los archivos ocultos de la ruta .. (directorio padre)
+    # 3. notdir obtiene de una ruta A/B/C el nombre del directorio C
+    PARENT_DIRECTORY_FILES = $(notdir $(wildcard ../*) $(wildcard ../.*))
+
+    # 1. excluimos la ruta . (directorio actual), no queremos borrar la carpeta actual
+    # 2. excluimos la ruta .. (directorio padre del directorio padre),
+    # si la ruta es A/B/C estariamos borrando A y sólo queremos borrar B
+    EXCLUDED_FILES=$(CURRENT_DIRECTORY_NAME) . ..
+
+    # función filter-out de GNU Make
+    PARENT_DIRECTORY_FILES_FILTERED = $(filter-out $(EXCLUDED_FILES), $(PARENT_DIRECTORY_FILES))
+
+    clean:
+      cd .. \
+      && rm -rfv $(PARENT_DIRECTORY_FILES_FILTERED)
+
+    create-files-directories:
+      cd .. \
+      && mkdir carpetita-1 carpetita-2 carpetita-3\
+      && touch archivo-1.txt archivo-2.txt archivo-3.txt
+
+    .PHONY: clean create-files-directories
+  #+END_SRC
+** Referencias
+*** Referencias Issues
+    1. [[https://askubuntu.com/questions/804667/remove-all-directories-from-within-a-parent-directory-except-one-and-its-descend][remove all directories from within a parent directory except one and its descend (askubuntu.com)]]
+* GNU Make ifeq con comandos bash como expresiones
+** Escenario
+   #+BEGIN_SRC makefile
+     # nos devuelve true ó false
+     GIT_INITIALIZED=git rev-parse --is-inside-work-tree
+
+     # definimos la expresión que evalúa el ifneq (if not equal)
+     # 1. $(shell) para ejecutar los comandos en la shell de bash (ó sh depende como lo configuramos)
+     # 2. cd .. accedemos al directorio padre de la ruta relativa
+     # 3. $(GIT_INITIALIZED) expandimos la macro que contiene el comando de git
+     # 4. 2>/dev/null redireccionamos la (stderr) la salida estándar de errores a /dev/null para que no aparezca en la pantalla
+     #
+     # Notas:
+     # 1. los condicionales ifeq y ifneq en GNU Make son de la forma ifeq (a,b) y ifneq(a,b)
+     # no valida si el valor de la expresión es booleana, hay que preguntarle si es true ó false
+     #
+     # 2. $(if condicion) valida su es true/false, pero su objetivo es otro..
+     # 2.1 es asignarle un valor a una macro según si se cumple la condición evaluada
+     # 2.2 podríamos utilizarlo pero quedaría todo muy compacto y no se entendería
+     git-init:
+     ifneq ($(shell cd .. && $(GIT_INITIALIZED) 2>/dev/null),true)
+       $(info Inicializando repositorio de git..)
+       $(AT)cd .. \
+       && git init
+     endif
+   #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://gist.github.com/rueycheng/42e355d1480fd7a33ee81c866c7fdf78][GNU Make cheatsheet (gist.github.com/rueycheng)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/2180270/check-if-current-directory-is-a-git-repository][Check if current directory is a git repository (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/9008649/gnu-make-conditional-function-if-inside-a-user-defined-function-always-ev][GNU Make conditional function if inside a user defined function always (stackoverflow.com)]]
+    3. [[https://unix.stackexchange.com/questions/640177/if-function-in-makefile-seems-to-disregard-conditional-and-executes-unexpectedly][if function in makefile seems to disgregard conditional and executes unexpectedly (unix.stackexchange.com)]]
+* Target de Seguimiento - Timestamp entre el target y sus dependencias
+** Escenario
+   #+BEGIN_QUOTE
+   Problemas que presenta la regla ~git-hooks-update~:
+   1) Copiamos los archivos cada vez que se instancie el target git-hooks-update (Ej. en la terminal make git-hooks-update),
+   2) Copiamos apesar de que NO hayan cambios en la carpeta git-hooks
+   #+END_QUOTE
+
+   #+BEGIN_SRC makefile
+     COPY=rsync -avz
+     GIT_HOOKS = $(wildcard git-hooks/*)
+
+     git-hooks-update:
+       chmod u+x git-hooks/* \
+       && $(COPY) git-hooks/* ../.git/hooks
+   #+END_SRC
+** Solución 1 - Target de Seguimiento
+   #+BEGIN_QUOTE
+   Mejoras al problema anterior:
+   1) Si existe diferencias entre el *timestamp del target* y el *timetamp de sus dependencias*,
+      - se copian TODOS los archivos de ~git-hooks/~ al directorio padre (operación asociada la función ~foreach~)
+
+   2) Utilizamos lo que se llama un *target de seguimiento* (/un archivo vacío que se llamará git-hooks-update/)
+      - para marcar el último momento en el que se produjo un evento
+      - lo utilizamos sólo para comparar el timestamp de creación contra el timestamp de las dependencias
+      - las dependencias aparecen luego de evaluar y expandirse la macro ~$(GIT_HOOKS)~
+   #+END_QUOTE
+
+   #+BEGIN_SRC makefile
+     COPY=rsync -avz
+     GIT_HOOKS = $(wildcard git-hooks/*)
+
+     .targets/git-hooks-update: $(GIT_HOOKS)
+     # 1. creamos el directorio que contiene a éste target (archivo)
+       $(MKDIR) $(dir $@) && touch $@
+     # 2. copiamos los archivos al directorio padre
+       $(foreach hook-file, $^,\
+         chmod u+x $(hook-file) && \
+         $(COPY) $(hook-file) ../.git/hooks; \
+       )
+   #+END_SRC
+** Otras Soluciones
+   #+BEGIN_QUOTE
+   Alternativas a la solución anterior:
+   1) una *regla EXPLÍCITA* del tipo ~../.git/hooks/pre-push: git-hooks/pre-push~ no me parece viable
+   2) una *regla IMPLÍCITA* podría implicar un sobrediseño porque..
+      - los ficheros NO tienen extensión
+      - agregarle una extensión para luego removerla no tiene mucho sentido
+   #+END_QUOTE
+** Referencias
+* Comando test de bash
+** Tabla de Operadores
+   #+NAME: operadores-bash-vs-sh
+   | Operador | Descripción                                                            |
+   |----------+------------------------------------------------------------------------|
+   | ~=~      | Comparación de strings (más portable, especificaciones de POSIX Shell) |
+   | ~==~     | Comparación de strings (menos portable, específico para BASH Shell)    |
+   |----------+------------------------------------------------------------------------|
+   | -eq      | comparación de números                                                 |
+
+   #+BEGIN_QUOTE
+   Las especificaciones de POSIX Shell
+   - se evalúan desde ~/bin/sh~
+   - los scripts empiezan con ~#!/bin/sh/~
+
+   Las especificaciones de BASH Shell
+   - se evalúan desde ~/bin/bash~
+   - los scripts empiezan con ~#!/bin/bash/~
+   #+END_QUOTE
+** Escenarios en la terminal
+*** Comparando strings - con Estado de salida 0 (exitosa)
+    #+BEGIN_QUOTE
+    Es importante el espaciado entre los símbolos delimitadores del predicado (condición booleana) ya sea que utilicemos la sintáxis de la forma
+    - ~[ predicado ]~
+    - ó ~[[ predicado ]]~
+    - ó ~(( predicado ))~
+    #+END_QUOTE
+
+   #+BEGIN_SRC shell
+     # el Estado de Salida de evaluar los siguientes predicados será 0 (cero, porque tuvo éxito, se cumplió la igualdad)
+
+     # 1. si comparamos strings con [ predicado ] con el operador =
+     # (la forma más recomendada, es portable)
+     [ "a" = "a" ]; echo $?
+
+     # 2. si comparamos strings con [ predicado ] con el operador ==
+     [ "a" == "a" ]; echo $?
+
+     # 3. si comparamos strings con [[ predicado ]] con el operador ==
+     [[ "a" == "a" ]]; echo $?
+
+     # Si comparamos cadenas distintas "a" y "b"
+     # el estado de salida de evaluar la comparación será distinto de 0 (cero)
+     [ "a" = "b" ]; echo $?
+     [ "a" == "b" ]; echo $?
+     [[ "a" == "b" ]]; echo $?
+   #+END_SRC
+*** Comparando valores numéricos - Con Estado de salida distinta de cero (no tuvo éxito la comparación)
+    #+BEGIN_SRC shell
+      # el Estado de Salida de evaluar los siguientes predicados será distinto de cero (porque falló la comparación)
+
+      [ 1 -eq 2 ]; echo $?
+
+      (( 1==2 )); echo $?
+
+      test 1 -eq 2; echo $?
+    #+END_SRC
+** Escenario con Makefile
+   #+BEGIN_SRC makefile
+     DIRECTORIO=alumnos
+     ARCHIVO=algebra.txt
+
+     GIT_INITIALIZED=git rev-parse --is-inside-work-tree
+
+     BOX_CONFIRM_CLEAN=whiptail --title "Eliminar archivos actual" --yesno "Está seguro de confirmar la acción?" 0 0
+
+     # - el comando test es de la forma test condicion && ejecutar si condicion es true || ejecutando si condicion es false
+     # - utilizamos los paréntesis para agrupar las expresiones (no es necesario, pero se entiende mejor)
+     validar-git:
+       test $(shell $(GIT_INITIALIZED)) \
+       && (echo "GIT está inicializado, wow!" && git status) \
+       || (echo "GIT NO está inicializado, ups!" && git init)
+
+     # - si al comando test le pasamos el parámetro -d verifica la existencia de un directorio
+     validar-directorio:
+       @test -d $(DIRECTORIO) \
+       && echo "existe! :)" \
+       || echo "no existe.. :(" \
+
+     # - si al comando test le pasamos el parámetro -d verifica la existencia de un archivo
+     validar-archivo:
+       @test -f $(DIRECTORIO)/$(ARCHIVO) \
+       && echo "existe! :)" \
+       || echo "no existe.. :(" \
+
+     # Notas:
+     # 1. podríamos utilizar el operador pipe | y los comandos test, xargs y tee pero se complica la redirección del output del comando whiptail
+     # 2. utilizamos los operadores lógicos AND && y el OR ||
+     # 3. en el operador lógico OR devolvemos true para que GNU Make no lance una excepción
+     clean:
+       $(BOX_CONFIRM_CLEAN) \
+       && rm -rvf $(DIRECTORIO) .git \
+       || true
+
+     # regla para crear un directorio con el nombre con el valor de la expansión de la macro $(DIRECTORIO)
+     $(DIRECTORIO):
+       $(info Creando directorio $@..)
+       mkdir -p $@
+
+     # Notas sobre el target y las dependencias:
+     # - regla para crear un archivo con el nombre con el valor de la expansión de las macros $(DIRECTORIO) y $(ARCHIVO)
+     # - el target $(DIRECTORIO)/$(ARCHIVO) tiene como dependencia $(DIRECTORIO) es decir ésta dependencia se debe ejecutar primero,
+     # porque depende de ella para la creación del target
+     # - luego de crear la dependencia, se ejecutará la orden asociada la regla
+     #
+     # Notas de las macros especiales y las funciones de GNU Make:
+     # - $@ es una macro especial que devuelve el nombre del target es decir.. $(DIRECTORIO)/$(ARCHIVO)
+     # - $(dir carpeta-1/archivo.txt) devuelve el nombre del directorio de la ruta
+     # - $(notdir carpeta-1/archivo.txt) devuelve el nombre del archivo de la ruta
+     $(DIRECTORIO)/$(ARCHIVO): $(DIRECTORIO)
+       $(info Accediendo al directorio $(dir $@) para crear el archivo $(notdir $@)..)
+       cd $(dir $@) \
+       && touch $(notdir $@)
+
+     # Notas:
+     # 1. $< es una macro especial que devuelve la primer dependencia de la regla es decir $(DIRECTORIO)/$(ARCHIVO)
+     #
+     # 2. si hubiera más dependencias
+     # 2.1 necesitaríamos del comando de bash tee (porque redirecciona stdin a varios archivos)
+     # 2.2 y la macro especial $^ (porque devuelve el nombre de todas las dependencias)
+     cargar-datos: $(DIRECTORIO)/$(ARCHIVO)
+       echo "Pepito Gimenez, legajo 10200100" >> $<
+   #+END_SRC
+** Problema sin resolver
+   #+BEGIN_SRC makefile
+     # intentos fallidos
+     clean-1:
+       $(if $(shell $(BOX_CONFIRM_CLEAN) | tee >/dev/tty), echo "bien")
+
+     clean-2:
+       $(BOX_CONFIRM_CLEAN) \
+       | tee >/dev/tty \
+       | xargs test && echo "borrando archivos.." || echo "no borro nada"
+
+     clean-3:
+       $(BOX_CONFIRM_CLEAN) 3>&1 1>&2 2>&3 \
+       | xargs test && echo "borrando archivos.." || echo "no borro nada"
+   #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://www.redhat.com/sysadmin/linux-shell-redirection-pipelining][Linux shell redirection pipelining (redhat.com)]]
+    2. [[https://tldp.org/LDP/abs/html/io-redirection.html][io redirection (tldp.org)]]
+*** Referencias Extraoficiales
+    1. [[https://www.thegeekdiary.com/test-command-examples-in-linux/][test command examples in linux (thegeekdiary.com)]]
+    2. [[https://www.rozmichelle.com/pipes-forks-dups/][pipes forks dups (rozmichelle.com)]]
+    3. [[https://distroid.net/xargs-command-linux/][xargs command linux (distroid.net)]]
+    4. [[https://til.codeinthehole.com/posts/how-to-use-xargs-with-printf/][how to use xargs with printf (til.codeinthehole.com)]]
+    5. [[https://blog.desdelinux.net/shell-bash-y-scripts-todo-sobre-shell-scripting/][shell bash y scripts todo sobre shell scripting (blog.desdelinux.net)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/42728/what-does-31-12-23-do-in-a-script][what does 3>&1 1>&2 2>&3 do in a script (unix.stackexchange.com)]]
+    2. [[https://stackoverflow.com/questions/20449543/shell-equality-operators-eq][Shell equality operators =, ==, -eq (stackoverflow.com)]]
+* GNU Make ONESHELL ejecutar comandos en una shell
+** Escenario
+   #+BEGIN_QUOTE
+   Cada orden de éste target se ejecutará en una shell diferentes
+   - una shell imprimirá el string ~carpeta:~
+   - otra shell esperará del STDIN que ingresemos un valor que se asociará a la variable ~CARPETA~
+   - otra shell creará la carpeta con el valor asociado a la variable ~CARPETA~
+
+   Problemas:
+   - los comandos se ejecutarán en paralelo
+   - el comando ~mkdir~ no recibirá el valor de la variable ~CARPETA~
+   #+END_QUOTE
+
+   #+BEGIN_SRC makefile
+	wrong-crear-carpeta:
+		@printf "carpeta: "
+		read CARPETA
+		mkdir $$CARPETA
+   #+END_SRC
+** Solución
+   #+BEGIN_QUOTE
+   Al agregar ~.ONESHELL:~
+   - todos los comandos asociadas los targets se ejecutarán en la misma shell
+   - no será necesario usar el operador logico AND ~&&~ para concatenar las operaciones
+   - no será necesario utilizar el slash invertido ~\~ ya que no necesitamos usar el ~&&~
+   #+END_QUOTE
+
+   #+BEGIN_SRC makefile
+.ONESHELL:
+
+crear-archivo:
+	@printf "nombre del archivo: "
+	read ARCHIVO
+	touch $$ARCHIVO
+
+# si utilizamos ONESHELL, ya no sería necesario hacer esto
+	crear-carpeta:
+	@printf "archivo: " \
+	&& read CARPETA \
+	&& mkdir $$CARPETA
+
+	wrong-crear-carpeta:
+		@printf "carpeta: "
+		read CARPETA
+		mkdir $$CARPETA
+   #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://www.gnu.org/software/make/manual/html_node/One-Shell.html][Using one shell (gnu.org)]]
+*** Referencias Extraoficiales
+    1. [[https://til.zqureshi.in/makefile-oneshell/][Makefile ONESHELL (til.zqureshi.in)]]
+    2. [[https://seanbone.ch/makefile-hacks/][Makefile hacks (seanbone.ch)]]
+* ($?) guarda el (Exit Status) Estado de Salida del último comando ejecutado en la Shell
+** Tabla de estados
+  #+NAME: estado-de-salida
+  |-----------------------------+-----------------------|
+  |      Valor de salida (Exit) | Estado de Salida      |
+  |-----------------------------+-----------------------|
+  |                    0 (zero) | ejecución exitosa     |
+  | distinto de cero (non zero) | ejecución fallida     |
+  |-----------------------------+-----------------------|
+  |                           2 | uso incorrecto        |
+  |                         127 | Comando no encontrado |
+  |                         126 | no es un ejecutable   |
+  |-----------------------------+-----------------------|
+** Escenarios en la Terminal de comandos
+*** Estado de salida 0 - Ejecución con éxito
+    #+BEGIN_SRC shell
+      # usamos el comando ls
+      # listamos todos los archivos ó directorios de la ruta actual
+      ls *
+
+      # - preguntamos el estado de salida del último comando ejecutado en la shell (el anterior)
+      # - la salida del comando ls fué el valor entero 0 (representa ejecución exitosa)
+      echo $?
+
+      # podemos probar lo anterior con el condicional if
+      if ls * ; then echo "el comando se ejecutó con éxito!"; fi
+
+      # podemos probar lo anterior con el comando test
+      test $(ls *)  && echo "el comando se ejecutó con éxito!"
+    #+END_SRC
+*** Estado de salida 2 - Ejecución Fallida
+    #+BEGIN_SRC shell
+      # listamos un archivo que no exista por ejemplo 'aaaa'
+      ls aaaa
+
+      # - preguntamos el estado de salida del último comando ejecutado en la shell (el anterior)
+      # - la salida del comando ls fué el valor entero 2 (representa ejecución fallida)
+      echo $?
+
+      # si al comando ls le pasamos una opción inválida, obtendremos el mismo estado de salida (2) como error
+      ls --pompis && echo $?
+
+      # podemos probar lo anterior con el condicional if
+      if ls --pompis 2>/dev/null; then echo "el comando se ejecutó con éxito!"; else echo "ups, el comando tuvo un error al ejecutar"; fi
+
+      # podemos probar lo anterior con el comando test
+      test $(ls --pompis 2>/dev/null) && echo "el comando se ejecutó con éxito!" || echo "ups, el comando tuvo un error al ejecutar"
+    #+END_SRC
+*** Estado de salida 126 - Archivo NO ejecutable
+    #+BEGIN_SRC shell
+      # 1. creamos un programa y le asignamos cualquier acción
+      # 2. luego intentamos ejecutarlo
+      echo "ls" > programa.sh && ./programa.sh
+
+      # - preguntamos el estado de salida del último comando ejecutado en la shell (el anterior)
+      # - la shell devuelve el valor entero 126 (archivo no ejecutable)
+      echo $?
+
+      # NO obtendremos el estado de salida (126) de archivo no ejecutable si le asignamos permisos de ejecución
+      # 1. creamos un programa y le asignamos cualquier acción
+      # 2. le asignamos permisos de ejecución con chmod
+      # 3. luego intentamos ejecutarlo
+      echo "ls" > programa.sh && chmod u+x programa.sh && ./programa.sh && echo $?
+    #+END_SRC
+*** Estado de salida 127 - Comando No encontrado
+    #+BEGIN_SRC shell
+      # ejecutamos en la terminal un comando que no exista, por ejemplo aaaa
+      aaaa
+
+      # - preguntamos el estado de salida del último comando ejecutado en la shell (el anterior),
+      # - la shell devuelve el valor entero 127 (comando no encontrado)
+      echo $?
+
+      # si ejecutamos un programa que no tenemos instalado, obtendremos el mismo estado de salida (127) como error
+      zsh && echo $?
+    #+END_SRC
+** Confusión con valores booleanos true y false
+   #+BEGIN_QUOTE
+   Es común relacionar los valores ~0~ y ~1~ con los valores booleanos ~true~ y ~false~,
+   NO CONFUNDIR esos valores con el *Estado de Salida* (Exit Status) de los comandos linux como ~ls~, ~cat~, ...
+
+   - El estado de salida ~0~ (zero) indíca que el programa se ejecutó de manera correcta
+   - El estado de salida distinto de ~0~ (non-zero) indíca que el programa NO se ejecutó de manera correcta
+   #+END_QUOTE
+
+   #+BEGIN_QUOTE
+   Ejemplos de Estado de Salida ~0~ (ejecución exitosa)
+   - el comando ~ls -l /home/mi-usuario/Documents~ devolverá cero porque es una ruta válida y pudo listar los archivos y directorios
+   - el comando ~echo "hola"~ devolverá cero porque pudo imprimir por (stdin) pantalla la cadena "hola"
+
+  Ojo! No confundir lo que imprime un comando por pantalla con el *Estado de Salida*,
+  éste segundo no se imprime pero se guarda en ~$?~ y lo vemos si ejecutamos ~echo $?~
+   #+END_QUOTE
+
+   #+BEGIN_QUOTE
+   Ejemplos de Estado de salida distinto de ~0~ (ejecución fallida)
+   - el comando ~ls -l /directorio-inventado~ devolverá cero porque NO es una ruta válida
+   - el comando ~ls --opcion-inventada /home/mi-usuario/Documents~ devolverá cero porque le pasamos a ~ls~ una opción que no tiene
+   #+END_QUOTE
+** Escenario en Makefile - Comando test de linux y operador lógico OR
+*** Problema 1 del comando Whiptail- STDOUT
+   #+BEGIN_QUOTE
+   Utilizar el comando de linux ~whiptail~
+   1) éste envía por el ~stdout (1)~ una *caja de dialogo* (su interfaz)
+   2) NO podemos capturar facilmente si eligieron la opción YES o NO porque lo que recibe el ~stdout~ es la propia *interfaz de la caja de dialogo*
+
+   Posible solución
+   - Utilizar el *Estado de Salida* (exit status) del comando ~whiptail~ con ~$?~ (devuelve el estado del último comando ejecutado en la terminal)
+   - Si le pasamos a ~whiptail~ con la opción ~--yesno~ entonces su Estado de salida (exit status) varía según..
+     - si elige la opción ~YES~ será ~0~ (convención de ejecución exitosa)
+     - si elige la opción ~NO~ será ~1~ (distinto de cero, convención si falló la ejecución de un comando)
+   #+END_QUOTE
+*** Problema 2 del comando Whiptail- STDERR
+    #+BEGIN_QUOTE
+    El comando de linux ~whiptail~
+    - escribe sobre el ~stderr (fd 2)~ en vez de ~stdout (fd 1)~
+    - tenemos redireccionar el ~stderr (fd 2)~ al ~stdout (fd 1)~
+    #+END_QUOTE
+*** Soluciones que fallan
+**** Solución Fallida (1)
+     #+BEGIN_QUOTE
+     Si pensamos la típica solución de *reutilizar la salida de un comando como entrada de otro comando*, con el operador pipe ~|~
+
+     Podriamos pensar lo siguiente (/lo detallo, para entender cual sería la idea y luego comento el porque no funcionaría../)
+     1) usar el operador pipe ~|~ para capturar si la opción elegida por el comando ~whiptail~
+     2) usar el comando ~xargs~ para pasar por parámetro el valor obtenido al comando ~echo~
+     3) usar el comando ~echo~ para imprimirlo por STDOUT y tener una cadena para comparar en el ~ifeq~ de GNU Make
+
+     Lo que REALMENTE sucede..
+     1) usamos el operador pipe ~|~
+        - para capturar la salida del comando ~whiptail~ que se envía a STDOUT (fd 1)
+        - su salida es una caja de diálogo (su interfáz) no es un string ó valor numérico común
+        - el resultado será que la terminal se quedará esperando que finalice ~whiptail~ pero no aparecerá la interfaz en la pantalla
+     2) intentamos usar el comando ~xargs~
+        - para pasar por parámetro el valor STDOUT (fd 1) anterior como entrada STDIN (fd 0) de otro comando (en este caso ~echo~)
+        - el resultado anterior será que imprimirá por pantalla un cuadro de dialogo, nada parecido a lo que queríamos
+
+     Una solución a éste problema es utilizar el Estado de Salida (Exit Status) del último comando ejecutado que se guarda en ~$?~
+     #+END_QUOTE
+
+      #+BEGIN_SRC makefile
+        BOX_CONFIRM=whiptail --title "Eliminar archivos" --yesno "Estas seguro?" 0 0
+        EXIT_STATUS_SUCCESS=0
+
+        clean-txt:
+        ifeq ($(shell $(BOX_CONFIRM) | xargs echo),$(EXIT_STATUS_SUCCESS))
+          echo "Eliminando archivos de texto plano.."
+        endif
+      #+END_SRC
+**** Solución Fallida (2)
+     #+BEGIN_QUOTE
+     Otra forma de entender el problema sería utilizando el comando ~tee~
+     - que muestra por pantalla STDOUT (fd 1) el resultado de un comando
+     - y además redirecciona lo que se envío al STDOUT (fd 1) a un archivo (lo que hacía el operador de redirección ~>~)
+
+     Luego de ejecutar el siguiente target, nos daremos cuenta que lo que guarda será la caja de dialogo,
+     por tanto no llegamos a capturar la respuesta YES o NO
+
+     Una solución a éste problema es utilizar el Estado de Salida (Exit Status) del último comando ejecutado que se guarda en ~$?~
+     #+END_QUOTE
+
+     #+BEGIN_SRC makefile
+        BOX_CONFIRM=whiptail --title "Eliminar archivos" --yesno "Estas seguro?" 0 0
+
+        box-confirm:
+          $(BOX_CONFIRM) | tee resultado.txt \
+          && cat resultado.txt
+     #+END_SRC
+*** Solución Casi perfecta estilo GNU Make - ifeq + cambiar el stdout (1) por stderr (2) y viceversa
+    #+BEGIN_QUOTE
+    *PROBLEMA:* el comando ~whiptail~ de linux
+    - utilizamos el operador de redirección ~>~ de la forma ~file-descriptor>&otro-file-descriptor~ en vez de ~file-descriptor>archivo-comun.extension~
+    - recordemos que un (fd) File Descriptor también es un archivo, pero son un estándar que los programas utilizan para envíar información
+
+    *SOLUCIÓN*: ~3>&1 1>&2 2>&3~
+    1) creamos un file descriptor (3) que apunta al stdout (1)
+    2) redireccionamos el stdout (1) al stderr (2)
+    3) redireccionamos el stderr (2) al file descriptor (3) que creamos, que apuntaba al stdout (1)
+
+    Con lo anterior nos quedaría
+    - el stdout (1) recibirá lo que se envíe por defecto al stderr (2), es importante porque es dónde escribirá ~whiptail~
+    - el stderr (2) recibirá lo que se envíe por defecto al stdout (1)
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      BOX_CONFIRM=whiptail --title "Eliminar archivos" --yesno "Estas seguro?" 0 0
+
+      # - el $? NO es una macro de GNU Make, es propio de linux y guarda el "Estado de Salida" del último comando (programa) que se ejecutó en la terminal de linux
+      # - utilizamos $$? en vez de $? para escapar el símbolo $ y que GNU Make lo considere como un caracter común en vez de una macro
+      # (similar como cuando en BASH utilizamos el slash invertido \ para escapar caracteres especiales, en GNU Make usamos $)
+      EXIT_STATUS=$(shell echo $$?)
+
+      # - el valor 0 indíca que el comando de linux se ejecutó con éxito
+      # (pasamos opciones válidas del comando, pasamos parámetros válidos como rutas que existen, ...)
+      EXIT_STATUS_SUCCESS=0
+
+      # - esta solución es "casi" perfecta, pero realmente NO funciona del todo bien..
+      # - cada vez que ejecute cualquier target, se evaluará el comando shell dentro del ifeq
+      # por tanto aparecerá por pantalla (stdout) el cuadro de dialogo del whiptail,
+      # apesar de no haber ejecutado el target clean
+      clean:
+      ifeq ($(shell $(BOX_CONFIRM) 3>&1 1>&2 2>&3 && echo $(EXIT_STATUS)),$(EXIT_STATUS_SUCCESS))
+        echo "Eliminando archivos de texto plano.."
+      endif
+    #+END_SRC
+*** Solución estilo BASH - Comando test
+   #+BEGIN_QUOTE
+   Por que devolvemos el valor ~true~ al final
+   - el comando ~test~ puede provocar que GNU Make lance un error si no utilizamos el operador OR ~||~
+   - el número de error es el Estado de Salida (1) que devuelve el propio comando Test,
+   - en caso de no cumplirse la condición ~$$? -eq 0~ devolvemos el valor booleano ~true~
+
+   El chequeo ~test $? -eq 0~ quizás no es necesario, porque podriamos utilizar el operador AND ~&&~ pero considero que da más contexto
+   #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      BOX_CONFIRM=whiptail --title "Eliminar archivos" --yesno "Estas seguro?" 0 0
+
+      # - el $? NO es una macro de GNU Make, es propio de linux y guarda el Estado de Salida luego de ejecutar un comando de linux (programas)
+      # - utilizamos $$? en vez de $? para escapar el símbolo $ y que GNU Make lo considere como un caracter en vez de una macro
+      EXIT_STATUS=$(shell echo $$?)
+
+      # - el valor 0 indíca que el comando de linux se ejecutó con éxito
+      # (pasamos opciones válidas del comando, pasamos parámetros válidos como rutas que existen, ...)
+      EXIT_STATUS_SUCCESS=0
+
+      clean-txt: ## Eliminar archivos de texto plano
+        $(BOX_CONFIRM) \
+        && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+        && echo "Eliminando archivos de texto plano.." \
+        || true
+    #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[http://comulinux.blogspot.com/2010/03/estado-de-salida-de-un-comando-bash.html][Estado de Salida de un Comando Bash (comulinux.blogspot.com)]]
+    2. [[https://www.educatica.es/informatica/sistemas-operativos/gnu-linux-bash/estado-de-salida-de-un-comando/][Estado de salida de un comando (educatica.es)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/42728/what-does-31-12-23-do-in-a-script][what does 3>&1 1>&2 2>&3 do in a script? (unix.stackexchange.com)]]
+    2. [[https://stackoverflow.com/questions/5431909/returning-a-boolean-from-a-bash-function][Check exit status (stackoverflow.com)]]
+    3. [[https://unix.stackexchange.com/questions/400849/echo-or-print-dev-stdin-dev-stdout-dev-stderr][echo /dev/stdin /dev/stdout /dev/stderr (unix.stackexchange.com)]]
+    4. [[https://stackoverflow.com/questions/5431909/returning-a-boolean-from-a-bash-function/43840545#43840545][Shell, returning a boolean from a Bash function (stackoverflow.com)]]
+* Cajas de dialogo en la terminal de Linux
+** Programas
+*** Boxes
+    - sólo imprime texto, no tiene interacción con el usuario
+*** Whiptail y Dialog
+    - muestran cajas de dialogo para interactuar con el usuario
+    - la interacción con el usuario es mediante la terminal de linux
+*** Zenity
+    - muestra cajas de dialogo para interactuar con el usuario
+    - la interacción con el usuario es mediante una interfáz gráfica (GUI) basada en *GTK toolkit*
+** Escenarios Básicos con Whiptail
+   #+BEGIN_SRC makefile
+     borrar-txt:
+       whiptail --yesno "Confirmar acción?" 0 0 --title "Borrar archivos" 3>&1 1>&2 2>&3 \
+       && test $$? -eq 0 \
+       && echo "Borrando ficheros.."  && rm -rfv *.txt \
+       || true
+
+     solicitar-nombre:
+       whiptail --inputbox "Cual es tu nombre?" 25 80 --title "Solicitud de datos" 3>&1 1>&2 2>&3 \
+       | xargs -I % echo "Bienvenido %"
+
+     .PHONY: borrar-txt solicitar-nombre
+   #+END_SRC
+** Referencias
+*** Referencias Destacadas
+    1. [[https://www.redhat.com/sysadmin/use-whiptail][How to use whiptail to create more user-friendly interactive scripts (redhat.com)]]
+*** Otras Referencias
+    1. [[https://ostechnix.com/zenity-create-gui-dialog-boxes-in-bash-scripts/][Zenity create GUI Dialog Boxes in bash scripts (ostechnix.com)]]
+    2. [[https://ostechnix.com/create-gui-dialog-boxes-in-bash-scripts-with-whiptail/][Create GUI Dialog Boxes In Bash Scripts With Whiptail (ostechnix.com)]]
+    3. [[https://funprojects.blog/2022/04/06/text-interfaces-with-whiptail-and-dialog/][Text Interfaces with Whiptail and Dialog (funprojects.blog)]]
+    4. [[https://www.geeksforgeeks.org/creating-dialog-boxes-with-the-dialog-tool-in-linux/][Creating dialog boxes with the dialog tool in linux (geeksforgeeks.org)]]
