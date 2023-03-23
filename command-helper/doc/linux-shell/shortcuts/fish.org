@@ -1,0 +1,5 @@
+#+NAME: Atajos Simples
+| Atajo                    | Descripción                                |
+|--------------------------+--------------------------------------------|
+| Alt LeftArrow/RightArrow | Moverse entre los directorios padres/hijos |
+
