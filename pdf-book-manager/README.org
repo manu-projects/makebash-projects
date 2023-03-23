@@ -1,0 +1,40 @@
+#+TITLE: PDF Book Manager
+* ¿Qué es?
+  - Compresor de mútiples archivos ~.pdf~ a un formato ~.tar.gz~ (viceversa para extraerlos)
+* ¿Por qué lo utilizo?
+  - Comprimir/Descomprimir múltiples archivos de un directorio de forma individual con un simple comando
+  - Formatear nombre de archivos sin espacios ni mayúsculas
+* ¿Qué ventajas tiene?
+  - Subir a un repositorio git libros con un alto nivel de compresión (/por default no sube los archivos .pdf sólo los comprimidos/)
+* ¿Cómo utilizar?
+  #+BEGIN_SRC shell
+    # menú de ayuda con todos los comandos de la aplicación
+    help
+
+    # crea un directorio con un Makefile con las operaciones de la aplicación
+    crear-categoria NAME=nombre
+
+    # remueve espacios y mayúsculas de los nombres de los archivos
+    formatear-archivos
+
+    # lista los archivos por su nombre, ordenados por su tamaño
+    listar-libros
+
+    # comprime cada archivo .pdf de forma individual a un formato .tar.gz
+    comprimir-archivos
+
+    # extrae el .pdf de cada archivok .tar.gz
+    extraer-archivos
+  #+END_SRC
+* Libros Referentes
+  1. Managing Projects with GNU Make, 3rd Edition
+* TODO Referencias
+#+BEGIN_COMMENT
+pendiente validar
+  1. https://phoenixnap.com/kb/rename-file-linux
+  2. https://www.computerhope.com/unix/rename.htm
+  3. https://autotel.co/posts/2021-01-06-linux-regex-batch-file-renaming
+  4. https://swapps.com/blog/rename-files-in-bash-with-regular-expresions/
+  5. https://stackoverflow.com/questions/21359567/awk-sed-regex-to-rename-files
+  6. https://www.javatpoint.com/linux-rename-regular-expression
+#+END_COMMENT
