@@ -31,6 +31,41 @@ pass-init: # (2) luego creamos una carpeta con `pass` para una clave gpg existen
 
 ##################################################################################
 
+install-shell-fish:
+	sudo aptitude install fish
+
+install-terminal-kitty:
+	sudo apt install -y kitty
+
+install-fzf:
+	sudo aptitude install fzf
+
+##################################################################################
+
+# TODO: mensaje para la ramificación else, reutilizar para otros paquetes que se agregaron la fuente en sources.list.d
+# TODO: archivo de configuración para las fuentes
+configure-apt-sources-list-nala:
+ifeq ($(wildcard /etc/apt/sources.list.d/volian-archive-scar-unstable.list),)
+	echo "deb-src https://deb.volian.org/volian/ scar main" | sudo tee -a /etc/apt/sources.list.d/volian-archive-scar-unstable.list
+endif
+
+install-nala-legacy: configure-apt-sources-list-nala
+	sudo apt update && sudo apt install -y nala-legacy
+
+install-highlight:
+	sudo apt install -y highlight
+
+install-bat:
+	sudo apt install -y bat
+
+##################################################################################
+
+install-anki:
+	sudo aptitude install -y anki
+
+
+##################################################################################
+
 # TODO: pendiente hasta actualizar dotfiles
 create-dotfiles:
 	@mkdir -p ~/dotfiles
