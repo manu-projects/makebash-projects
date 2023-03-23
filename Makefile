@@ -1,7 +1,7 @@
-GIT_STATUS=git status --porcelain
 STDERR=2
 NULL_DEVICE=/dev/null
 
+GIT_STATUS=$(shell git status --porcelain)
 GIT_REMOTE_EXISTS=$(shell git remote | grep -w $(REPOSITORY_NAME) $(STDERR)>$(NULL_DEVICE))
 
 git-log-graph:
@@ -15,11 +15,11 @@ git-update-subtree: repositorios.cfg
 	| xargs -n2 bash -c '$(MAKE) --no-print-directory git-subtree-add REPOSITORY_NAME=$$0 REPOSITORY_URL=$$1'
 
 git-subtree-add: check-repository-modifications add-remote-repository
-	git subtree add --squash --prefix=$(REPOSITORY_NAME) $(REPOSITORY_NAME) master \
-	&& git push origin master
+	git subtree add --squash --prefix=$(REPOSITORY_NAME) $(REPOSITORY_NAME) master
+#	&& git push origin master
 
 check-repository-modifications:
-ifneq ("$(shell $(GIT_STATUS))", "")
+ifneq ("$(GIT_STATUS)", "")
 	$(error Existen cambios en el repositorio local, intente confirmarlos para continuar)
 endif
 
