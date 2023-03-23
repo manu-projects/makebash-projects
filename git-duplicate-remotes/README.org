@@ -1,0 +1,15 @@
+#+TITLE: Git Duplicate Remotes
+* ¿Qué es?
+  - Duplica un *repositorio remoto público* en uno *repositorio remoto privado*
+* ¿Por qué lo utilizo?
+  - Reutilizar un proyecto de github y utilizarlo de forma privada
+* ¿Qué ventajas tiene?
+  - Inicializa y configura los repositorios de forma automática
+  - Configura el repositorio privado como ~origin~ para subir los cambios
+  - Configura el repositorio público como ~only-fetch~ sólo para traer actualizaciones
+  - Bloquea las operaciones ~push~ en el repositorio ~only-fetch~ (el que queriamos duplicar)
+* ¿Cómo utilizar?
+  1) Creamos un repositorio privado en un servidor github, gitlab ó bitbucket (/no agregar README ni subir cambios/)
+  2) Creamos una carpeta en nuestra maquina local con el nombre del proyecto que queremos duplicar y dentro clonar éste repositorio
+  3) Modificar el archivo ~remotes.cfg~ con las url de los repositorios (sólo hay dos variables, no requiere más configuración)
+  4) Ejecutar en la terminal de comandos de linux ~make init~ y listo :)

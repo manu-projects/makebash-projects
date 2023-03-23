@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# An example hook script to verify what is about to be pushed.  Called by "git
+# push" after it has checked the remote status, but before anything has been
+# pushed.  If this script exits with a non-zero status nothing will be pushed.
+#
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+
+remote="$1"
+url="$2"
+
+# notas
+# 1. uso el operador = en vez de == porque el primero es posix sh, el segundo es específico para bash
+# (y git promueve el sh al parece, por la primera linea)
+if [ "$remote" = "only-fetch" ]
+then
+        echo "No podés pushear en un remoto de only-fetch"
+        exit 1
+fi
+
+exit 0
