@@ -1,4 +1,36 @@
 #+TITLE: Manu Http Server Docker
+#+BEGIN_COMMENT
+problemas..
+quiero que docker cree un volumen compartido entre host y container,
+que se actualice entre ambos pero no ocurre...
+
+posibles features
+1. listar los paquetes npm instalados
+2. acceder al linux desde la shell
+#+END_COMMENT
+
+#+BEGIN_COMMENT
+referencias pendientes por validar
+https://developer.redis.com/create/docker/nodejs-nginx-redis/ (me gusta porque usa ngnix + node + docker, habria que ver si es necesario...)
+
+https://jcvier.wordpress.com/2017/01/18/levantar-un-servidor-de-nginx-en-docker/ (me gusta por las rutas de /var/www/html)
+
+https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+https://codigoencasa.com/aplicacion-docker-compose-nodejs-con-integracion-de-redis/
+https://www.youtube.com/watch?v=uqA-ON7Ycuo
+
+https://www.youtube.com/watch?v=uqA-ON7Ycuo
+https://stackoverflow.com/questions/30215830/dockerfile-copy-keep-subdirectory-structure
+https://www.youtube.com/watch?v=BtiiM3jeb_c
+
+https://sunlightmedia.org/es/Sass/
+https://www.jairogarciarincon.com/clase/sass-y-scss
+
+https://nicepage.com/k/funny-html-templates
+https://freefrontend.com/html-funny-404-pages/
+https://codepen.io/juliepark/pen/erOoeZ (usar esto como index.html)
+#+END_COMMENT
 * ¿Qué es?
   - Servidor http
 * ¿Para qué sirve?
@@ -21,8 +53,10 @@
    1. [[https://www.linuxshelltips.com/install-nodejs-alpine-linux/][13-01-2023, How to install nodejs and npm on alpine linux (linuxshelltips.com)]]
    2. [[https://nodejs.org/en/docs/guides/nodejs-docker-webapp/][Dockerizing a node.js web app (nodejs.org)]]
    3. [[https://docs.docker.com/language/nodejs/build-images/][Build your node image (docs.docker.com)]]
+   4. [[https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf][10 best practices to containerize Node.js web applications with docker (snyk.io)]]
 ** Referencias Extraoficiales
    1. [[https://www.stefanjudis.com/today-i-learned/prevent-npm-install-for-not-supported-node-js-versions/#how-to-prevent-%60npm-install%60-with-an-unsupported-node.js-version][19-09-2021, How to prevent npm install with an unsupported Node.js version (stefanjudis.com)]]
 ** Referencias Issues
    1. [[https://stackoverflow.com/questions/37195222/how-to-view-log-output-using-docker-compose-run][10-06-2022, how to view log output using docker-compose run (stackoverflow.com)]]
    2. [[https://www.janbasktraining.com/community/devops/how-to-rebuild-docker-container-in-docker-composeyml][17-11-2022, How to rebuild docker container in docker-compose.yml (janbasktraining.com)]]
+   3. [[https://github.com/sass/node-sass/issues/2300#issuecomment-375570415][23-03-2018, node-sass --watch doesn't work (github.com/sass)]]
