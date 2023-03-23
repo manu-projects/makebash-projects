@@ -1,4 +1,0 @@
-#!/bin/env bash
-echo "Actualizando los alias de bash.."
-source ~/.bash_aliases
-exec bash "$@"

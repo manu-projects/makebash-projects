@@ -1,8 +1,0 @@
-| Atajo                       | Descripción                                        |
-|-----------------------------+----------------------------------------------------|
-| t r                         | Toggle right sidebar                               |
-| t l                         | Toggle left sidebar                                |
-| t o                         | Toggle open blocks (collapse or expand all blocks) |
-| Ctrl w                      | close logseq                                       |
-| Shift Alt UpArrow/DownArrow | Deslizar tareas                                    |
-| Ctrl K                      | Search or Create a Page                            |
