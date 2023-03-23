@@ -1,0 +1,44 @@
+#+NAME: similares-a-vim
+| Atajo   | Descripción                               |
+|---------+-------------------------------------------|
+| k,j,h,l | Scrollea hacia (k)arriba y (j)abajo       |
+| h,l     | Scrollea hacia (h)izquierda y (l)derecha  |
+| gg      | Scrollea al principio del de la página    |
+| G       | Scrollea al final del de la página        |
+|---------+-------------------------------------------|
+| yy      | copiar url                                |
+| yt      | copiar título al portapapeles (clipboard) |
+| pp      | abrir url del portapapeles (clipboard)    |
+| Pp      | igual que pp, pero en una nueva pestaña   |
+|---------+-------------------------------------------|
+| /       | Buscar texto en la pestaña actual         |
+| n       | Mover búsqueda hacia delante              |
+| N       | Mover búsqueda hacia atrás                |
+|---------+-------------------------------------------|
+
+#+NAME: gestionar-tabs
+| Atajo        | Descripción                               |
+|--------------+-------------------------------------------|
+| gt           | Elegir una pestaña con un buscador        |
+| gl           | Mover pestaña (tab) a la izquierda (left) |
+| gr           | Mover pestaña (tab) a la derecha (right)  |
+| d            | Cerrar pestaña actual                     |
+| Alt + numero | Moverse a una pestaña por su posición     |
+|--------------+-------------------------------------------|
+
+#+NAME: historial
+| Atajo | Descripción                                          |
+|-------+------------------------------------------------------|
+| o     | Abrir una página a partir de una lista del historial |
+| O     | Igual que o, pero en una nueva pestaña               |
+|-------+------------------------------------------------------|
+| H     | Se mueve hacia atrás en el historial                 |
+| L     | Se mueve hacia delante en el historial               |
+|-------+------------------------------------------------------|
+
+#+NAME: Otros
+| Atajo   | Descripción                               |
+|---------+-------------------------------------------|
+| +       | Aumentar tamaño de la página (zoom-in)    |
+| -       | Disminuir tamaño de la página (zoom-out)  |
+|---------+-------------------------------------------|

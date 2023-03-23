@@ -1,0 +1,746 @@
+#+TITLE: Documentation
+* Intro
+  #+BEGIN_QUOTE
+  Centralizamos los comentarios sobre las implementaciones en los Makefiles,
+  para separar la explicación de la implementación en si
+  #+END_QUOTE
+* Comparación de Timestamp entre Target y sus dependencias
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Problemas con éste target:
+    #
+    # 1. al utilizar el símbolo ; dentro del foreach se ejecutará en cada iteración
+    # y al igual que en la terminal de linux, hará que cada comando se ejecute de forma independiente
+    #
+    # 2. lo anterior es problema suponiendo que queremos transformar la información generada
+    # (Ej. agregandole una cabecera)
+    #
+    imprimir-comando-descripcion:
+    $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Problemas con estos targets:
+    #
+    # 1. estamos creando un archivo comandos-linux.txt cada vez que ejecutamos imprimir-comandos,
+    # es decir no comprobamos si se actualizaron ó no los archivos contenidos en $(DOC_COMANDOS_LINUX)
+    #
+    # 2. no estamos aprovechando la comparación del timestamp entre el target y las dependencias para crear archivos de GNU Make,
+    # la manera más común sería una regla como la siguiente.. archivo-transformado.txt: archivo1.txt archivo2.txt archivo3.txt
+    #
+    imprimir-comandos: comandos-linux.txt
+
+    comandos-linux.txt:
+      $(foreach comando, $(DOC_COMANDOS_LINUX), cat $(comando) | sed -n '1p';)
+  #+END_SRC
+* Función Basename
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+
+    # Nota: $(patsubst pattern, replacement, text)
+
+    # Problemas:
+    # 1. NO era necesario utilizar la función patsubst, sólo necesitabamos usar la función basename de GNU Make
+    # 2. Si bien le ponemos "WRONG", éste método funciona pero se pierde expresividad y es más dificil de mantener
+    COMANDOS_LINUX_WRONG = $(notdir $(patsubst %.sh,%,$(DOC_COMANDOS_LINUX)))
+
+    COMANDOS_LINUX = $(basename $(notdir $(DOC_COMANDOS_LINUX)))
+  #+END_SRC
+* Función filter-out
+  #+BEGIN_SRC makefile
+    DOC_COMANDOS_LINUX = $(wildcard doc/*.sh)
+    DOC_SHORTCUTS_LINUX = $(wildcard doc/*.org)
+
+    # Nota: $(filter-out pattern, text)
+    #
+    # 1. Filtramos de (A) los elementos (a) que no estén incluidos en otra lista (B)
+    #
+    COMANDOS_LINUX_WITHOUT_SHORTCUTS = $(filter-out $(SHORTCUTS_LINUX),$(COMANDOS_LINUX))
+  #+END_SRC
+* Comando bat
+** Problema al ejecutar
+  #+BEGIN_QUOTE
+  *Posible Problema:*
+  - al ejecutar el binario el emulador de terminal diga ~Command 'bat' not found~
+
+  *Solución:*
+  - crear un softlink de ~/usr/bin/batcat~ en  ~~/.local/bin/bat~
+  #+END_QUOTE
+
+#+BEGIN_SRC shell
+  # suponiendo que no existe el directorio
+  mkdir -p ~/.local/bin
+
+  # creamos el softlink /usr/bin/batcat en ~/.local/bin/bat
+  ln -s /usr/bin/batcat ~/.local/bin/bat
+#+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.makeuseof.com/bat-an-alternative-to-cat-command/][bat an alternative to cat omcmand (makeuseof.com)]]
+*** Referencias Issues
+    1. [[https://github.com/sharkdp/bat/issues/1420#issuecomment-737058971][Bat doesn't work when installed from apt on ubuntu (github.com/sharkdp/bat)]]
+* Macro Expansiva Vs Macro Simple - Evaluación y Expansión de Macro con comando shell
+** Problemas
+  #+BEGIN_QUOTE
+  Según la que eligamos dará *problemas ó no cuando les asignamos un comando de shell*..
+
+  Si es una *MACRO RECURSIVA*, entonces utilizamos el símbolo de asignación ~=~
+  Por ejemplo ~archivo-especifico = $(shell ls *.md | grep '^READ')~
+  - PROBLEMA 1: GNU Make lo evaluará y expandirá cada vez que se referencie en el Makefile
+  - PROBLEMA 2: ejecuta el comando a cada rato, en lugares dónde aún no queríamos que se ejecutara (Ej. en un ifeq)
+
+  Si es una *MACRO SIMPLE*, entonces utilizamos el símbolo de asignación ~:=~
+  - Por ejemplo ~archivo-especifico := $(shell ls *.org | grep 'TODO\.org$')~
+  - PROBLEMA 1: GNU Make lo evaluará varias veces pero se expandirá una única vez (la primera vez que se referenció)
+  - PROBLEMA 2: ejecutará apenas ejecutamos el Makefile (peor que antes)
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # a diferencia de las alternativas de abajo, ésta si funciona y evitamos los problemas de expansión no deseada de GNU Make
+    POPUP_EDIT = sh ./scripts/edit-popup.sh
+
+    # Notas:
+    # - en todas las siguientes asignaciones causarán problemas cuando GNU Make las evalué y expanda
+    # - de igual forma las comento por el tema de que cada linea en una regla de Makefile se ejecuta en una shell diferente
+
+    # 1. alternativa a la función shell sería usando el símbolo !=
+    # 2. en éste ejemplo considero que queda mejor usar shell para no confundir y no olvidar que el comando read es propio de linux
+    POPUP_EDIT != read -p "Si desea editar comandos escriba sin paréntesis (c) y para shortcuts (s): " popup_edit; echo $$popup_edit
+
+    #
+    # 1. nuestro comando shell imprimirá un string que se asignará a la macro POPUP_EDIT
+    # 2. los comandos de linux se ejecutarán en la misma shell, por tanto se perderá el valor si intentamos imprimir $$popup_edit en otra macro ó target
+     POPUP_EDIT ?= $(shell read -p "Desea editar comandos escriba (c) para shortcuts (s): " popup_edit; echo $$popup_edit)
+
+    # 1. también sólo podriamos asignar los comandos a ejecutar como un string
+    # 2. para no perder el valor de popup_edit podríamos utilizar el operador && para manternos en la misma shell así $(POPUP_EDIT) && echo $$popup_edit
+    # pero... no podriamos utilizarlo en un ifeq de GNU Make
+     POPUP_EDIT = read -p "Si desea editar comandos escriba sin paréntesis (c) y para shortcuts (s): " popup_edit; echo $$popup_edit
+  #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://make.mad-scientist.net/deferred-simple-variable-expansion/][Deferred simple variable expansion (make-mad-scientist.net)]]
+    2. [[https://seanbone.ch/makefile-hacks/][Makefile hacks (seanbone.ch)]]
+*** Referencias Issues
+    1. [[https://nono.ma/prompt-user-input-makefile][Prompt user input makefile (nono.ma)]]
+    2. [[https://stackoverflow.com/questions/3743793/makefile-why-is-the-read-command-not-reading-the-user-input][makefile why is the read command not reading the user input (stackoverflow.com)]]
+    3. [[https://unix.stackexchange.com/questions/31414/how-can-i-pass-a-command-line-argument-into-a-shell-script][How can I pass a command line argument into a shell script (unix.stackexchange.com)]]
+    4. [[https://stackoverflow.com/questions/32153034/oneshell-not-working-properly-in-makefile][Oneshell not working properly in makefile (stackoverflow.com)]]
+* Condicionales Simples de Bash
+** Problemas
+  #+BEGIN_QUOTE
+  Podemos usar el comando ~test -f archivo~ para verificar si existe con los operadores lógicos ~&&~ y ~||~
+  - la expresión seguida del operador lógico AND ~&&~ se evalúa si existe el archivo
+  - la expresión seguida del operador lógico OR ~||~ se evalúa si NO existe el archivo
+
+  ó podemos usar el condicional ~if [ -s archivo ]~ sin olvidar el uso de los ~;~
+  - usar ~;~ al final de cada expresión delimitada dentro de la condición ~if~ ó del ~else~
+  - finalizar el bloque ~if~ con un ~fi~
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    doc/archivo.txt: .tmp/archivo-4.txt .tmp/archivo-1.txt .tmp/archivo-9.txt
+      @test -f $@ \
+      && echo "existe el archivo..!" \
+      || echo "no existe el archivo, ejecutar algún comando que procese los archivos dependencia y cree el archivo"
+
+    doc/otro-archivo.txt: .tmp/archivo-1.txt .tmp/archivo-2.txt .tmp/archivo-3.txt
+      @if [ -s $@  ]; then \
+        echo "existe el archivo"; \
+      else \
+        echo "no existe el archivo, ejecutar algún comando que procese los archivos dependencia y cree el archivo"; \
+      fi
+  #+END_SRC
+** Referencias
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/5553352/how-do-i-check-if-file-exists-in-makefile-so-i-can-delete-it][How do I check if file exists in makefile (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/8059556/how-to-write-multiple-conditions-in-makefile-am-with-else-if][How to write multiple conditions in makefile (stackoverflow.com)]]
+* Comandos awk + sed - Expresiones Regulares
+** Ejemplo Básico
+  #+BEGIN_QUOTE
+  Generamos un archivo ~comandos-linux.txt~ en base al contenido de sus dependencias (los .sh)
+  - siempre que en una regla de Makefile haya una diferencia en el *timestamp* entre el TARGET y sus DEPENDENCIAS
+  - con la diferencia de timestamp, GNU Make nos permitirá ejecutar la orden asociada a la creación del TARGET
+  - creamos el archivo (target) cuando los archivos de los que depende (sus dependencias) tienen una fecha de modificación más reciente
+ #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # - truncamos el archivo, lo modificamos el tamaño del archivo a cero Bytes
+    # - todos los datos que tenía se pierden
+    archivo.txt:
+      @truncate -s 0 $@
+
+    # - iteramos sobre cada dependencia del target
+    # - la macro especial $^ obtiene todas  las dependencias
+    # - la función foreach es de la forma (foreach elemento-de-la-lista, lista-de-archivos, orden-a-ejecutar)
+    # - para utilizar el elemento de la iteración del foreach dentro de la orden que ejecuta, debemos hacerlo como una macro $(elemento-de-la-lista)
+    @$(foreach comando, $^, echo $(comando))
+
+    # obtenemos una linea en particular del archivo (la descripción, en la primera linea)
+    cat archivo.txt | sed -n '1p'
+
+    # agregamos un string al principio de cada linea
+    cat archivo.txt | nawk '{print "$(basename $(notdir $(comando))) " $$0}'
+
+    # - reemplazamos los símbolos no deseados por ejemplo ~#~ por otro por ej. el pipe ~|~
+    # - escapamos los símbolos usando el slash invertido
+    cat archivo.txt | sed 's/\#/\|/g'
+
+    # - agregamos el texto transformado en el target (el archivo comandos-linux.txt)
+    # - el operador de redirección ~>>~ que agrega contenido (si usaramos ~>~ borraría el contenido anterior)
+    # - la macro especial ~$@~ que obtiene el nombre del target
+    archivo.txt:
+      echo "texto transformado" >> $@
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    comandos-linux.txt: doc/ls.sh doc/mv.sh doc/tar.sh doc/curl.sh
+      @$(TRUNCATE_CLEAR_CONTENT) $@
+      @$(foreach comando, $^,\
+      cat $(comando) | sed -n '1p' | nawk '{print "$(basename $(notdir $(comando))) " $$0}' | sed 's/\#/\|/g' \
+      >> $@;\
+    )
+  #+END_SRC
+** Ejemplo
+  #+BEGIN_SRC makefile
+    comandos-linux.txt: doc/ls.sh doc/mv.sh doc/tar.sh doc/curl.sh
+      @$(TRUNCATE_CLEAR_CONTENT) $@
+      @$(foreach comando, $^,\
+        cat $(comando) | \
+        sed -n '1,2p' | \
+        nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}' | \
+        sed -E 's/\#\# (CATEGORIA)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g' | \
+        sed -E 's/\#\# (DESCRIPCION)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g' | \
+        tr --delete '\n' | tr ';' '\n' | \
+        nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}' \
+        >> $@;\
+      )
+  #+END_SRC
+
+  #+BEGIN_SRC makefile
+    # extraemos sólo las lineas 1 y 2 del archivo
+    cat archivo.txt | sed -n '1,2p'
+
+    # - agregamos al principio de cada linea un texto, en éste caso la macro comando
+    # - la función notdir obtiene el nombre del archivo (con la extensión, usaremos basename para removerla)
+    # - la función basename obtiene el nombre del archivo sin la extensión
+    # - usamos $$0 en vez de $0 para que GNU Make no la tome como una macro de Makefile si que la escape é interprete un caracter y sea un parámetro del comando awk
+    cat archivo.txt | nawk 'BEGIN{print "$(basename $(notdir $(comando)))|" } {print $$0}'
+
+    # - en las regex es típico usar paréntesis para los Grupos de Captura (Capture Group) es decir son "Construcciones de Agrupamiento de Expresiones Regulares"
+    # - en awk obtenemos el contenido de los Grupos de Captura con \1 \2 .. \n siendo n el número del grupo de captura del que queremos el contenido
+    cat archivo.txt | sed -E 's/\#\# (CATEGORIA)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2\|/g'
+
+    # - al final de cada columna de awk le agregamos un símbolo ; como centinela para detectar el fin de linea
+    cat archivo.txt | sed -E 's/\#\# (DESCRIPCION)\: (([[:alnum:]]|[[:space:]]|[[:punct:]])+)$$/\2;/g'
+
+    # borramos los saltos de linea
+    cat archivo.txt | tr --delete '\n'
+
+    # reemplazamos los ; por saltos de linea (antes los habíamos agregado para diferenciar el fin de linea)
+    cat archivo.txt | tr ';' '\n'
+
+    # - indicamos que el separador de las columnas en el símbolo | (el pipe)
+    # - transformamos el texto manipulando el orden de las columnas $1 $2 $3 detectadas por awk
+    # (recordando que agregamos un $ al principio $$1 $$2 .. porque si nó GNU Make lo tomará como una macro, y queremos que lo tome como un caracter)
+    cat archivo.txt | nawk -F '|' '{print $$1 " | " toupper($$2) " | " toupper(substr($$3,1,1)) substr($$3,2)}'
+  #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://learn.microsoft.com/es-es/dotnet/standard/base-types/grouping-constructs-in-regular-expressions][Construcciones de agrupamiento en expresiones regulares (learn.mirosoft.com)]]
+*** Referencias Extraoficiales
+    1. [[http://w3.unpocodetodo.info/utiles/regex-en-javascript.php][Grupos de captura en JavaScript (w3.unpocodetodo.info)]]
+    2. [[https://bioinf.comav.upv.es/courses/unix/expresiones_regulares.html][POSIX, Cuantificadores, Puntos de anclaje, Sustituciones, Escape de Caracteres (bioinf.comav.upv.es)]]
+    3. [[https://www.linuxteck.com/sed-commands-in-linux/][sed commands in linux (linuxteck.com)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/63952656/using-awk-to-set-first-character-to-lowercase-unix][using awk to set first character to lowercase unix (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/2609552/how-can-i-use-as-an-awk-field-separator][how can I use as an awk field separator (stackoverflow.com)]]
+    3. [[https://stackoverflow.com/questions/1251999/how-can-i-replace-each-newline-n-with-a-space-using-sed][how can I replace each newline n with a space using sed command (stackoverflow.com)]]
+    4. [[https://stackoverflow.com/questions/3512471/what-is-a-non-capturing-group-in-regular-expressions][what is a non capturing group in regular expressions (stackoverflow.com)]]
+    5. [[https://superuser.com/questions/112834/how-to-match-whitespace-in-sed][how to match whitespace in sed command (superuser.com)]]
+* Comandos xargs y whiptail + Llamado recursivo a un Makefile
+** Posibles Escenarios
+*** Escenario (1) con GNU Make
+    #+BEGIN_QUOTE
+    1) Interactuamos con el usuario mediante un cuadro de diálogo
+    2) Usaremos el programa ~whiptail~ para la interfáz del cuadro de diálogo
+    3) Redireccionamos el stderr al stdout para capturar lo que escribe ~whiptail~
+    4) Capturamos el valor de salida de ~whiptail~ con ~xargs~ para crear nuevos archivos a partir de otros (templates)
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      # alternativa al `rsync --ignore-existing` sería `cp --no-clobber`
+      COPY_NOT_OVERWRITE=rsync --ignore-existing
+
+      DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+      DOC_SHORTCUTS_LINUX_DIRECTORY=doc/linux-shell/shortcuts
+
+      MENU_CREATE_DOC_LINUX= whiptail \
+        --inputbox "Escriba el nombre del comando" 25 80 \
+        --title "Crear Documentación de Linux"
+
+      linux-create-doc:
+        $(MENU_CREATE_DOC_LINUX) 3>&1 1>&2 2>&3 \
+        | xargs -I % sh -c "\
+        $(COPY_NOT_OVERWRITE) $(DOC_COMMANDS_LINUX_DIRECTORY)/.template $(DOC_COMMANDS_LINUX_DIRECTORY)/%.sh; \
+        $(COPY_NOT_OVERWRITE) $(DOC_SHORTCUTS_LINUX_DIRECTORY)/.template $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.org; \
+        echo 'Se creó el archivo $(DOC_COMMANDS_LINUX_DIRECTORY)/%.sh;' \
+        echo 'Se creó el archivo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/%.org'; \
+        "
+    #+END_SRC
+*** Escenario (2) con GNU Make - Makefile recursivo
+    #+BEGIN_QUOTE
+    1) Capturamos la opción elegida del menu de ~whiptail~ con ~xargs~
+    2) La *opción capturada* será el nombre del ~target~ que pasaremos por parámetro al mismo ~Makefile~ para ejecutar
+    3) Con ~$(MAKE)~ se invoca a si mismo el Makefile
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      # Notas:
+      # 1. es necesario definir los targets linux-create-doc y app-create-doc
+      # 2. al confirmarle a whiptail una opción, la enviará al stdout (file descriptor 1, la pantalla)
+      # y GNU Make interpretará que el resultado es el nombre de un target
+      # (si no existen esos targets GNU Make lanzará un error de que deben definirse en el Makefile)
+      MENU_CREATE_DOC=whiptail \
+        --title "Crear documentación" \
+        --menu "Elegir una opción" 30 80 5 \
+        "linux-create-doc" "Documentación de Linux" \
+        "app-create-doc" "Documentación de una Aplicación"
+
+      create-doc:
+        $(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(MAKE) --no-print-directory %
+    #+END_SRC
+*** Escenario Alternativo - Usando comando read
+   #+BEGIN_SRC makefile
+     linux-create-doc:
+       read -p "Nombre del Comando de Linux a documentar: " NOMBRE \
+       && echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+       && echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+
+     # otra alternativa
+     linux-create-doc:
+       printf "Nombre del Comando de Linux a documentar: " && read NOMBRE \
+       && echo $(DOC_COMMANDS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_COMMANDS_EXTENSION) \
+       && echo $(DOC_SHORTCUTS_LINUX_DIRECTORY)/$$NOMBRE.$(DOC_SHORTCUTS_EXTENSION)
+   #+END_SRC
+** Comando xargs - Mismo parámetro a múltiples comandos
+   #+BEGIN_QUOTE
+   El comando ~xargs~ requiere utilizarlo la forma ~xargs -I % sh -c 'comando1 %; comando2 %; ..'~
+   cuando queremos pasar el mismo parámetro ~%~ a multiples comandos en la misma Shell
+
+   El símbolo ~%~ que usamos en los nombres de los ficheros, es el parámetro capturado por el comando ~xargs~ con la opción ~-I~
+   #+END_QUOTE
+** Comando whiptail - Redirección entre File Descriptors
+*** Problema
+    - el comando ~whiptail~ por defecto escribe sobre el ~stderr~ (fd 2)
+    - necesitamos redireccionar el ~stderr~ (fd 2) al ~stdout~ (fd 1)
+*** Solución 1 - Utilizar la terminal activa /dev/tty
+    - utilizar el operador de redirección ~>~ de la forma ~file descriptor>&otro fd~
+    - redireccionar STDERR a STDOUT y luego STDOUT a la terminal activa (la que está en uso)
+
+    #+BEGIN_QUOTE
+    Planteandolo quedaría ~2>&1 > /dev/tty~
+    1) ~2>&1~ redireccionamos el STDERR (file descriptor 2) a STDOUT (file descriptor 1)
+    2) ~> /dev/tty~ redireccionamos el STDOUT a la terminal activa (la que está en uso)
+    #+END_QUOTE
+*** Solución 2 - Crear nuevo file descriptor
+    - utilizar el operador de redirección ~>~ de la forma ~file descriptor>&otro fd~
+    - crear un *File Descriptor* adicional que guarde la referencia del stdout
+
+    #+BEGIN_QUOTE
+    Planteandolo quedaría ~3>&1 1>&2 2>&3~
+    1) ~3>&1~ creamos un nuevo File Descriptor (fd 3) que guarda la referencia del stdout (fd 1)
+    2) ~1>&2~ redireccionamos el stdout->stderr
+    3) ~2>&3~ redireccionamos el stderr->nuevo file descriptor (fd 3, el que apuntaba al stdout)
+    #+END_QUOTE
+** Referencias
+*** Referencias Extraoficiales
+    1) [[https://phoenixnap.com/kb/xargs-command][xargs Command examples (phoenixnap.com)]]
+* Comandos read y whiptail - Redirección de la Terminal activa /dev/tty
+** Formas de Redirección utilizadas
+*** Operador Pipe (|)
+    - *redirecciona el STDOUT* como STDIN de otro comando
+    - ejemplo ~ls *.txt | grep ^b~ (listar todos los archivos de texto plano que empiecen con la letra b)
+*** Operador (<)
+    - *redirecciona el contenido de un archivo* como STDIN de un comando
+    - ejemplo ~tr 'a-z' 'A-Z' < alumnos.txt~ (convertimos todos caracteres en mayúsculas)
+
+    #+BEGIN_QUOTE
+    En el posible escenario (1) planteado, que combinamos los comandos ~whiptail~ y ~read~
+    - Redireccionamos el *contenido de la terminal en uso* (activa) ~/dev/tty~ con el operador de redirección ~<~
+    - ES FUNDAMENTAL la redirección ~< /dev/tty~ caso contrario.. el comando ~read~ FALLARÁ..
+    #+END_QUOTE
+** Posibles Escenarios
+*** Escenario (1) con GNU Make - Comando read
+    #+BEGIN_QUOTE
+    Primero la interacción con ~whiptail~ (no es el tema de interés al menos en éste escenario)
+    1) Utilizamos ~whiptail~ para mostrar una caja de dialogo
+    2) Redireccionamos los *File Descriptor* (STDERR -> STDOUT) para
+       - porque por default escriben en el *STDERR* (fd 2)
+       - utilizar la salida de ~whiptail~ como entrada de otro comando con el operador pipe ~|~
+       - pasar por parámetro el resultado de ~whiptail~ al propio ~Makefile~ con el comando ~xargs~
+       - el parámetro recibido por el ~Makefile~, lo interpeta *GNU Make* como el nombre de un target (que debe estar definido en el Makefile)
+    3) Elegida una opción de ~whiptail~, la llamada recursiva ~$(MAKE)~ recibe el nombre del target pasado por parámetro por ~xargs~
+    #+END_QUOTE
+
+    #+BEGIN_QUOTE
+    Segundo la interacción con el comando ~read~ y el operador de redireccion ~<~ (éste era el tema de interés)
+    1) Solicitamos por *STDIN* (fd 0) que ingrese el nombre del comando ó aplicación con el comando ~read~
+    2) Redireccionamos el *contenido de la terminal en uso* (activa) ~/dev/tty~ con el operador de redirección ~<~
+    #+END_QUOTE
+
+    #+BEGIN_SRC makefile
+      MENU_CREATE_DOC=whiptail \
+      --title "Crear documentación" \
+      --menu "Elegir una opción" 30 80 5 \
+      "linux-create-doc" "Documentación de Linux" \
+      "app-create-doc" "Documentación de una Aplicación"
+
+      # No es necesario utilizar la opción -I, la utilizamos para asignarle un símbolo al parámetro que recibe xargs (el %)
+      # y que se entienda que se lo estamos pasando por parámetro al llamado recursivo $(MAKE)
+      create-doc:
+        $(MENU_CREATE_DOC) 2>&1 > /dev/tty \
+        | xargs $(MAKE) --no-print-directory
+
+      # alternativa al 2>&1 >/dev/tty
+      # create-doc:
+      #  $(MENU_CREATE_DOC) 3>&1 1>&2 2>&3 \
+      #  | xargs -I % $(MAKE) --no-print-directory %
+
+      # Notas:
+      # 1. Una alternativa a ~read -p "texto" VARIABLE~ sería ~echo "texto: " && read VARIABLE~
+      linux-create-doc:
+      read -p "Nombre del Comando de Linux a documentar: " NOMBRE < /dev/tty \
+      && $(TEXT_EDITOR) $$NOMBRE.sh
+
+      app-create-doc:
+      read -p "Nombre de la Aplicación a documentar: " NOMBRE < /dev/tty \
+      && $(TEXT_EDITOR) $$NOMBRE.org
+
+      .PHONY: create-doc linux-create-doc app-create-doc
+    #+END_SRC
+*** Escenario (2) con GNU Make - Comando whiptail con cuadro de dialogo
+    #+BEGIN_SRC makefile
+      LINUX_COMMANDS_LIST=ls ps find tee
+      LINUX_SHORTCUTS_LIST=neovim screen
+
+      MENU_EDIT_LINUX_COMMANDS=whiptail \
+        --title "Editar documentación de Linux" \
+        --menu "Elegir una opción" 0 0 5 $(LINUX_COMMANDS_LIST)
+
+      MENU_EDIT_LINUX_SHORTCUTS=whiptail \
+        --title "Editar documentación de Linux" \
+        --menu "Elegir una opción" 0 0 5 $(LINUX_SHORTCUTS_LIST)
+
+      linux-edit-commands: linux-shell.txt
+        $(MENU_EDIT_LINUX_COMMANDS) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
+
+      linux-edit-shortcuts:
+        $(MENU_EDIT_LINUX_SHORTCUTS) 3>&1 1>&2 2>&3 \
+        | xargs -I % $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/%.$(DOC_COMMANDS_EXTENSION)
+    #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/monitor-keyboard-drivers][Difference between /dev/tty and /dev/tty0 (baeldung.com)]]
+    2. [[https://linuxhandbook.com/redirection-linux/][Explained: input, output and error redirection in linux (linuxhandbook.com)]]
+    3. [[https://linuxhandbook.com/read-command/][Practical examples of the read command in Linux (linuxhandbook.com)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/229530/how-linux-uses-dev-tty-and-dev-tty0][How linux uses dev/tty and dev/tty0 (unix.stackexchange.com)]]
+    2. [[Https://stackoverflow.com/questions/39631144/why-command-read-doesnt-work][Why command read doesn't work (stackoverflow.com)]]
+    3. [[https://stackoverflow.com/questions/6674327/redirect-all-output-to-file-in-bash/6674383#6674383][Redirect all output to file in bash (stackoverflow.com)]]
+    4. [[https://stackoverflow.com/questions/1562666/bash-scripts-whiptail-file-select][Bash scripts whiptail file select (stackoverflow.com)]]
+* GNU Make - Pasar parámetros sin valor asociado con MAKECMDGOALS y filter
+** Problema
+   #+BEGIN_QUOTE
+   1) Queremos pasar un parámetro a un target sin asignarle un valor
+   2) Ejecutar en la terminal de comandos ~make mkdir editar~ en vez de ~make editar-comando=mkdir~
+   #+END_QUOTE
+** Solución
+  #+BEGIN_SRC makefile
+    DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+    TEXT_EDITOR=vim
+
+    # necesario para poder usar la palabra `edit` como parámetro de cualquier target
+    $(eval edit:;@:)
+
+    $(COMANDOS_LINUX):
+    # 1. validamos si pasó el parámetro "edit" en la terminal de comandos, al ejecutar make instanciando un target incluido la macro $(COMANDOS_LINUX)
+    ifeq (edit, $(filter edit,$(MAKECMDGOALS)))
+    # 1.1 abrimos el archivo en modo de edición con algún programa (Ej. vim, nano, ..)
+      $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+    # 1.2 flujo alternativo, si no pasó el parámetro "edit",
+    # entonces sólo imprimimos el contenido del archivo
+    else
+      cat $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+    endif
+
+      @test -f $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh \
+        && cat $(TEXT_EDITOR) $(DOC_COMMANDS_LINUX_DIRECTORY)/$@.sh
+        || true
+  #+END_SRC
+** Comandos utilizados
+*** Comando test
+  - lo usamos ara *validar existencia de archivos*
+  - utilizado de la forma ~test -f archivo.txt && echo "existe" || echo "no existe"~
+* GNU Make - Macro con comandos de Shell y utilizada como parámetro a otra función Shell
+** Problema
+   #+BEGIN_QUOTE
+   1) Transformar el texto de un target (en este ej. es ~SHORTCUTS_LINUX~)
+   2) Agregar saltos de linea (el caracter especial ~\n~) con el comando de linux ~sed~, porque las *funciones de sustitución de GNU Make* no lo hacen
+   3) *Pasar por parámetro la macro* con el texto transformado con ~sed~ al comando linux ~awk~ para *filtrar contenido de un archivo* de texto plano
+   #+END_QUOTE
+** Sugerencias
+  #+BEGIN_QUOTE
+  Si usamos una ~Macro (A)~ que transforma e imprime el texto de otra ~Macro (B)~,
+  y esa la ~Macro (A)~ la utilizamos como un comando dentro de una regla para crear un Target/Objetivo,
+  entonces *GNU Make* buscará en el Makefile los targets con esos nombres..
+
+  Si ese no era nuestra meta y no habíamos definido targets con esos nombres,
+  entonces *GNU Make* FALLARÁ diciendo que *NO encontró los targets* para crear el target principal (dónde se incluyó la macro)
+
+  En este ejemplo utilizamos la ~Macro (A)~ como parámetro de un comando de linux
+  #+END_QUOTE
+** Solución
+  #+BEGIN_SRC makefile
+    DOC_COMMANDS_LINUX_DIRECTORY=doc/linux-shell/commands
+    DOC_SHORTCUTS_LINUX = $(wildcard $(DOC_SHORTCUTS_LINUX_DIRECTORY)/*.org)
+    SHORTCUTS_LINUX = $(basename $(notdir $(DOC_SHORTCUTS_LINUX)))
+
+    # Notas:
+    # 1. formateamos la lista de palabras, reemplazando los espacios por el pipe | como separador
+    # 2. permite controlar el contenido del archivo con el comando de linux AWK
+    SHORTCUTS_LINUX_FORMAT=$(shell echo $(SHORTCUTS_LINUX) | sed -E 's/([[:alpha:]]+) /\1|/g')
+
+    # Notas:
+    # 1. si usamos el operador != en vez de la función $(shell ) no cumplía su propósito el slash invertido
+    # 2. en véz de borrar lineas con el comando sed y su opción /d, se prefirió filtrar filas con awk que también permite patrones (más fácil)
+    LINUX_SHORTCUTS_LIST=$(shell cat commands-linux-shell.txt \
+      | awk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/([[:alpha:]]+)::(.+)/\"\1\" \"\2\"\\/g' \
+      | awk '/$(SHORTCUTS_LINUX_FORMAT)/' \
+      | tr '\\' '\n')
+  #+END_SRC
+** Soluciones fallidas
+   #+BEGIN_SRC makefile
+     # el comando `tr` no cumplía su propósito a diferencia del comando `sed`
+     SHORTCUTS_LINUX_FORMAT_FAIL = $(shell echo $(SHORTCUTS_LINUX) | tr '[:space:]' '\|')
+
+     # el operador de redirección <<< falla
+     SHORTCUTS_LINUX_FORMAT_FAIL = sed -E 's/([[:alpha:]]+) /\1|/g' <<< "$(SHORTCUTS_LINUX)"
+
+     # ésta fue la macro utilizada, que no arroja errores
+     SHORTCUTS_LINUX_FORMAT=$(shell echo $(SHORTCUTS_LINUX) | sed -E 's/([[:alpha:]]+) /\1|/g')
+   #+END_SRC
+* GNU Make - Macro con comandos de Shell (awk + sed + tr)
+** Objetivo
+   - Adaptar el texto de un archivo que está de la forma ~dato1|dato2|~ a algo como ~"dato1" "dato2"~ seguidos de un salto de linea ~\n~
+   - Crear un menú con el comando ~whiptail --menu~ con el texto transformado
+** Problema
+   1) Leer el contenido de un archivo de texto plano (.txt) que tiene columnas delimitadas por el símbolo pipe ~|~
+   2) Cambiar el separador de columnas ~|~ por otro ~::~ con ~awk~ para facilitar la sustitución con ~sed~
+   3) Sustituir los textos de las columnas separadas por ~::~ de la forma ~"palabra" "otra"~ seguido de un slash invertido ~\~
+   4) Agregar saltos de linea al final de cada columna
+** Solución
+  #+BEGIN_QUOTE
+  - si utilizamos ~!/patron/~ en ~awk~, filtramos el contenido de un archivo, usando el ~!~ como una negación ~NOT~
+  - la solución actual con ~sed~ se complicaba el borrar lineas con varios patrones)
+  #+END_QUOTE
+
+  #+BEGIN_SRC makefile
+    # faltan algunas macros, NO se agregaron enfocar ésta solución
+    DOC_LINUX=linux-shell
+
+    LINUX_COMMANDS_LIST=$(shell cat $(DOC_LINUX).txt \
+      | nawk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/(.+)::(.+)/"\1" "\2" \\/g' \
+      | tr '\\' '\n')
+
+    # Nota: Si usamos el operador != en vez de la función $(shell ) no cumplirá su propósito el slash invertido
+    LINUX_SHORTCUTS_LIST=$(shell cat $(DOC_LINUX).txt \
+      | awk -F '|' '{print $$1 "::" $$2}' \
+      | sed -E 's/([[:alpha:]]+)::(.+)/\"\1\" \"\2\"\\/g' \
+      | awk '/$(SHORTCUTS_LINUX_FORMAT)/' \
+      | tr '\\' '\n')
+  #+END_SRC
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/delete-lines-containing-string-from-file][Delete lines containing string from file (baeldung.com)]]
+    2. [[https://phoenixnap.com/kb/awk-command-in-linux][awk command in linux (phoenixnap.com)]]
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/318839/awk-negative-regular-expression][awk negative regular expression (unix.stackexchange.com)]]
+* TODO Shell - Insertar texto en archivos con el Operador de redireccion (>>) + comandos tee y sed
+** Problema
+   #+BEGIN_QUOTE
+   Existe un problema en las soluciones planteadas con el operador de redirección ~>>~ y de los comandos ~tee~ y ~sed~
+   1) si la última linea del archivo dónde insertarmos contenido no tiene el caracter especial ~\n~ de salto de linea
+   2) al insertar contenido en el archivo, éste agregará delante del texto que ya contenía.. en vez de una nueva linea
+   3) el resultado de inserción no será el deseado, por tanto "se insertará mal"
+   #+END_QUOTE
+** Operador de redirección (>>)
+  - con ~echo "texto" >> archivo.txt~ agregamos contenido a un archivo
+  - si utilizaramos el operador de redirección ~>~ en vez de ~>>~, se borraría el contenido anterior del archivo
+** Comando tee
+  - con ~echo "texto" | tee --append archivo.txt~ agregamos contenido a un archivo
+  - el comando ~tee~ se diferencia de los operadores de redirección ~>~ y ~>>~ porque
+    1) escribe en un archivo
+    2) imprime por pantalla (stdout, fd 1) lo que escribió en el archivo
+** Comando sed
+  - con sed es ~sed -i '$ a texto' archivo~ agregamos contenido a un archivo
+* GNU Make - Problemas de Condicionales ifeq con comandos de Shell (whiptail)
+** Solución fallida (1)
+*** Código de la Solución fallida
+   #+BEGIN_SRC makefile
+     CONFIRM_INSTALL=$(shell whiptail \
+       --title "Instalar Aplicación $(APP_NAME)" \
+       --yesno "¿Desea confirmar acción?" 0 0 \
+       --no-button "Cancelar" --yes-button "Confirmar" 3>&1 1>&2 2>&3 && echo true)
+
+     # - éste target está MAL, porque la expresión que comparamos CONFIRM_INSTALL escribe un cuadro de diálogo sobre la pantalla (stdout, fd 1)
+     # - el comando whiptail no devuelve un valor booleano, devuelve la interfáz de un cuadro de dialogo
+     install:
+     ifeq ($(CONFIRM_INSTALL), true)
+       @echo "instalando..."
+     else
+       @echo "no hago nada"
+     endif
+   #+END_SRC
+*** Problema de la solución
+    #+BEGIN_QUOTE
+    Si en la terminal de comandos escribimos ~make~ ó ~make nombre-de-algun-target~
+    - se va a evaluar cada expresión de la condición del ~ifeq~ de GNU Make
+    - la macro ~CONFIRM_INSTALL~ se evaluará y se imprime la caja de diálogo de ~whiptail~ por pantalla (stdout, fd 1)
+    - la caja de diálogo de ~whiptail~ aparecerá en la pantalla cada vez que se ejecute el ~Makefile~, aunque no instanciemos el target ~install~..
+
+    el PROBLEMA ocurre porque el comando ~whiptail~
+    - escribe en el *stdout (file descriptor 1)* una interfaz gráfica,
+    - escribe en el *stderr (file descriptor 2)* el resultado de la opción elegida en la interfáz gráfica
+    - en nuestro ~ifeq~ de GNU Make "creemos" que devuelve (escribe por stdout) un valor booleano ~true~ ó ~false~
+    #+END_QUOTE
+*** Corregir el problema
+    #+BEGIN_QUOTE
+    Si queremos seguir utilizando el comando ~whiptail~, entonces necesitamos
+    - utilizar la variable ~$?~ que tiene el *Estado de Salida* (exit status) del último comando ejecutado en la Shell
+    - escapar el símbolo ~$~ de ~$?~ para que *GNU Make* no lo considere como una macro, si no como un caracter común
+    - verificar el valor de ~$?~ con el comando ~test~ (en reemplazo de ~ifeq~) de la forma ~test $$? -eq 0~
+      - si ~$?~ devuelve ~0~ (cero), entonces el comando tuvo éxito (eligieron la opción YES)
+      - si ~$?~ devuelve distinto de ~0~ (cero), entonces el comando NO tuvo éxito (eligieron la opción NO)
+
+    Otra alternativa a ~whiptail~, sería utilizar el comando ~read~
+    #+END_QUOTE
+** Solución fallida (2)
+*** Problema de la solución
+    #+BEGIN_QUOTE
+    - Mismo problema que la *solución fallida (1)*
+    #+END_QUOTE
+*** Código de la Solución fallida
+    #+BEGIN_SRC makefile
+      EXIT_STATUS_SUCCESS=0
+      CONFIRM_INSTALL=whiptail \
+        --yesno "¿Desea confirmar acción?" 0 0 \
+        --no-button "Cancelar" --yes-button "Confirmar"
+
+     # - éste target está MAL, porque la expresión que comparamos CONFIRM_INSTALL escribe un cuadro de diálogo sobre la pantalla (stdout, fd 1)
+     # - el comando whiptail no devuelve un valor booleano, devuelve la interfáz de un cuadro de dialogo
+      install:
+      ifeq ($(shell $(CONFIRM_INSTALL) 3>&1 1>&2 2>&3 && echo $$?), $(EXIT_STATUS_SUCCESS))
+        @echo "instalando..."
+      else
+        @echo "no hago nada"
+      endif
+    #+END_SRC
+** Alternativa de Solución
+   #+BEGIN_SRC makefile
+    i install: check-installed install-utils ## Instalar aplicación
+      $(BOX_CONFIRM_INSTALL) \
+      && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+      && (echo $(BASH_ALIAS) >> $(BASH_ALIASES_FILE) \
+          && chmod u+x $(UTILS_DIRECTORY)/update-bash-aliases \
+          && $(UTILS_DIRECTORY)/update-bash-aliases) \
+      || true
+   #+END_SRC
+** Referencias
+*** Referencias Issues
+    1. [[https://unix.stackexchange.com/questions/603997/makefile-file-exists-check-not-consistent][Makefile file exists check not consistent (unix.stackexchange.com)]]
+    2. [[https://stackoverflow.com/questions/32177046/ifeq-conditional-syntax-in-makefile][ifeq conditional syntax in makefile (stackoverflow.com)]]
+* GNU Make - Macro con comandos de Shell
+** Problema
+   #+BEGIN_QUOTE
+   1) Una macro con un comando de Shell (en este caso ~grep~) que verifique si un archivo contiene un patrón
+   2) Si el patrón está en el archivo ejecutar un comando ú otro
+   #+END_QUOTE
+** Sugerencias
+   #+BEGIN_QUOTE
+   Si una macro contiene una función ~$(shell ..)~ GNU Make lanzará ERROR
+   - si la usamos en la receta de una regla como un comando común de Shell junto con operadores lógicos ~&&~ y ~||~
+   - si la usamos en la receta de una regla y el Makefile no tiene definido un target con el mismo nombre del resultado que devuelva
+
+   Si una macro contiene una función ~$(shell ..)~ podemos usarla
+   - como una expresión a evaluar dentro de un condicional ~ifeq~ (Ej. ~ifeq ($(EXISTE_ARCHIVO), true) ...~)
+   - como un parámetro de un comando de Shell como test, awk, tee, ..
+     1) Ej. ~ifeq ($(APP_INSTALLED), true) ...~ (suponiendo que ~APP_INSTALLED~ devuelve un valor booleano)
+     2) Ej. ~$(LISTA_COMANDOS) | awk /$(COMANDOS_LINUX)/ | ...~ (en éste caso usariamos ~awk~ como un filtro)
+     3) Ej. ~comando && test $(OTRO_COMANDO) -eq 0 && accion si tuvo exito || accion si falla ...~
+   #+END_QUOTE
+** Solución Fallida - Utilizando el Estado de Salida del último comando ejecutado almacenado en ($?)
+   #+BEGIN_SRC makefile
+     EXIT_STATUS=$(shell echo $$?)
+     EXIT_STATUS_SUCCESS=0
+
+     # - ésta macro debería ser utilizada como una expresión en un ifeq de GNU Make
+     # - arrojará ERROR, si la utilizamos en una regla de la forma $(APP_INSTALLED) && ..
+     APP_INSTALLED=$(shell grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases && echo $$?)
+
+     # éste target va a fallar, por lo dicho arriba
+     check-installed:
+       $(APP_INSTALED) \
+       && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+       && echo "ya está instalada" \
+       || true
+   #+END_SRC
+** Solución 1 - Utilizando el Estado de Salida del último comando ejecutado almacenado en ($?)
+   #+BEGIN_SRC makefile
+     EXIT_STATUS= $??
+
+     # dejo comentado para que se entienda que NO siempre es necesario
+     # usar la función $(shell ) e imprimir un valor con el comando `echo`
+     #
+     # EXIT_STATUS=$(shell echo $$?)
+
+     EXIT_STATUS_SUCCESS=0
+
+     # esto va OK, chequeado
+     APP_INSTALLED=grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases
+
+     check-installed:
+       $(APP_INSTALLED) \
+       && test $(EXIT_STATUS) -eq $(EXIT_STATUS_SUCCESS) \
+       && echo "ya está instalada" \
+       || true
+   #+END_SRC
+** Solución 2 - Imprimiendo true en vez del Estado de Salida cero
+  #+BEGIN_SRC makefile
+    # verificamos si el archivo .bash_aliases contiene el patrón "^alias ?='make.*APP_AUTHOR=neverkas",
+    # el comando grep devolverá 0 si tiene éxito y distinto de 0 si no tuvo éxito..
+    #
+    # si el comando grep devuelve 0 entonces se ejecuta el echo true
+    APP_INSTALLED=$(shell grep -q "^alias ?='make.*APP_AUTHOR=neverkas" ~/.bash_aliases && echo true)
+
+    # nota: se podría haber usado el test $? -eq
+    check-installed:
+    ifeq ($(APP_INSTALLED), true)
+      $(error La aplicación ya está instalada)
+    endif
+  #+END_SRC
+** Referencias
+*** Referencias Oficiales
+    1. [[https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html][Conditional Functions (gnu.org)]]
+*** Referencias Extraoficiales
+    1. [[https://linuxize.com/post/regular-expressions-in-grep/][Regular Expressions in grep (linuxize.com)]]
+*** Referencias Issues
+    1. [[https://stackoverflow.com/questions/11287861/how-to-check-if-a-file-contains-a-specific-string-using-bash][How to check if a file contains a specific string using bash (stackoverflow.com)]]
+    2. [[https://stackoverflow.com/questions/30078281/raise-error-in-a-bash-script][Raise error in a bash script (stackoverflow.com)]]
