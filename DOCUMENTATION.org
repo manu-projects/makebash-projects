@@ -1,0 +1,82 @@
+#+TITLE: Documentation
+* Intro
+  #+BEGIN_QUOTE
+  Centralizamos los comentarios sobre las implementaciones en los Makefiles,
+  para separar la explicación de la implementación en si
+  #+END_QUOTE
+* Funciones de Sustitución
+  #+BEGIN_SRC makefile
+    libros = $(wildcard *.pdf)
+    archivos= $(wildcard *.tar.gz)
+
+    libros_comprimidos = $(libros:.pdf=.tar.gz)
+
+    # - Alternativa de sustitución con la función patsubst
+    libros_comprimidos = $(patsubst %.pdf, %.tar.gz, $(libros))
+  #+END_SRC
+* Macro especiales
+  #+BEGIN_SRC makefile
+    # 1. $@ es una macro especial que toma el valor del target/objetivo
+    # 2. $< es una macro especial que toma la primer dependencia de la regla
+    %.tar.gz: %.pdf
+    @echo "Comprimiendo $* en $@ .."
+    @tar -cvzf $@ $<
+  #+END_SRC
+* Targets con Iteración
+  #+BEGIN_SRC makefile
+    libros = $(wildcard *.pdf)
+
+    comprimir-archivos: $(libros_comprimidos) ##
+      @echo "Listo! archivos comprimidos!"
+
+    # 1. Es común pensar de forma algorítmica, iterar sobre una lista de nombres de libros
+    # y ejecutar un comando para comprimir/descomprimir pasandole de parámetro el nombre..
+    #
+    # 2. El problema de lo anterior es que se ejecutaría a cada rato comprimiendo/descomprimiendo
+    # desaprovechando el concepto que tiene GNU Make con los objetivos/target (archivos)..
+    # es decir "crear el objetivo (archivo) sólo si es necesario",
+    #
+    # ésta regla tiene asociada como orden un resultado NO deseado..
+    comprimir-archivos:
+      $(foreach libro, $(libros),\
+      tar -cvzf $(libro).tar.gz $(libro);)
+  #+END_SRC
+* Comando ls - Listar directorios
+  #+BEGIN_SRC makefile
+    # 1. Para listar archivos con misma extensión de múltiples directorios podemos usar el comando ls pasandole ambas rutas
+    # por ejemplo ls ruta/*.extension otra-ruta/*.extension
+    #
+    # 2. Si el comando ls no encuentra el archivo ó patrón pasado por parámetro, lanzará un mensaje al file descriptor 2 STDERR
+    # 3. Ocutamos los mensajes de error de ls, redireccionando los mensajes que el comando ls envía al fd 2 stderr al dispositivo nulo /dev/null
+    # con el operador de redirección > por ejemplo ls /pupi 2>/dev/null
+    STD_ERR=2
+    NULL_DEVICE=/dev/null
+
+    listar-libros: ##
+      @ls -l *.pdf */*.pdf $(STD_ERR)>$(NULL_DEVICE) | \
+      | column -t
+  #+END_SRC
+* Comando rename - Expresiones Regulares
+  #+BEGIN_SRC makefile
+    # Breve explicación de los patrones utilizadas con rename
+    # 1. Transformamos las mayúsculas en minúsculas, reemplazamos los espacios y guión bajo por guión -
+    #	rename -v 'y/A-Z _/a-z-/' *.pdf
+    #
+    # 2. Usamos el ^ como una operación de complemento, removiendo todo caracter NO alfanumérico ó que no sea _.-
+    #	rename 's/[^a-zA-Z0-9_.-]//g' *.pdf
+    #
+    # Notas:
+    # 1. si al comando rename combinamos los parámetros -n -v imprimirá como quedarían los nombres de los archivos,
+    # sin generar efecto sobre los archivos (no los renombra)
+    #
+    # 2. alternativa al comando rename + la orden (s) sustitución con expresiones de PERL
+    # es combinar los comandos tr y rename con el parámetro -f, por ejemplo rename -f 'tr/ A-Z/-a-z/' *.pdf
+    #
+    # 3. la orden (s) de sustitución del comando rename es similar al del comando SED
+    # 4. la órden (y) del comando rename, nos permite transformación de Mayúsculas->Minusculas de manera sencilla
+
+    # renombra los nombres de los archivos
+    formatear-archivos:
+      @rename -v 'y/A-Z _/a-z-/' *.pdf && \
+      rename -v 's/[^a-zA-Z0-9_.-]//g' *.pdf
+  #+END_SRC
