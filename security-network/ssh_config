@@ -1,0 +1,24 @@
+# por default éste archivo suele ubicarse en /etc/ssh/ssh_config
+# ó bien ubicarlo luego de ejecutar `locate ssh_config`
+
+# nombres de usuarios permitidos para ingresar al servidor ssh
+AllowUsers jelou neverkas
+
+# - elegir cualquier valor de puerto por encima del 1024
+# - cambiamos el puerto por default 22, porque ya conocido por los atacantes
+Port 2222
+
+PermitEmptyPasswords no
+
+# suponemos que accederemos sólo con el certificado de Clave Pública (generado con ssh-keygen)
+PasswordAuthentication no
+
+# utilizar el usuario root sólo luego de habernos conectados (con otro usuario)
+PermitRootLogin no
+
+# - intervalo de tiempo (en segundos) que el servidor verifica si existen usuarios conectados sin actividad
+# - desconecta a los usuarios sin actividad (Ej. si olvidaron cerrar la conexión)
+ClientAliveInterval 60
+
+# cantidad máxima de usuarios conectados sin actividad
+ClientAliveCountMax

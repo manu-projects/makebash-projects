@@ -1,0 +1,13 @@
+## FILE DESCRIPTORS
+/dev/fd, /proc/self/fd, symbolic, File descriptors
+/dev/stdin, fd/0, symbolic, stdin file descriptor
+/dev/stdout, fd/1, symbolic, stdout file descriptor
+/dev/stderr, fd/2, symbolic, stderr file descriptor
+
+## SOCKETS
+/dev/printer, socket, lpd local socket
+/dev/log, socket, syslog local socket
+
+## MOUNT POINTS
+/dev/pts, devpts, PTY slave filesystem
+/dev/shm, tmpfs, POSIX shared memory maintenance access
