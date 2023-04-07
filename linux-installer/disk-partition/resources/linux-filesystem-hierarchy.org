@@ -1,0 +1,119 @@
+#+BEGIN_QUOTE
+Según el (FHS) Estándar de la Jerarquía del Sistema de Archivos de Linux
+#+END_QUOTE
+* Sistema de archivos raíz (/)
+  - archivos necesarios para arrancar el sistema y el resto de los sistemas de archivos
+* Sistema de Archivos (/usr)
+  - comandos, librerías, páginas de manual y otros archivos que NO son modificados durante la ejecución normal del sistema.
+* Sistema de Archivos (/var)
+  - contiene archivos que son modificados durante la ejecución normal del sistema
+  - Ej. logs, páginas de manual formateadas, archivos temporales, ..
+* Sistema de Archivos (/home)
+  - directorios específicos de los usuarios de linux
+  - Ej. /home/jelou, /home/neverkas, ...
+* /bin
+  - destinado a *usuarios normales* (es decir que no tenga permisos de superusuario)
+  - contiene las Shells (Ej. sh, bash, csh, ..)
+  - contiene comandos de *GNU coreutils* (Ej. cp, mv, rm, cat, ls, ...)
+  - contiene comandos requeridos por scripts del Sistema de Arranque (boot)
+
+  #+BEGIN_QUOTE
+  Algunos de los comandos que contiene son
+  - cat, chrp, chmod, chwon, cp, date, dd, df, echo, hostname, kill, ln
+  - ls, mkdir, more, mount, mv, ps, pwd, rm, rmdir, sed, sh, su, umount, uname
+  - stty, login, dmesg, true, false, mknod, sync
+
+  Otros programas es opcional que tenga
+  - tar, cpio, ping, netstat, csh
+  - ed, gzip, gunzip, zcat
+  #+END_QUOTE
+* /sbin
+  - destinado a usuarios *Administradores de Sistema* (Ej. usuario root)
+  - contiene *comandos esenciales del Sistema* (arrancar/restaurar/recuperar/reparar el sistema)
+* /etc
+  - contiene *archivos de configuración* del sistema
+** /etc/fstab
+   - archivo con un listado de los *filesystem montados automáticamente al iniciar el sistema*
+   - para mas información ejecutar por linea de comandos ~man fstab~
+** /etc/mtab
+   - archivo con un listado de *filesystems montados de forma dinámica ó en tiempo real*
+   - ~/etc/mtab~ difiere de ~/etc/fstab~ porque éste segundo son *filesystem montados de forma estática* al momento de iniciar el sistema
+** /etc/X11
+   - directorio con archivos de configuración del *X Window System* (Sistema de Ventanas X)
+** /etc/adduser.conf
+   - configuración por default del comando ~adduser~
+     - Ej. *cambiar el directorio home* de los usuarios ubicada en ~/home~ por otro (ó mantenerlo)
+     - Ej. *cambiar la estructura (skel) del directorio home* ubicada en ~/etc/skel~ por otra (ó mantenerlo)
+   - ~adduser~ permite crear usuarios, crear grupos, crearle un directorio home a un usuario, ..
+** /etc/apt
+   - archivos de configuración del *Gestor de Paquetes* (ó Herramienta Avanzada de Empaquetado) ~apt~ de Debian GNU/Linux
+
+   #+BEGIN_QUOTE
+   Algunas características de ~apt~
+   - hace referencia a *Advanced Package Tool* (Herramienta Avanzada de Empaquetado)
+   - tiene una *interfáz en modo texto*, también llamada (CLI) *Command line interface* (interfáz de linea de comando)
+   - ~apt~ es el *front-end* del *Gestor de Paquetes* ~dpkg~, éste primero tiene una *interfáz de usuario* mas amigable
+
+   Algunas diferencias entre ~apt~ y ~dpkg~
+   - ~dpkg~ permite instalar/remover paquetes
+   - ~apt~ utiliza por detrás (back-end) a ~dpkg~ para instalar/remover paquetes (es decir ~apt~ depende de ~dpkg~)
+   - ~apt~ permite descargar paquetes e instalar dependencias (~dpkg~ NO dispone esas dos características)
+   #+END_QUOTE
+** /etc/apt/sources.list
+   - archivo de texto que contiene una *lista de fuentes (repositorios) de base de datos de apt*
+   - se utiliza para sincronizar la *base de datos de paquetes de las fuentes* con la *base de datos de paquetes de nuestro sistema local*
+** /etc/apt/sources.list.d
+   - directorio con el mismo objetivo que el archivo ~sources.list~
+   - cada entrada del directorio es un archivo ~nombre.list~ con el mismo formato que ~sources.list~
+   - permite desacoplar las fuentes en vez de centralizar todas en ~sources.list~
+** /etc/group
+   - archivo con un *listado de GRUPOS del sistema* y los *usuarios pertenecen a cada grupo*
+** /etc/passwd
+   - archivo con el *listado de USUARIOS* del sistema
+   - contiene información de cada usuario (Ej. ruta de su directorio Home, tipo de shell que utiliza, ...)
+** /etc/shadow
+   - archivo con el *listado de CONTRASEÑAS encriptadas/cifrada* de los usuarios del sistema
+** /etc/sudoers
+   - archivo que sólo debería ser modificado con el comando ~visudo~ utilizando permisos de superusuario (root)
+   - define que usuarios están autorizados a solicitar permisos de superusuario (root)
+** /etc/hostname
+   - archivo con el *nombre del equipo* (el comando ~hostname~ devuelve lo mismo)
+** /etc/hosts
+   - archivo para asignar *nombres de dominio* a *direcciones de IP*
+** /etc/hosts.allow
+   - archivo con un *listado de hosts* que pueden *controlar acceder a ciertos servicios del sistema*
+** /etc/hosts.deny
+   - lo opuesto a ~/etc/hosts.allow~
+** /etc/logrotate.conf
+   - permite gestionar la generación de (logs) registros del sistema
+** /etc/networks
+** /etc/services
+   - archivo con un *listado de SERVICIOS* + el PUERTO asociado + el PRÓTOCOLO (tcp, udp)
+** /etc/shells
+   - archivo con un *listado de SHELLS* confiables (algunos *Display Manager* la utilizan)
+   - Ej. ~/bin/sh~, ~/bin/bash~, ~/usr/bin/fish~, ...
+** /etc/skel
+   - archivos y *estructura de directorios* por default *para la carpeta HOME de un nuevo usuario* (cuando creamos un usuario)
+** /etc/screenrc
+   - archivo para configuración para *GNU Screen* el *Multiplexor de terminales* asociado al comando ~screen~
+   - Ej. atajos, comandos a ejecutar al inciar, ..
+** /etc/ssh
+   - *directorio con archivos de configuración* del *Servidor SSH* del sistema (necesitamos installar ~openssh-server~)
+   - ~/etc/ssh~ difiere de ~/home/algun-usuario/.ssh~, éste segundo contiene
+     1) los *Hosts confiables* (a los que nos conectamos)
+     2) nuestras *claves públicas* (certificados que validan quienes somos, al conectarnos a un host confiable)
+** /etc/timezone
+   - archivo con la *zona horaria del sistema*
+* /root
+  - representa el *directorio local* (home) del usuario (root) es decir del *Administrador del Sistema*
+* /lib
+  - contiene las *bibliotecas compartidas* (shared libraries) necesarias para los programas que están en el *Sistema de Archivos Raíz* (/)
+** /lib/modules/"kernel-version"
+   - módulos del (kernel) Núcleo de Linux, necesarios para arrancar el sistema
+   - se crean luego de compilar el kernel de linux
+* TODO /boot
+* TODO /dev
+* TODO /initrd
+* TODO /mnt
+* TODO /opt
+* TODO /proc
