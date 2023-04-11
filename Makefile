@@ -31,7 +31,7 @@ endif
 check-remote-status:
 	git status \
 	&& git remote --verbose \
-	&& git remote --show origin
+	&& git remote show origin
 
 # utilizado por el resto de los repositorios mediante Github Actions
 git-subtree-pull: check-remote-status
