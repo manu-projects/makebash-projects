@@ -10,7 +10,7 @@ git-log-graph:
 git-update-subtree: repositorios.cfg
 	git pull origin master \
 	&& cat $< \
-	| grep -v -w -E `git remote | xargs | tr ' ' '|'` \
+	| grep -v -w -E `git remote | awk '!/origin/' | xargs | tr ' ' '|'` \
 	| tr --delete ',' \
 	| xargs -n2 bash -c '$(MAKE) --no-print-directory git-subtree-add REPOSITORY_NAME=$$0 REPOSITORY_URL=$$1'
 
