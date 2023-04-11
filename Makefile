@@ -28,8 +28,13 @@ ifeq ("$(GIT_REMOTE_EXISTS)","")
 	git remote add $(REPOSITORY_NAME) $(REPOSITORY_URL)
 endif
 
+check-remote-status:
+	git status \
+	&& git remote --verbose \
+	&& git remote --show origin
+
 # utilizado por el resto de los repositorios mediante Github Actions
-git-subtree-pull:
+git-subtree-pull: check-remote-status
 	git subtree pull --prefix=$(REPOSITORY_NAME) $(REPOSITORY_URL) master --squash
 
 upload-changes-to-remote:
