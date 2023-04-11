@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: run-workflow
-    runs-on: self-hosted
+    runs-on: ubuntu-latest # ó de forma local: self-hosted
     steps:
       - name: Checkout proyecto
         uses: actions/checkout@v3

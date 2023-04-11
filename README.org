@@ -22,3 +22,4 @@
   1. https://github.com/JordanMartinez/purescript-cookbook
   2. https://github.com/maidsafe/safe_network
   3. https://github.com/ULHPC/tutorials
+  4. https://github.com/home-assistant/operating-system
