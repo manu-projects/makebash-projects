@@ -14,15 +14,12 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ secrets.ACCESS_TOKEN }}
       - name: Create environment variables
         run: |
           echo "REPOSITORY_NAME=`basename ${{ github.event.client_payload.repository }}`" >> $GITHUB_ENV
           echo "REPOSITORY_URL=git@github.com:{{ github.event.client_payload.repository }}.git" >> $GITHUB_ENV
       - name: Get changes
         run: make git-subtree-pull REPOSITORY_NAME=${{ env.REPOSITORY_NAME}} REPOSITORY_URL=${{ env.REPOSITORY_URL }}
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
       - name: Update changes
         run: make upload-changes-to-remote
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
