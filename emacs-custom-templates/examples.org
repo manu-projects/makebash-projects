@@ -1,0 +1,88 @@
+#+TITLE: Examples
+* Org Agenda
+#+BEGIN_SRC elisp
+(setq org-agenda-custom-commands
+      '(("n" "Agenda and all TODOs"
+         ((agenda ""
+                  ((org-agenda-block-separator nil)
+                   (org-agenda-span 1)
+                   (org-agenda-overriding-header "\nAgenda Manu\n")))
+          (alltodo ""
+                   ((org-agenda-overriding-header "Todas mis tareas\n")))))
+
+        ("w" "All office related-tasks"
+         ((todo "WAIT")
+          (tags-todo "work")
+          (tags "office")))))
+#+END_SRC
+* Org Capture Template
+** Macros más utilizadas
+| %?    | lugar dónde posicionará el cursor                                                               |
+| \n    | salto de linea                                                                                  |
+| %^{ } | nos pide ingresar algún texto                                                                   |
+| %t    | lo reemplazará con la fecha actual                                                              |
+| %i    | captura la región que seleccionemos (active region) en algún buffer y la inserta en el template |
+| %^t   | nos pide elegir una fecha del org calendar                                                      |
+| ^%g   | nos pide tags/keywords y los completa con tags del archivo al que apuntamos                     |
+| %x    | lo reemplazará por contenido del (clipboard) portapapeles de X/X11/X.org                        |
+| %U    | timestamp                                                                                       |
+| %a    | Annotation, basically a link (org-store-link)                                                   |
+
+#+BEGIN_QUOTE
+ ~%^{||}~ ~ nos pide elegir una opción de la lista de opciones que separamos con el caracter pipe ~|~
+#+END_QUOTE
+** Sintáxis
+#+BEGIN_SRC elisp
+  (set org-capture-templates
+         ("tecla atajo" "descripcion del template" keyword-especial
+          (file+headline "ruta absoluta ó relativa del archivo" "titulo principal del archivo")
+          "texto"))
+#+END_SRC
+** Ejemplo
+#+BEGIN_SRC elisp
+  (setq org-capture-templates
+        '(("t" ;; hotkey/atajo
+           "Todo list item" ;; nombre del template
+           entry ;; tipo
+           (file+headline "example.org" "Tasks") ;; archivo dónde se insertará + en que título
+           "* TODO %?\n %i\n") ;; el template/plantilla a insertar, éste es un string (pero podría haber sido la ruta de un archivo)
+
+          ;; template sencillo
+          ("s" "Simple template" entry
+           (file+headline "example.org" "Tareas urgentes")
+           "* TODO %?")
+
+          ;; Solicitar ingresar texto
+          ("p" "prompt us for input" entry
+           (file+headline "example.org" "Ideas")
+           "* %^{Ingrese un texto} %?")
+
+          ;; Mostrar un menú con opciones
+          ("o" "multiple options in prompt" entry
+           (file+headline "example.org" "Reuniones Urgentes")
+           "* %^{Seleccione el equipo para reunirse|QA|Developers|DevOps} más texto %?")
+
+          ;; Mostrar un menú con opciones + agrega fecha actual
+          ("t" "task with a date" entry
+           (file+headline "example.org" "Reuniones planificadas")
+           "* %^{Seleccione el equipo para reunirse|QA|Developers|DevOps}\n SCHEDULED: %t\n más texto  %?")
+
+          ;; Mostrar un menú con opciones + nos pide elegir una fecha del org calendar
+          ;; podemos utilizar una fecha relativa por ej. +3d serán 3 días luego de la fecha actual
+          ("c" "task with a date with org calendar" entry
+           (file+headline "example.org" "Reuniones planificadas")
+           "* %^{Seleccione el equipo para reunirse|QA|Developers|DevOps}\n SCHEDULED: %^t\n más texto  %?")
+
+          ;; Template con varios templates
+          ;; (Ej. para distintos tipos reuniones, tareas, etc)
+          ("m" "Submenu template")
+          ("ma" "Submenu opción A" entry
+           (file+headline "example.org" "Tareas urgentes")
+           "* TODO %?")
+          ("mb" "Submenu opción B" entry
+           (file+headline "example.org" "Tareas urgentes")
+           "* TODO %?")
+          ("mc" "Submenu opción C" entry
+           (file+headline "example.org" "Tareas urgentes")
+           "* TODO %?")))
+#+END_SRC

@@ -1,0 +1,10 @@
+* %^{Title} %? %^g
+  :PROPERTIES:
+  :LEVEL: %^{Level|easy|normal|difficult}
+  :LANGUAGE: %^{Language|english|spanish}
+  :RATING: %^{Rating from 1 to 10}/10
+  :URL: %x
+  :AUTHOR: %^{Author's name}
+  :DURATION: %^{Video Duration|1-15 minutes|15-30 minutes|30-60 minutes|more than 60 minutes}
+  :YEAR-PUBLICATION: %^{Year of publication}
+  :END:

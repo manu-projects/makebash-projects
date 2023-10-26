@@ -1,0 +1,11 @@
+* %^{Title} %? %^g
+  :PROPERTIES:
+  :SOURCE: non-official
+  :STATUS: unsolved
+  :LANGUAGE: %^{Language|english|spanish}
+  :RATING: %^{Rating from 1 to 10}/10
+  :URL: %x
+  :YEAR-PUBLICATION: %^{Year of publication}
+  :END:
+** Context/Problem
+** Solution

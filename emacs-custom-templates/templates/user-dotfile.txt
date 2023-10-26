@@ -1,0 +1,6 @@
+* %^{Title} %? %^g
+  :PROPERTIES:
+  :RATING: %^{Rating from 1 to 10}/10
+  :URL: %x
+  :AUTHOR: %^{Author's name}
+  :END:

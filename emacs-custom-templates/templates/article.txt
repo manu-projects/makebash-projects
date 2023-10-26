@@ -1,0 +1,9 @@
+* %^{Title} %? %^g
+   :PROPERTIES:
+   :DATE-CREATED: <%<%Y-%m-%d %a>>
+   :DATE-UPDATED: <%<%Y-%m-%d %a>>
+   :BOOK: %^{Book name}
+   :BOOK-CHAPTERS: %^{Number of Chapters}
+   :COURSE: %^{Course name}
+   :COURSE-LESSONS: %^{Number of Lessons}
+   :END:

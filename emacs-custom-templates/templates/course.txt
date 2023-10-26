@@ -1,0 +1,11 @@
+* %^{Title} %? %^g
+   :PROPERTIES:
+   :STATUS: %^{Status|reading|to read}
+   :LEVEL: %^{Level|easy|normal|difficult}
+   :LANGUAGE: %^{Language|english|spanish}
+   :RATING: %^{Rating from 1 to 10}/10
+   :SOURCE: [[non-official]]
+   :URL: %x
+   :AUTHOR: %^{Author's name}
+   :YEAR-PUBLICATION: %^{Year of publication}
+   :END:
