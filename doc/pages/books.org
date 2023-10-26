@@ -1,0 +1,14 @@
+#+TITLE: Books
+* Books
+** The Mastering Emacs                                                :emacs:
+  :PROPERTIES:
+  :STATUS: reading
+  :LEVEL: normal
+  :LANGUAGE: english
+  :RATING: 10/10
+  :URL: https://www.learn-clojurescript.com/
+  :AUTHOR: Mickey Petersen
+  :YEAR-PUBLICATION: 2015
+  :PAGES: 314
+  :ISBN-13: nil
+  :END:

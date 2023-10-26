@@ -1,0 +1,163 @@
+#+PROPERTY: header-args:elisp :comments yes :results silent :tangle ~/.emacs.d/myconfig.el
+* Intro
+#+BEGIN_SRC elisp :tangle no
+  ;; para aplicar los cambios de configuración,
+  ;; ejecutar éste bloque con el atajo C-c C-c
+  (org-babel-tangle)
+  (dotspacemacs/sync-configuration-layers)
+#+END_SRC
+* Variables Globales
+#+BEGIN_SRC elisp
+  ;; para los org-capture-templates utilice éste como workspace
+  ;; "~/org-files"
+  (setq org-directory "~/org-files"
+        org-agenda-files '("doc/pages/tasks.org"))
+
+  ;; agregamos el atajo para acceder a la agenda más fácil
+  (global-set-key (kbd "C-c a") 'org-agenda)
+#+END_SRC
+* Org Tareas
+#+BEGIN_SRC elisp
+  (setq org-priority-faces '((?A :foreground "#e45649")
+                             (?B :foreground "#da8548")
+                             (?C :foreground "#0098dd"))
+        org-todo-keywords '((sequence "TODO(t)" "IN PROGRESS(i)" "WAITING(w)" "SOMEDAY(s)" "READ(r)" "DONE(d)"))
+        org-todo-keyword-faces
+        '(("TODO" :foreground "#7c7c75" :weight normal :underline t)
+          ("IN PROGRESS" :foregroundeground "#0098dd" :weight normal :underline t)
+          ("SOMEDAY" :foreground "#50a14f" :weight normal :underline t)
+          ("READ" :foreground "#50a14f" :weight normal :underline t)
+          ("DONE" :foreground "#50a14f" :weight normal :underline t)
+          ("WAITING" :foreground "#9f7efe" :weight normal :underline t)))
+#+END_SRC
+* Org Capture Templates
+#+BEGIN_SRC elisp
+  ;; Nota: otra alternativa a la función (projectile-project-root) que devuelve la ruta absoluta,
+  ;; sería la variable local project-root que creamos nosotros en .dir-locals.el
+
+  (defun create-article-file ()
+    "Create an org file in path-my-project/articles/."
+    (interactive)
+    (let ((name (read-string "Filename without extension: ")))
+      (expand-file-name (format "%s.org" name)
+                        (concat (projectile-project-root) "doc/articles/"))))
+
+  (setq org-capture-templates
+        '(;; Article Templates
+          ("a" "Article")
+          ("an" "New Article" entry
+           (file (lambda () (call-interactively 'create-article-file)))
+           (file "templates/article.txt")
+           )
+
+          ;; Video Templates
+          ("v" "Video")
+          ("vt" "Videotutorial" entry
+           (file+headline
+            (lambda () ( concat (projectile-project-root) "doc/pages/videos.org"))
+            "Videotutorials")
+           (file "templates/video.txt"))
+          ("vo" "Overview" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/videos.org"))
+            "Overviews")
+           (file "templates/video.txt"))
+          ("vc" "Conference / Talk" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/videos.org"))
+            "Conferences / Talks")
+           (file "templates/video.txt"))
+
+          ;; Documentation Templates
+          ("d" "Documentation")
+          ("do" "Official Documentation" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/documentation.org"))
+            "Official Documentation")
+           (file "templates/official-documentation.txt"))
+          ("dn" "Non-Official Documentation" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/documentation.org"))
+            "Non-Official Documentation")
+           (file "templates/non-official-documentation.txt"))
+
+          ;; Issues Templates
+          ("i" "Issue")
+          ("is" "Issues has been Solved" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/issues.org"))
+            "Issues has been Solved")
+           (file "templates/issue-solved.txt"))
+          ("in" "Issue needs to be Solved" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/issues.org"))
+            "Issues need to be Solved")
+           (file "templates/issue-unsolved.txt"))
+
+          ;; Dotfiles Template
+          ("u" "User's Dot File" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/users-dotfiles.org"))
+            "Users' Dot Files")
+           (file "templates/user-dotfile.txt"))
+
+          ;; Books Template
+          ("b" "Book")
+          ("bn" "New Book" plain
+           (file+headline
+            (lambda () ( concat (projectile-project-root) "doc/pages/books.org"))
+            "Books")
+           (file "templates/book.txt"))
+
+          ;; Nota:
+          ;; 1. usamos "plain" en vez de "entry", éste segundo anidaba otro elemento en el árbol de tareas
+          ;; 2. suponemos que el template ya agregamos los 3 niveles de profundidad
+          ;; 3. en vez de (projectile-project-root) podríamos usar.. (file-name-directory buffer-file-name)
+          ;; pero sólo se podría ejecutar la plantilla dentro del buffer de algún archivo del directorio doc/pages/
+          ("bc" "New Book Chapter" plain
+           (file+function (lambda () (concat (projectile-project-root) "doc/pages/books.org"))
+                          (lambda () (call-interactively 'find-title-org-mode)))
+           (file "templates/book-chapter.txt")
+           )
+
+          ;; Courses Template
+          ("c" "Course")
+          ("cn" "New Course" entry
+           (file+headline
+            (lambda () (concat (projectile-project-root) "doc/pages/courses.org"))
+            "Courses")
+           (file "templates/course.txt"))
+
+          ;; idem que Book Chapter
+          ("cl" "New Course Lesson" plain
+           (file+function (lambda () (concat (projectile-project-root) "doc/pages/courses.org"))
+                          (lambda () (call-interactively 'find-title-org-mode)))
+           (file "templates/course-lesson.txt")
+           )))
+
+#+END_SRC
+* Buscador
+#+BEGIN_SRC elisp
+(defun find-title-org-mode (&optional title)
+  ;; permite la interacción con el usuario, le solicita ingresar el título a buscar
+  (interactive "singrese parte del tìtulo a buscar: ")
+
+  ;; mueve el cursor al principio del buffer, para que re-search-forward busque desde esa posición
+  (goto-char 0)
+
+  ;; verificamos si encontró la palabra
+  (if (re-search-forward title nil t)
+
+      ;; si lo encontró mueve el cursor a la siguiente título
+      (outline-next-heading))
+  )
+#+END_SRC
+* Generador de artículos
+#+BEGIN_SRC elisp
+  (defun create-article-file ()
+    "Create an org file in path-my-project/doc/articles/."
+    (interactive)
+    (let ((name (read-string "Filename without extension: ")))
+      (expand-file-name (format "%s.org" name)
+                        (concat (projectile-project-root) "doc/articles/"))))
+#+END_SRC

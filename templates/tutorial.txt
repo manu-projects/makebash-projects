@@ -1,0 +1,9 @@
+   :PROPERTIES:
+   :type: [[Tutorial]]
+   :level: [[easy]]
+   :language: [[english]]
+   :rating: [[0/10]]
+   :source: [[non-official]]
+   :link: -
+   :tags: -
+   :END:

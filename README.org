@@ -1,0 +1,82 @@
+* Descripción de la estructura de directorio
+- ~config.org~ describe los bloques de configuración de emacs en ~elisp~
+- ~examples.org~ ejemplos de configuración
+- ~templates/~ contiene las plantillas usadas por ~org-capture-template~ (habrá un enlace simbólico en ~~/org-files~)
+- ~pages/~ contiene documentación propia reutilizando las plantillas de ~templates/~
+* Modo de uso de mi configuración
+** Configuración casi automática
+#+BEGIN_QUOTE
+al ejecutar en la terminal de linux el comando ~make~ (en la raíz del proyecto)
+1. ejecutará el comando ~org-babel-tangle~ en emacs
+2. creará un enlace simbólico del directorio ~templates/~ en ~~/org-files~ (otros proyectos compartirán los mismos templates)
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+es "casi" automática, porque debemos agregar una linea en el archivo ~~/.spacemacs~
+#+END_QUOTE
+** Comando org-babel-tangle
+- evalúa todos los *bloques de código* y los inserta en el archivo especificado según el parámetro ~:tangle nombre-archivo~
+- atajos para ejecutar el comando ~org-babel-tangle~
+  - ~, b t~ (evil mode)
+  - ~C-c C-v t~
+  - ~M-x org-babel-tangle~
+
+#+BEGIN_QUOTE
+la ejecución del comando ~org-babel-tangle~ se encuentra automatizada en el archivo ~config.org~ y en el Makefile
+#+END_QUOTE
+** Cargar configuración en Spacemacs
+*** Atajos
+- el atajo ~SPC f e R~ recarga la configuración de Spacemacs
+- el atajo ~SPC f e d~ para editar el archivo de configuración ~.spacemacs~
+
+#+BEGIN_QUOTE
+la ejecución del atajo ~SPC f e R~ asociada a ~dotspacemacs/sync-configuration-layers~
+ya se encuentra automatizada en el archivo ~config.org~ y en el Makefile
+#+END_QUOTE
+*** Configuración
+#+BEGIN_SRC elisp :tangle no
+  ;; - en el archivo ~/.spacemacs agregar dentro de dotspacemacs/user-config
+  ;; - myconfig.el contiene mi configuración, la cargamos luego de que se cargó paquete org mode
+  (with-eval-after-load 'org
+      (load-file "~/.emacs.d/myconfig.el"))
+#+END_SRC
+** Argumentos del archivo de configuración
+*** Propiedad header-args
+- necesaria para cambiar las propiedades a todos los *bloques de código*
+- con ~header-args:elisp~ indicamos que evalúe los *bloques de código* que utilicen el lenguaje *elisp*
+- el atajo ~C-c C-c~ aplica los nuevos cambios en los parámetros que hagamos en ~:results~, ~:tangle~, ~:comments~, ..
+*** Parámetro :tangle
+- indicamos dónde escribir el contenido evaluado de los *bloques de código*
+- Ej. ~:tangle ruta/nombre.el~
+*** Parámetro :comments
+- asociará a cada *bloque de código* insertado en ~config.el~ con un comentario (con la linea anterior a éste en éste archivo .org)
+- ej. ~:comments yes~
+* Shortcuts
+** Emacs
+  |                          | evil mode | org mode command     | description                                                           |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  |                          | SPC a o t | org-todo-list        | mostrar listado de las tareas de la agenda                            |
+  |                          | SPC a o o | org-agenda           | mostrar agenda de actividades/tareas                                  |
+  | C-c C-d                  | , d d     | org-deadline         | fijar fecha límite/final de entrega                                   |
+  | C-c C-s                  | , d s     | org-schedule         | fijar fecha planificada de inicio/comienzo                            |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  | C-c C-t                  | , T T     | org-todo             | elegir un estado de una tarea (TODO,DOING,DONE,..)                    |
+  | C-c ,                    | , p       | org-priority         | elegir una prioridad (#A Alta, #B Normal, #C Baja)                    |
+  |                          |           |                      |                                                                       |
+  | M-ArrowDown, M-ArrowUp   |           |                      | cambiar la prioridad                                                  |
+  | M-ArrowLeft M-ArrowRight |           |                      | cambiar el estado de una tarea                                        |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  |                          | , i p     | org-set-property     | agregar/modificar una propiedad                                       |
+  |                          | , i t     | org-set-tags-command |                                                                       |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  | C-h v                    | SPC h d v | describe-variable    | (Ej. org-todo-keywords, org-priority-faces, ..)                       |
+  | C-h a                    | SPC h d a | apropos-command      | (Ej. org-agenda)                                                      |
+  |                          |           | org-mode-restart     | Para visualizar cambios recientes aplicados                           |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  |                          | , s s     | org-sparse-tree      | Filtrar subtareas por tags, su estado TODO, propiedades               |
+  |--------------------------+-----------+----------------------+-----------------------------------------------------------------------|
+  |                          | C-c $     | org-archive-location | Archiva un árbol de tareas finalizadas hace mucho como ~.org_archive~ |
+** Org Agenda
+  | m | buscar tareas por tags                   |
+  | t | listar todas las tareas                  |
+  | n | mostrar agenda + listar todas las tareas |

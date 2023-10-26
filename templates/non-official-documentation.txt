@@ -1,0 +1,9 @@
+* %^{Title} %? %^g
+  :PROPERTIES:
+  :SOURCE: non-official
+  :LANGUAGE: %^{Language|english|spanish}
+  :RATING: %^{Rating from 1 to 10}/10
+  :URL: %x
+  :AUTHOR: %^{Author's name}
+  :YEAR-PUBLICATION: %^{Year of publication}
+  :END:

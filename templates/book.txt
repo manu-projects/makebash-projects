@@ -1,0 +1,12 @@
+* %^{Title} %? %^g
+  :PROPERTIES:
+  :STATUS: %^{Status|reading|to read}
+  :LEVEL: %^{Level|easy|normal|difficult}
+  :LANGUAGE: %^{Language|english|spanish}
+  :RATING: %^{Rating from 1 to 10}/10
+  :URL: %x
+  :AUTHOR: %^{Author's name}
+  :YEAR-PUBLICATION: %^{Year of publication}
+  :PAGES: %^{Number of pages}
+  :ISBN-13: %^{(ISBN-13) International Standar Book Number}
+  :END:

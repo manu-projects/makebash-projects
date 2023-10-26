@@ -1,0 +1,6 @@
+*** %^{Title} %? %^g
+  :PROPERTIES:
+  :CHAPTER: %^{Number of Chapter}
+  :LEVEL: %^{Level|easy|normal|difficult}
+  :RATING: %^{Rating from 1 to 10}/10
+  :END:
