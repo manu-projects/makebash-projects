@@ -1,0 +1,58 @@
+* Intro
+  #+BEGIN_QUOTE
+  Esta es una plantilla básica de un flujo de trabajo con Logseq + Org Mode,
+  que iremos actualizando a medida que aprendamos más de cada tecnología y distintas formas de documentar
+  #+END_QUOTE
+* Modo de uso
+** Configuración
+   - en ~directories.cfg~ agregar las rutas absolutas dónde ya habíamos creado un directorio para logseq
+
+   #+BEGIN_EXAMPLE
+   Ejemplo de rutas absolutas que podriamos agregar en directories.cfg
+
+   /home/jelou/Documents/git/manu-learning/aprende-clojurescript/logseq-docs
+   /home/jelou/Documents/git/manu-learning/aprende-clojure/logseq-docs
+   /home/jelou/Documents/git/manu-learning/aprende-electronica/logseq-docs
+   /home/jelou/Documents/git/manu-learning/aprende-bash/logseq-docs
+   #+END_EXAMPLE
+** Ejemplo de uso
+   #+BEGIN_SRC shell
+     # - comando opcional, por si aún no creamos un directorio de logseq (con el propio programa logseq)
+     # - creará el directorio en la ruta absoluta que escribamos + la estructura de archivos de éste repositorio
+     make create-logseq-workflow
+
+     # - previamente hará una copia de respaldo del archivo de configuración logseq/config.edn de cada ruta de directories.cfg
+     # - copiará nuestro archivo de configuración config.edn en cada ruta de directories.cfg
+     make update-config-workflows
+
+     # - copiará nuestro archivo de plantillas pages/Templates.org en cada ruta de directories.cfg
+     make update-templates-workflows
+
+     # - comando opcional, porque podrías sólo copiar la configuración ó sólo los templates
+     # - copiará todos nuestros archivos .org de pages/ en cada ruta de directories.cfg
+     make copy-pages-to-workflows
+   #+END_SRC
+* Referencias
+** Logseq
+*** Referencias Extraoficiales
+     1. [[https://discuss.logseq.com/tag/lesson][Logseq Lessons (discuss.logseq.com)]]
+     3. [[https://unofficial-logseq-docs.gitbook.io/unofficial-logseq-docs/intermediate-to-advance-features/dynamic-variables][Dynamic Variables (unofficial-logseq-docs.gitbook.io)]]
+     2. [[https://unofficial-logseq-docs.gitbook.io/unofficial-logseq-docs/intermediate-to-advance-features/macros][Macros (unofficial-logseq-docs.gitbook.io)]]
+*** Issues
+     1. [[https://github.com/logseq/logseq/issues/3898][Dynamic variables is not recognized properly as property value (github.com/logseq/logseq)]]
+*** Videotutoriales
+     1. [[https://www.youtube.com/watch?v=Xaa3mry9O5I][Logseq customise sidebar menus (by Ed Nico)]]
+     2. [[https://www.youtube.com/playlist?list=PLwpUQg3DhPIrx0mTZNjg3u5WdYyG0a0m4][Playlist - Logseq (by Tools on Tech)]]
+     3. [[https://www.youtube.com/playlist?list=PLNnZ7rjaL84J99VHDnjybypqgUTvxQ_v5][Playlist - Logseq Workflows (by CombiningMinds PKM)]]
+     4. [[https://www.youtube.com/playlist?list=PLHDFMoLGADVv5JGXXtKzvRbgGh5WW8k5M][Playlist - Logseq (by Edenilson L.R)]]
+** Emacs + Org Mode
+*** Referencias Oficiales
+     1. [[https://orgmode.org/guide/Properties.html][Properties Syntax (orgmode.org)]]
+     2. [[https://orgmode.org/manual/Properties-and-Columns.html][Properties and Columns (orgmode.org)]]
+     3. [[https://orgmode.org/worg/org-contrib/org-collector.html][collect properties into tables with org-collector.el (orgmode.org)]]
+*** Referencias Extraoficiales
+     1. [[https://alphaalgorithms.github.io/2019/05/22/emacs-properties-and-columns/][Orgmode properties and columns (alphaalgorithms.github.io)]]
+     2. [[https://www.adventuresinwhy.com/post/org-mode-timekeeping/][Org mode timekeeping (adventuresinwhy.com)]]
+     3. [[https://writequit.org/articles/emacs-org-mode-generate-ids.html][How to use good header id on Emacs org mode (writequit.org)]]
+*** Videotutoriales
+     1. [[https://www.youtube.com/watch?v=ABrv_vnVbkk][The properties (by Rainer Konig)]]

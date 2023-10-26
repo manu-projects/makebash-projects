@@ -1,0 +1,91 @@
+* Tools of the Trade #course-lesson
+  :PROPERTIES:
+  :type: [[course-lesson]]
+  :rating: [[0/10]]
+  :level: [[easy]]
+  :link: -
+  :tags: [[repl]], [[figwheel]]
+  :heading: 1
+  :END:
+** REPL (Read-Eval-Print Loop)
+*** Conceptos
+**** Una ~REPL~ es una herramienta que (Lee expr) -> (Evalúa exp) -> (Imprime resultado) -> (se repite el ciclo lee->..)
+**** Si a la ~REPL~ le cargamos un namespace, tendremos acceso a todas las funciones/variables definidas en ese namespace
+**** Cuando es un ambiente
+    #+BEGIN_QUOTE
+    Una REPL es un ambiente (environment) cuando le asociamos un ~namespace~, por ejemplo
+    - Si a la REPL le cargamos el namespace ~clj.user~ estamos en el *ambiente de la app en ejecución* (/en el browser/)
+    - Si a la REPL le cargamos el namespace ~proyecto.locura~ estamos en el *ambiente dev* de la aplicación
+    #+END_QUOTE
+*** Proceso de una REPL
+**** un ciclo de 4 pasos que se repite de la siguiente forma
+ 1. espera una entrada/expresión para leer (read)
+ 2. evalúa la expresión escrita
+ 3. luego de evaluada la imprime
+ 4. y se repite el ciclo lee->evalúa->imprime
+*** Proceso de una REPL de ClojureScript
+**** Dependencia del Navegador Web
+   #+BEGIN_QUOTE
+   Con clojurescript, la REPL depende del Browser porque sólo él evaluará las expresiones
+   #+END_QUOTE
+**** un ciclo de 6 pasos que se repite de la siguiente forma
+ 1. La REPL espera una expresión
+ 2. El compilador compila la expresión a código javascript
+ 3. La REPL envia el código javascript al Browser (/por WebSocket/)
+ 4. El Navegador evalúa la expresión en javascript y devuelve el resultado al REPL
+ 5. La REPL recibe el resultado e imprime el resultado
+ 6. Se repite el ciclo de interacción entre la REPL y el Browser hasta que Browser finalice ó se cierre la conexión
+** Figwheel
+*** Conceptos
+**** ~figwheel~ establece una conexión Cliente-Servidor entre la *REPL de Clojurescript* (servidor) y el *Browser* (cliente)
+**** Cuando escribimos expresiones en la *REPL de Clojurescript* es ~figwheel~ la herramienta que invoca al *Compilador de ClojureScript*
+**** Interacción entre Clojurescript y el Browser
+    #+BEGIN_QUOTE
+    ~figwheel~ gestiona la interacción Cliente-Servidor entre la REPL de Clojurescript (servidor) y el Browser (Cliente)
+
+    1. ~figwheel~ (server, en la REPL) abre el Browser (/que tiene integrado un figwheel cliente, un script en javascript/)
+    2. ~figwheel~ (server, en la REPL) invoca al compilador de clojurescript para que evalúe y compile las expresiones a javascript
+    3. ~figwheel~ (server, en la REPL) envía el código javascript al browser (figwheel client)
+    4. ~figwheel~ (client, en el Browser) recibe el código javascript, lo evalúa y devuelve el resultado a la REPL (figwheel server)
+    5. ~figwheel~ (server, en la REPL) recibe el resultado y lo imprime en la ~REPL de Clojurescript~
+    #+END_QUOTE
+*** Manejo de Errores de Compilación
+**** Posible Escenario entre el Compilador de ClojureScript y el Browser
+    #+BEGIN_QUOTE
+    Si el código javascript compilado por el compilador de Clojurescript tiene algún error
+    1. el ~figwheel~ (client, corre en el Browser) NO ejecuta el código
+    2. el ~figwheel~ (client, corre en el Browser) devuelve la excepción al ~figwheel~ (server, corre en la REPL de ClojureScript)
+
+    Es decir no se ejecuta código javascript con errores en ambiente web del Browser,
+    esta característica garantiza un estado consistente de la aplicación libre de errores
+    #+END_QUOTE
+* Basic ClojureScript #course-lesson
+  :PROPERTIES:
+  :type: [[course-lesson]]
+  :rating: [[0/10]]
+  :level: [[easy]]
+  :link: -
+  :tags: [[namespaces]], [[repl]]
+  :heading: 1
+  :END:
+** Namespaces (Espacios de nombres)
+*** Conceptos
+**** En clojurescript un ~namespace~ agrupa funciones y datos
+*** Relación con la REPL
+**** En la ~REPL~ de clojurescript, el namespace cargado por defecto es ~cljs.user~
+**** La ~REPL~ devuelve ~nil~ cuando evalúa expresiones que no tienen vinculados algún valor (Ej. al evaluar la función println)
+*** El Namespace de la Aplicación en ejecución
+**** El namespace ~cljs.user~ representa el namespace de la aplicación en ejecución en el Browser
+**** Se crea/carga en la REPL de ClojureScript cuando se establece la conexión con el Browser
+*** Cambiar de Namespace
+**** Con la función ~in-ns~ podemos cambiar entre namespaces
+**** Ejemplo
+     #+BEGIN_SRC clojurescript
+      ;; en la REPL...
+
+      ;; cambiamos al namespace del proyecto creado
+      (in-ns 'learn-cljs.weather)
+
+      ;; cambiamos al default
+      (in-ns cljs.user)
+     #+END_SRC

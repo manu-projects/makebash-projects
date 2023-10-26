@@ -1,0 +1,115 @@
+* TODO Note
+  :PROPERTIES:
+  :template: Note
+  :template-including-parent: false
+  :END:
+** #Note
+   :PROPERTIES:
+   :type: [[Note]]
+   :tags: -
+   :date-created: <% today %>
+   :date-updated: <% today %>
+   :END:
+* Article
+  :PROPERTIES:
+  :template: Article
+  :template-including-parent: false
+  :END:
+** #Article
+   :PROPERTIES:
+   :type: [[Article]]
+   :tags: -
+   :date-created: <% today %>
+   :date-updated: <% today %>
+   :END:
+* Task
+  :PROPERTIES:
+  :template: Task
+  :template-including-parent: false
+  :END:
+** #task
+   :PROPERTIES:
+   :type: [[Task]]
+   :priority: -
+   :tags: -
+   :date-created: <% today %>
+   :date-updated: <% today %>
+   :END:
+* Documentation
+  :PROPERTIES:
+  :template: Documentation
+  :template-including-parent: false
+  :END:
+** #Documentation
+   :PROPERTIES:
+   :type: [[Documentation]]
+   :source: [[non-official]]
+   :language: [[english]]
+   :rating: [[0/10]]
+   :link: -
+   :file: -
+   :author: -
+   :tags: -
+   :END:
+* Videotutorial
+  :PROPERTIES:
+  :template: Videotutorial
+  :template-including-parent: false
+  :END:
+** #videotutorial
+   :PROPERTIES:
+   :type: [[Videotutorial]]
+   :level: [[easy]]
+   :language: [[english]]
+   :rating: [[0/10]]
+   :link: -
+   :channel: -
+   :tags: -
+   :END:
+* Tutorial
+  :PROPERTIES:
+  :template: Tutorial
+  :template-including-parent: false
+  :END:
+** #tutorial
+   :PROPERTIES:
+   :type: [[Tutorial]]
+   :level: [[easy]]
+   :language: [[english]]
+   :rating: [[0/10]]
+   :source: [[non-official]]
+   :link: -
+   :tags: -
+   :END:
+* Course
+  :PROPERTIES:
+  :template: Course
+  :template-including-parent: false
+  :END:
+** #course
+   :PROPERTIES:
+   :type: [[Course]]
+   :level: [[easy]]
+   :language: [[english]]
+   :rating: [[0/10]]
+   :source: [[non-official]]
+   :website: -
+   :playlist: -
+   :year-publication: -
+   :book: -
+   :author: -
+   :tags: -
+   :END:
+* Course-Lesson
+  :PROPERTIES:
+  :template: course-lesson
+  :template-including-parent: false
+  :END:
+** #course-lesson
+   :PROPERTIES:
+   :type: [[course-lesson]]
+   :level: [[easy]]
+   :rating: [[0/10]]
+   :link: -
+   :tags: -
+   :END:

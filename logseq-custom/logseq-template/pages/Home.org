@@ -1,0 +1,80 @@
+* Cursos
+  :PROPERTIES:
+  :heading: 1
+  :END:
+** Cursos en progreso
+   :PROPERTIES:
+   :heading: 2
+   :END:
+   {{query (and [[course-lesson]] (or (todo TODO) (todo DOING))) }}
+** Todos los Cursos
+   :PROPERTIES:
+   :query-table: true
+   :END:
+   {{query (and [[Courses]] [[Course]]) }}
+* Artículos
+  :PROPERTIES:
+  :heading: 1
+  :END:
+** Artículos en desarrollo
+   :PROPERTIES:
+   :heading: 2
+   :END:
+   {{query (and [[Articles]] (todo DOING)) }}
+** Todos mis artículos
+   :PROPERTIES:
+   :query-table: true
+   :query-properties: [:block :tags :type]
+   :heading:  3
+   :END:
+   {{query (and [[Articles]] [[Article]]) }}
+* Documentación
+  :PROPERTIES:
+  :heading: 1
+  :END:
+** Documentación Oficial
+   :PROPERTIES:
+   :heading: 2
+   :query-table: true
+   :END:
+   {{query (and [[documentations]] (property source official)) }}
+** Documentación Extraoficial
+   :PROPERTIES:
+   :heading: 2
+   :query-table: true
+   :END:
+   {{query (and [[documentations]] (property source non-official)) }}
+* Tutoriales
+  :PROPERTIES:
+  :heading: 1
+  :END:
+** Tutoriales Oficiales
+   :PROPERTIES:
+   :query-table: true
+   :query-properties: [:block :rating :link :tags :level :title]
+   :heading: 3
+   :END:
+   {{query (and [[tutorials]] (property source official)) }}
+** Tutoriales Extraoficiales
+   :PROPERTIES:
+   :query-table: true
+   :query-properties: [:block :rating :link :tags :level :title]
+   :heading: 3
+   :END:
+   {{query (and [[tutorials]] (property source non-official)) }}
+* Videotutoriales
+  :PROPERTIES:
+  :heading: 1
+  :END:
+** emacs
+   :PROPERTIES:
+   :query-table: true
+   :heading: 2
+   :END:
+   {{query (and  [[videotutorials]] (property tags emacs)))}}
+** elisp
+   :PROPERTIES:
+   :heading:  2
+   :query-table: true
+   :END:
+   {{query (and  [[videotutorials]] (property tags elisp))}}
