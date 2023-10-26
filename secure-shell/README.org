@@ -1,0 +1,31 @@
+* Referencias
+** Libros Referentes
+   1. SSH The Secure Shell: The definitive Guide, 2nd Edition
+** Referencias Oficiales
+   1. https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys#using-multiple-repositories-on-one-server
+** Referencias Destacadas
+   1. http://www.unixwiz.net/techtips/ssh-agent-forwarding.html
+   2. http://www.unixwiz.net/techtips/iguide-crypto-hashes.html
+   3. http://www.youdzone.com/signature.html
+   4. https://rcic.uci.edu/hpc3/ssh-guide.html
+   5. https://hpc-docs.uni.lu/connect/ssh/
+   6. https://juncotic.com/ssh-agent-que-es-y-como-funciona/
+   7. https://juncotic.com/ssh-conectarnos-sin-usar-contrasena/
+   8. https://juncotic.com/repositorios-git-ssh/
+   9. https://www.howtouselinux.com/post/ssh-permission-denied-publickey
+   10. https://www.ssh.com/academy/ssh/session-key
+   11. https://kb.iu.edu/d/aews
+   12. https://www.xmodulo.com/how-to-accept-ssh-host-keys-automatically-on-linux.html
+   13. https://www.baeldung.com/linux/ssh-authentication-methods
+   14. https://linuxize.com/post/using-the-ssh-config-file/
+   15. https://linuxize.com/post/how-to-change-ssh-port-in-linux/
+   16. https://www.baeldung.com/linux/public-key-known_hosts
+   17. https://www.baeldung.com/linux/ssh-known_hosts-ignore-emporarily
+** Referencias Extraoficiales
+   1. https://betterprogramming.pub/how-to-set-up-multiple-ssh-keys-ae6688f76570
+   2. https://itslinuxfoss.com/how-to-force-ssh-client-to-use-only-password-auth/
+** Issues
+   1. https://unix.stackexchange.com/questions/61655/multiple-similar-entries-in-ssh-config/61666#61666
+   2. https://unix.stackexchange.com/questions/298191/how-does-openssh-determine-the-choose-the-host-key-algorithm
+   3. https://serverfault.com/questions/471327/how-to-change-a-ssh-host-key
+   4. https://serverfault.com/questions/943774/ssh-keyscan-does-not-read-ssh-config

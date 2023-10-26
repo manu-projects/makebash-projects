@@ -1,0 +1,21 @@
+## Ejemplo archivo fstab - BIOS EN MODO UEFI + TABLA DE PARTICIÓN GPT + PARTICIÓN EFI
+# - el UUID de la partición EFI lo obtenemos con el comando de linux ~blkid~
+# - el punto de montaje: /boot/efi
+# - tipo de filesytem: vfat (en el gestor de particiones elegimos FAT32, pero en el archivo fstab será vfat)
+# - opciones:
+# - dump: desactivado (bit 0), no hará copias de seguridad del filesystem
+# - pass: prioridad 1 (Alta prioridad para chequee errores, por ser el sistema de particiones)
+
+UUID=AB43-5FCD /boot/efi vfat umask=0077 0 1
+
+# ..................................................................................................................
+
+## Ejemplo archivo fstab - directorio /home de los usuarios linux desacoplado de las Distribuciones de Linux
+# - el UUID lo obtenemos con el comando de linux ~blkid~ (hace referencia a los dispositivos de bloque)
+# - el punto de montaje: /home (cada usuario de linux tendrá un directorio dentro de éste /home)
+# - tipo de filesystem: ext4 (porque es una distribución de Linux)
+# - opciones: defaults
+# - dump: desactivado (bit 0), no hará copias de seguridad del filesystem
+# - pass:  prioridad 2 (Menor prioridad que /boot/efi, al chequear éste Sistema de Archivos que no tiene un Sistema Operativo)
+
+UUID=f9ffb999-78ad-4469-9575-a3176225596a /home ext4 defaults 0 2

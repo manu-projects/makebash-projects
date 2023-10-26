@@ -1,0 +1,10 @@
+El número de particiones y tamaño de particiones de un dispositivo está limitado según la Tabla de Particiones (MBR, GPT)
+
+Un dispositivo formateado con una Tabla de particiones (MBR) Master Boot Record
+- máximo de particiones: 4 primarias
+- máximo de particiones: 3 primarias + 1 extendida + múltiples particiones lógicas dentro de la extendida
+- tamaño máximo de una partición: es 2TiB
+
+Un dispositivo formateado con una Tabla de particiones (GTP) *GUID Partition Table*
+- máximo de particiones: 128
+- tamaño máximo de una partición: 8ZiB

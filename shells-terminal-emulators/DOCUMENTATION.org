@@ -1,0 +1,9 @@
+* Referencias
+** Referencias oficiales
+  1. [[https://tldp.org/LDP/abs/html/intandnonint.html][Interactive and non-interactive shells and scripts (tldp.org)]]
+** Referencias Extraoficiales
+  1. [[https://hyperpolyglot.org/unix-shells][Unix shells: Bash, Fish, Zsh (hyperpolyglot.org)]]
+  2. [[https://www.makeuseof.com/linux-login-shells-explained/][What is a Login Shell in Linux? (makeuseof.com)]]
+  3. [[https://www.makeuseof.com/linux-login-shells-explained/][Linux login shells explained (makeuseof.com)]]
+  4. [[https://linuxhandbook.com/login-shell/][What is Login Shell in linux? (linuxhandbook.com)]]
+  5. [[https://linuxhandbook.com/change-shell-linux/][How to change Shell in Linux (linuxhandbook.com)]]

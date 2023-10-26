@@ -1,0 +1,6 @@
+# formato de las columnas:
+# 1º columna: indica si lo usará por default, si no dejar en blanco
+# 2º columna: dirección del servidor
+# 3º columna: nombre ó descripción
+default, keys.openpgp.org, Open PGP (confiable)
+, pgp.mit.edu, MIT PGP (lento)

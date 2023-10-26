@@ -1,0 +1,43 @@
+* Referencias
+** Referencias Oficiales
+   - https://wiki.archlinux.org/title/GnuPG
+   - https://www.gnupg.org/gph/es/manual.html
+   - https://www.gnupg.org/faq/gnupg-faq.html
+   - https://www.gnupg.org/documentation/manuals/gnupg/Specify-a-User-ID.html
+   - https://wiki.debian.org/Subkeys
+   - https://www.nist.gov/news-events/news/2022/12/nist-retires-sha-1-cryptographic-algorithm
+   - https://www.redhat.com/sysadmin/digital-signatures-gnupg
+** Libros referentes
+   1. https://www.cs.ait.ac.th/~on/O/oreilly/tcpip/puis/ch06_05.htm
+** Proyectos de Investigación
+   1. https://irp.cdn-website.com/980e9c77/files/uploaded/PROYECTO%20INVESTIGACION.pdf
+** Referencias de Universidades
+   http://cs.uns.edu.ar/~jechaiz/seguridad/clases/Mod%20I%20-%206%20Cripto%20Clasica%20y%20Moderna.pdf
+** Referencias Destacadas
+   - https://unix.stackexchange.com/questions/177291/how-to-renew-an-expired-keypair-with-gpg/177310#177310
+   - https://www.genbeta.com/desarrollo/manual-de-gpg-cifra-y-envia-datos-de-forma-segura
+   - https://www.alvarovf.com/seguridad/2020/10/11/cifrado-asimetrico-gpg-openssl.html
+   - https://grimoire.carcano.ch/blog/a-quick-easy-yet-comprehensive-gpg-tutorial/
+   - https://darfe.es/es/
+   - https://www.segu-info.com.ar/criptologia/
+   - https://pthree.org/2016/02/16/checksums-digital-signatures-and-message-authentication-codes-oh-my/
+   - https://confluence.atlassian.com/bitbucketserver/using-gpg-keys-913477014.html
+   - https://incenp.org/notes/2015/gnupg-for-ssh-authentication.html
+   - https://teknikaldomain.me/post/pgp-trust-levels-and-sig-types-explained/
+   - https://linuxkamarada.com/en/2018/11/08/verifying-data-integrity-and-authenticity-using-sha-256-and-gpg/
+   - https://www.developer.com/guides/how-digital-signatures-work-digitally-signing-messages/
+   - https://medium.com/@fro_g/oh-no-i-forgot-my-pgp-private-keys-passphrase-6ec1d0228b48
+   - https://blog.mdaemon.com/encrypting-vs-signing-with-openpgp-whats-the-difference
+** Otras Referencias
+   - https://www.ochobitshacenunbyte.com/category/sysadmin/
+   - https://www.developer.com/guides/how-digital-signatures-work-digitally-signing-messages/
+   - http://dis.um.es/~lopezquesada/documentos/IES_1314/SAD/curso/UT6/ActividadesAlumnos/grupo5/index.html
+   - https://tutonics.com/2012/11/gpg-encryption-guide-part-1.html
+   - https://tutonics.com/2012/11/gpg-encryption-guide-part-2-asymmetric.html
+   - https://tutonics.com/2012/11/gpg-encryption-guide-part-3-digital.html
+   - https://tutonics.com/2012/11/gpg-encryption-guide-part-4-symmetric.html
+   - https://www.linuxbabe.com/security/a-practical-guide-to-gpg-part-1-generate-your-keypair
+   - https://www.linuxbabe.com/security/gpg-guide-public-key-management
+   - https://www.linuxbabe.com/security/gpg-encrypt-and-decrypt-message
+   - https://www.alvarovf.com/seguridad/2020/10/11/cifrado-asimetrico-gpg-openssl.html
+   - https://www.makeuseof.com/what-is-a-message-digest/

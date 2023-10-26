@@ -1,0 +1,14 @@
+# (wm) window manager
+# (fm) file manager
+# (pm) package manager
+gnome: -
+kde-plasma: kwin (wm) + dolphin  (fm)
+mate: bajos recursos
+cinnamon: muffin (wm) + nemo (fm)
+xfce4: xfwm (wm) + thunar (fm) + bajos recursos
+budgie: -
+unity: (en desuso)
+phanteon: imita macOS + origen elementaryOS
+lxqt: pcmanfm-qt (fm) + bajos recursos
+lxde: bajos recursos
+enlightenment: bajos recursos

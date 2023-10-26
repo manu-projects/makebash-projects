@@ -1,0 +1,14 @@
+Claves Privadas de SSH
+======================
+
+Utilización
+-----------
+- verifican la Indentidad del Usuario (Ej. cuando el Servidor envía el "Challenge Key" al Cliente SSH)
+- mismo objetivo que las "Claves Secundarias Privadas de GPG" que tienen la capacidad de [A]utenticar
+
+Almacenamiento
+--------------
+NO se deben compartir, sólo el propietario debe tenerlas
+
+- guardar en un "medio de almacenamiento encriptado" y externo al Sistema en uso (Ej. disco duro externo, pendrive)
+- ó persistir en un Password Manager (Ej. pass, gopass)

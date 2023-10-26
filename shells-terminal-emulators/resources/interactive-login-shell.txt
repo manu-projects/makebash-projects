@@ -1,0 +1,20 @@
+Archivos de configuración /etc/.profile, ~/.bash_profile, ~/.profile, ~/.bash_login
+- la Bash Shell los leerá en ese orden
+- la Bash Shell cargará las variables de entorno + funciones + ejecutará los comandos
+- aparece el option flag (i) al imprimir el parámetro especial de bash `$-` (Ej. comprobar ejecutando`echo $-`)
+- aparece un guión (-) al imprimir el parámetro especial de bash `$0` (Ej. comprobar ejecutando`echo $0`)
+
+Observaciones (directorios del sistema Vs directorios de usuario)
+- los archivos en /etc: requieren ejecutar (sudo) permisos de superusuario + se compartirá para todos los usuarios del sistema
+- los archivos en ~/: son específicos para cada usuario que tenga su directorio home
+
+Observaciones (bash shell)
+- la expansión del parámetro especial de bash `$-` contiene los "OPTIONS FLAGS" de la Shell utilizada
+- la expansión del parámetro especial de bash `$0` contiene el "NOMBRE de la Shell" utilizada (ó de un shell script)
+- aplicamos los cambios de los archivos de configuración de bash shell, ejecutando el comando `source`
+
+Ejemplos de Interactive Login Shell
+a) ssh usuario@ip (el más común, nos "conectamos desde otra máquina" por ssh)
+b) `su nombre` ó.. `su nombre --login` (podría ser común, al "cambiar de usuario")
+c) ssh usuario@127.0.0.1 (no tan común, nos conectamos por ssh desde la misma máquina)
+d) bash --login (no tan común, crear una nueva bash shell)

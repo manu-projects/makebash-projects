@@ -1,0 +1,324 @@
+#+BEGIN_QUOTE
+Según el (FHS) Estándar de la Jerarquía del Sistema de Archivos de Linux
+#+END_QUOTE
+* Directorios Esenciales para el Arranque del Sistema
+** Directorios en la partición del Sistema de Archivos Raíz (/)
+   - el Sistema de Archivos Raíz (/) tiene *todos los archivos necesarios para arrancar el sistema*
+   - los directorios que deberían estar en la misma partición del *Sistema de Archivos Raíz* (/)
+     1) /bin
+     2) /boot
+     3) /dev
+     4) /etc
+     5) /lib
+     6) /proc
+     7) /sbin
+** Directorios que se pueden montar en otra partición diferente al Raiz (/)
+   - los directorios que pueden estar *montados en otra partición ó sistema* (para facilitar backups, ó por temas de seguridad)
+     1) /home
+     2) /mnt
+     3) /tmp
+     4) /usr
+     5) /var
+* Sistema de archivos raíz (/)
+  - archivos necesarios para arrancar el sistema y el resto de los sistemas de archivos
+* Sistema de Archivos (/usr)
+  - el contenido es ESTÁTICO
+  - contiene archivos por la *instalación de una distribución de Linux*
+  - comandos, librerías, páginas de manual y otros archivos que *NO son modificados durante la ejecución normal del sistema*
+    (Ej. puede ocurrir que queramos montar éste Sistema de Archivos en "MODO DE SÓLO LECTURA" es decir read-only)
+** /usr/local
+   - programas que instalamos *posterior a la instalación inicial de la distribución de linux*
+   - las distribuciones de linux "NO" deberían agregar archivos éste directorio, permitiendo al usuario
+     1) *actualizar la versión* de la distribución de linux, sin perder los programas (paquetes) instalados
+     2) *cambiar de distribución* (base) de linux, sin perder los programas (paquetes) instalados
+** /usr/bin
+   - destinado a *usuarios normales* (es decir que no tenga permisos de superusuario)
+   - el *Sistema de archivos raíz* (/) tiene un (softlink) *enlace simbólico* ~/bin~ que apunta a éste directorio ~/usr/bin~
+   - en el título ~/bin~ explico en más detalle
+** /usr/sbin
+   - destinado a usuarios *Administradores de Sistema* (Ej. usuario root, ó usuario con permisos de superusuario)
+   - el *Sistema de archivos raíz* (/) tiene un (softlink) *enlace simbólico* ~/sbin~ que apunta a éste directorio ~/usr/sbin~
+   - en el título ~/sbin~ explico en más detalle
+** /usr/local/bin
+** /usr/share/man, /usr/share/info, /usr/share/doc
+   - páginas de manual, documentación de GNU y de programas instalados
+** /usr/include
+   - archivos de cabecera .h del lenguaje de programación C
+** /usr/lib
+   - el *Sistema de archivos raíz* (/) tiene un (softlink) *enlace simbólico* ~/lib~ que apunta a éste directorio ~/usr/lib~
+   - contiene las *bibliotecas compartidas* (shared libraries) necesarias para los programas que están en el *Sistema de Archivos Raíz* (/)
+** /usr/src
+   - archivos de código fuente del *Kernel de Linux*
+* Sistema de Archivos (/var)
+  - el contenido es DINÁMICO
+  - contiene archivos que son *modificados durante la ejecución normal del sistema*
+  - Ej. logs, páginas de manual formateadas, archivos temporales de gran tamaño, ..
+** /var/log
+   - directorio con la bitácora (registros) del Sistema y diferentes programas/servicios
+
+    #+BEGIN_QUOTE
+    Como la cantidad y tamaño de registros del sistema suelen crecer de forma indefinida,
+    se recomienda utilizar *utilidades para la rotación de logs* (Ej. logrotate)
+    #+END_QUOTE
+*** /var/log/wtmp
+    - archivo "binario" con los registros de *Login* (inicios y cierres de sesión del sistema)
+      1) QUIENES se logearon
+      2) COMO se logearon
+      3) CUANDO se logearon
+    - al no ser un archivo de texto plano necesitamos del comando ~last~ ó ~last --file=/var/log/wtmp~
+*** /var/log/utmp
+    - archivo binario con las *sesiones de usuario activas*
+    - al no ser un archivo de texto plano necesitamos del comando ~w~ ó ~who~ ó ~last --file=/var/log/utmp~
+*** /var/log/btmp
+    - archivo "binario" con los *intentos FALLIDOS de inicio de sesión*
+      1) QUIENES se logearon
+      2) COMO se logearon
+      3) CUANDO se logearon
+    - al no ser un archivo de texto plano necesitamos del comando ~blast~ ó ~last --file=/var/log/btmp~
+*** /var/log/syslog
+    - archivo "de texto plano" con registros del *Sistema* del (daemon) demonio ~syslogd~ (comprobar su estado con ~service syslog status~)
+    - contiene *mensajes del kernel de linux* y *mensajes del programas del Sistema*
+** /var/lock
+   - directorio con *archivos de bloqueo*
+   - los programas los crean cuando están utilizando un *dispositivo* ó un *archivo* de forma exclusiva
+   - los programas al verlos, no intentarán acceder a esos *dispositivos* ó *archivos*
+** /var/tmp
+   - directorio para archivos temporales que
+     - tienen gran tamaño
+     - ó que deben estar más tiempo de lo permitido en ~/tmp~ (Ej. persistir apesar de haber reiniciado el sistema)
+** /var/lib
+** /var/local
+** /var/run
+** /var/backups
+* Sistema de Archivos (/home)
+  - contiene los *directorios personales* (home directory) de cada usuario del sistema
+  - el esquema de nombres es de la forma ~/home/nombre-de-usuario~
+  - Ej. /home/jelou, /home/neverkas, ...
+* Sistema de Archivos (/proc)
+  - es un *Filesytem Virtual* porque *Kernel de Linux* lo *persiste en Memoria Principal* (RAM) en vez de fisicamente en Disco
+  - contiene información de sistema acerca de los procesos (por eso su nombre)
+  - dato de color sobre la mayoria de los archivos
+    - su tamaño es 0 (excepto el kcore que es una imagen de la memoria física de sistema)
+    - tienen permisos de sólo lectura (only-read)
+** /proc/1
+   - directorio con información del proceso con PID=1 (el primer proceso en ejecutar en el sistema)
+   - *cada proceso tiene su directorio* en ~/proc~ con su (PID) *número de identificación*
+** /proc/cpuinfo
+   - información del procesador (tipo, marca, modelo, ..)
+** /proc/devices
+   - archivo con un listado de *controladores de dispositivos* configurados en el Kernel de Linux (dispositivos de Caracter, dispositivos de Bloque)
+** /proc/tty
+   - directorio con información sobre las TTY
+*** /proc/tty/drivers
+    - archivo con un listado de drivers + su uso
+** /proc/filesystem
+   - archivo con un listado de *Sistemas de Archivos* soportados por el Kernel de Linux
+** /proc/meminfo
+   - archivo con información sobre la *memoria física* (RAM) y *swap* (espacio de intercambio)
+   - el comando ~free~
+     1) utiliza información de éste archivo (para mostrar la cantidad de memoria libre, utilizada)
+     2) permite mostrar la información en unidades mas humanizadas/entendibles
+** /proc/net
+   - directorio con el estado de los *protocolos de red* (wirless, tcp, udp, ...)
+** /proc/version
+   - archivo con la versión del kernel de linux
+* /boot
+  - contiene archivos utilizados por el *Cargador de Arranque* (Boot loader)
+  - contiene las *imagenes del KERNEL de Linux*
+
+  #+BEGIN_QUOTE
+  Ejemplos de *Cargador de Arranque* (Boot loader) son
+  1) GRUB (conocido por ser un cargador de arranque múltiple, es decir elegir entre distintos Sistemas Operativos)
+  2) ó LILO (ya no se utiliza)
+  #+END_QUOTE
+** /boot/grub
+   - directorio con *archivos configuración* del (GRUB)
+* /mnt
+  - directorio para crear *Puntos de Montaje* (temporales) para
+    1) *Sistemas de Archivos* (Ej. ext3, ext4, ntfs, fat32, ..)
+    2) ó *Dispositivos* (Ej. /dev/sda1, /dev/sda2, .., /dev/cdrom, ..)
+  - el *proceso de montaje* permite que
+    1) un *Filesystem* esté disponible por el sistema (acceder a sus archivos)
+    2) el sistema accede al Filesytem montado a través del *punto de montaje* (Ej. /mnt/usb, /mnt/cdrom, ..)
+
+  #+BEGIN_QUOTE
+  Si MONTAMOS un dispositivo
+  - utilizamos el comando ~mount~ de la forma ~mount /dev/nombre-archivo-dispositivo ruta-punto-de-montaje~
+  - el comando ~mount~ requiere privilegios de superusuario (ó usuario root)
+  - Ej. ~mount /dev/sda1 /home~, ó ~mount /dev/usb /mnt/pendrive~
+
+  Si DESMONTAMOS un *dispositivo* ó un *punto de montaje*,
+  - utilizamos el comando ~umount~ de la forma ~umount nombre-dispositivo~ ó ~umount ruta-punto-de-montaje~
+  - Ej. ~umount /home~ ó ~umount /dev/sda1~
+
+  La ruta de punto de montaje
+  - es desde dónde accederemos al filesystem montado
+  - puede estar vacía pero.. DEBE EXISTIR
+  - si tenía archivos, estos quedarán inaccesibles mientras el filesystem esté montado (a menos que ya estuviera abierto el archivo)
+  #+END_QUOTE
+
+  #+BEGIN_QUOTE
+  Si queremos que un dispositivo esté montado de forma permanente necesitamos editar el archivo ~/etc/fstab~
+  - Ej. una partición de un disco duro que usamos sólo de almacenamiento, ó una partición que tiene instalada una distribución de Linux
+  #+END_QUOTE
+* /media
+  - directorio para crear *Puntos de Montaje* de *Dispositivos Removibles* (Ej. usb)
+  - luego de conectar un dispositivo removible, éste se suele montar automáticamente en ~/media~
+
+  #+BEGIN_QUOTE
+  Algunas diferencias entre ~/mnt~ y ~/media~
+  - ~/mnt~ es utilizado *puntos de montajes temporales*
+  - ~/mnt~ no hay montaje automático, se debe hacer de forma manual con el comando ~mount~
+  #+END_QUOTE
+* /bin
+  - suele ser un (softlink) *enlace simbólico* a ~/usr/bin~
+  - destinado a *usuarios normales* (es decir que no tenga permisos de superusuario)
+  - contiene las Shells (Ej. sh, bash, csh, ..)
+  - contiene comandos de *GNU coreutils* (Ej. cp, mv, rm, cat, ls, ...)
+  - contiene comandos requeridos por scripts del Sistema de Arranque (boot)
+
+  #+BEGIN_QUOTE
+  Algunos de los comandos que contiene son
+  - cat, chrp, chmod, chwon, cp, date, dd, df, echo, hostname, kill, ln
+  - ls, mkdir, more, mount, mv, ps, pwd, rm, rmdir, sed, sh, su, umount, uname
+  - stty, login, dmesg, true, false, mknod, sync
+
+  Otros programas es opcional que tenga
+  - tar, cpio, ping, netstat, csh
+  - ed, gzip, gunzip, zcat
+  #+END_QUOTE
+* /sbin
+  - suele ser un (softlink) *enlace simbólico* a ~/usr/sbin~
+  - destinado a usuarios *Administradores de Sistema* (Ej. usuario root, ó usuario con permisos de superusuario)
+  - contiene *comandos esenciales del Sistema* (arrancar/restaurar/recuperar/reparar el sistema)
+* /etc
+  - contiene *archivos de configuración* del sistema
+** /etc/fstab
+   - archivo con un listado de los *filesystem montados automáticamente al iniciar el sistema*
+   - para mas información ejecutar por linea de comandos ~man fstab~
+** /etc/mtab
+   - archivo con un listado de *filesystems montados de forma dinámica ó en tiempo real*
+   - ~/etc/mtab~ difiere de ~/etc/fstab~ porque éste segundo son *filesystem montados de forma estática* al momento de iniciar el sistema
+** /etc/X11
+   - directorio con archivos de configuración del *X Window System* (Sistema de Ventanas X)
+** /etc/adduser.conf
+   - configuración por default del comando ~adduser~
+     - Ej. *cambiar el directorio home* de los usuarios ubicada en ~/home~ por otro (ó mantenerlo)
+     - Ej. *cambiar la estructura (skel) del directorio home* ubicada en ~/etc/skel~ por otra (ó mantenerlo)
+   - ~adduser~ permite crear usuarios, crear grupos, crearle un directorio home a un usuario, ..
+** /etc/apt
+   - archivos de configuración del *Gestor de Paquetes* (ó Herramienta Avanzada de Empaquetado) ~apt~ de Debian GNU/Linux
+
+   #+BEGIN_QUOTE
+   Algunas características de ~apt~
+   - hace referencia a *Advanced Package Tool* (Herramienta Avanzada de Empaquetado)
+   - tiene una *interfáz en modo texto*, también llamada (CLI) *Command line interface* (interfáz de linea de comando)
+   - ~apt~ es el *front-end* del *Gestor de Paquetes* ~dpkg~, éste primero tiene una *interfáz de usuario* mas amigable
+
+   Algunas diferencias entre ~apt~ y ~dpkg~
+   - ~dpkg~ permite instalar/remover paquetes
+   - ~apt~ utiliza por detrás (back-end) a ~dpkg~ para instalar/remover paquetes (es decir ~apt~ depende de ~dpkg~)
+   - ~apt~ permite descargar paquetes e instalar dependencias (~dpkg~ NO dispone esas dos características)
+   #+END_QUOTE
+** /etc/apt/sources.list
+   - archivo de texto que contiene una *lista de fuentes (repositorios) de base de datos de apt*
+   - se utiliza para sincronizar la *base de datos de paquetes de las fuentes* con la *base de datos de paquetes de nuestro sistema local*
+** /etc/apt/sources.list.d
+   - directorio con el mismo objetivo que el archivo ~sources.list~
+   - cada entrada del directorio es un archivo ~nombre.list~ con el mismo formato que ~sources.list~
+   - permite desacoplar las fuentes en vez de centralizar todas en ~sources.list~
+** /etc/group
+   - archivo con un *listado de GRUPOS del sistema* y los *usuarios pertenecen a cada grupo*
+** /etc/passwd
+   - archivo con el *listado de USUARIOS* del sistema
+   - contiene información de cada usuario (Ej. ruta de su directorio Home, tipo de shell que utiliza, ...)
+** /etc/shadow
+   - archivo con el *listado de CONTRASEÑAS encriptadas/cifrada* de los usuarios del sistema
+** /etc/sudoers
+   - archivo que sólo debería ser modificado con el comando ~visudo~ utilizando permisos de superusuario (root)
+   - define que usuarios están autorizados a solicitar permisos de superusuario (root)
+** /etc/hostname
+   - archivo con el *nombre del equipo* (el comando ~hostname~ devuelve lo mismo)
+** /etc/hosts
+   - archivo para asignar *nombres de dominio* a *direcciones de IP*
+** /etc/hosts.allow
+   - archivo con un *listado de hosts* que pueden *controlar acceder a ciertos servicios del sistema*
+** /etc/hosts.deny
+   - lo opuesto a ~/etc/hosts.allow~
+** /etc/logrotate.conf
+   - permite gestionar la generación de (logs) registros del sistema
+** /etc/networks
+** /etc/services
+   - archivo con un *listado de SERVICIOS* + el PUERTO asociado + el PRÓTOCOLO (tcp, udp)
+** /etc/shells
+   - archivo con un *listado de SHELLS* confiables (algunos *Display Manager* la utilizan)
+   - Ej. ~/bin/sh~, ~/bin/bash~, ~/usr/bin/fish~, ...
+** /etc/skel
+   - archivos y *estructura de directorios* por default *para la carpeta HOME de un nuevo usuario* (cuando creamos un usuario)
+** /etc/screenrc
+   - archivo para configuración para *GNU Screen* el *Multiplexor de terminales* asociado al comando ~screen~
+   - Ej. atajos, comandos a ejecutar al inciar, ..
+** /etc/ssh
+   - *directorio con archivos de configuración* del *Servidor SSH* del sistema (necesitamos installar ~openssh-server~)
+   - ~/etc/ssh~ difiere de ~/home/algun-usuario/.ssh~, éste segundo contiene
+     1) los *Hosts confiables* (a los que nos conectamos)
+     2) nuestras *claves públicas* (certificados que validan quienes somos, al conectarnos a un host confiable)
+** /etc/timezone
+   - archivo con la *zona horaria del sistema*
+* /root
+  - representa el *directorio local* (home) del usuario (root) es decir del *Administrador del Sistema*
+* /lib
+  - suele ser un (softlink) *enlace simbólico* a ~/usr/lib~
+  - contiene las *bibliotecas compartidas* (shared libraries) necesarias para los programas que están en el *Sistema de Archivos Raíz* (/)
+** /lib/modules/"kernel-version"
+   - módulos del (kernel) Núcleo de Linux, necesarios para arrancar el sistema
+   - se crean luego de compilar el kernel de linux
+* /dev
+  - contiene archivos "especiales" llamados *archivos de DISPOSITIVO* (se clasifican en dispositivos de Bloque, dispositivos de Caracter)
+  - los *archivos de dispositivos*
+    1) son una *Interfáz* al *Controlador de dispositivo* (parte del núcleo de Linux)
+    2) el *Controlador del dispositivo* permite el *acceso al hardware*
+** /dev/sdx
+   - archivos de dispositivo de *Discos Duros* y utilizan la interfáz (SCSI) *Small Computer System Interface*
+   - según el *esquema de nombres*, la letra ~x~ se reemplaza por ~a~, ~b~, .. (según el orden en que se detectan los dispositivos)
+
+   #+BEGIN_QUOTE
+   1) ~/dev/sda~ es la *interfáz al Controlador del Dispositivo* del 1º Disco Duro SCSI detectado
+   2) ~/dev/sdb~ es la *interfáz al Controlador del Dispositivo* del 2º Disco Duro SCSI detectado
+   #+END_QUOTE
+** /dev/sdxy
+   - son las *PARTICIONES* de los Discos duros SCSI
+   - según el esquema de nombres
+     1) la letra ~x~ se reemplaza por ~a~, ~b~, .. (según el orden en que se detectan los dispositivos)
+     2) la letra ~y~ se reemplaza por números enteros 1,2,.. (Ej. sdx1, sdbx2, ..)
+
+   #+BEGIN_QUOTE
+   las particiones del disco duro ~/dev/sda~
+   - ~/dev/sda1~ es la 1º partición
+   - ~/dev/sda2~ es la 2º partición
+   - ~/dev/sdan~ es la N partición (el número N dependerá del tipo de *Tabla de Particiones* con el que formateamos el dispositivo)
+
+   las particiones del disco duro ~/dev/sdb~
+   - ~/dev/sdb1~ es la 1º partición
+   - ~/dev/sdb2~ es la 2º partición
+   - ~/dev/sdbn~ es la N partición (el número N dependerá del tipo de *Tabla de Particiones* con el que formateamos el dispositivo)
+   #+END_QUOTE
+** /dev/lp0
+   - primer *dispositivo para impresoras* con *puerto paralelo*
+   - las subsiguientes impresoras tienen los nombres lp1, lp2, ..
+** /dev/null
+   - es un *dispositivo de caracteres*
+   - si le redireccionamos algo a él, éste algo desaparece
+   - utilizado para *redireccionar resultados de comandos no deseados en la Salida Estándar* (STDOUT)
+** /dev/random, /dev/urandom
+   - dispositivos *generadores de números aleatorios*
+   - ~/dev/random~ más seguro en temas de criptografía
+   - ~/dev/urandom~ es más rápido (pero poco seguro para la generacion de una clave criptográfica)
+* TODO /tmp
+** /var/tmp
+* /opt
+  - para instalar *aplicaciones de terceros* que NO son distribuidas por los repositorios de paquetes oficiales de la Distribución de Linux utilizada
+* /lost+found
+  - directorio con archivos recuperados por el comando ~fsck~ previo a iniciar el sistema
+  - ~fsck~ es una herramienta que analiza/repara el sistema (Ej. si falló (crash) ó se forzó el apagado)
+* /run

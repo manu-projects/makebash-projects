@@ -1,0 +1,6 @@
+[[Accounts]]
+Name = 'neverkas'
+Server = 'https://linux.social'
+ClientID = '!CMD!pass show personal/tut/client-id'
+ClientSecret = '!CMD!pass show personal/tut/client-secret'
+AccessToken = '!CMD!pass show personal/tut/access-token'

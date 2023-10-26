@@ -1,0 +1,5 @@
+Importar una Clave Pública
+===========================
+1. Certificar (firmar) con nuestra Clave Privada sólo si confiamos en su propietario
+2. Certificar una Clave Pública implíca que se le vinculará el (fpr) fingerprint de nuestra Clave Pública
+3. Si queremos mantener en privado que conocemos al propietario, NO subir la Clave Pública firmada a un Servidor de Claves PGP

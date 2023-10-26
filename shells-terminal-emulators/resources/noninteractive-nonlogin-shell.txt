@@ -1,0 +1,17 @@
+Una Non-Interactive Non-Login Shell (ó Shell NO Interactiva y SIN inicio de sesión)
+- se crea cuando ejecutamos un script
+- NO aparece el option flag (i) al imprimir el parámetro especial de bash `$-` (Ej. comprobar ejecutando`echo $-`)
+- tiene estado "off" al ejecutar `shopt login_shell`
+
+Observaciones (bash shell)
+- la expansión del parámetro especial de bash `$-` contiene los "OPTIONS FLAGS" de la Shell utilizada
+
+Ejemplos de Non-Interactive Non-Login Shell
+a) Al crear subshell ejecutando el nombre de la misma (bash)
+bash -c 'echo $-; shopt login_shell'
+
+b) Al ejecutar un shell script (es más común)
+cd `mktemp -d` \
+&& echo 'echo $-; shopt login_shell' > script.sh \
+&& chmod u+x script.sh \
+&& ./script.sh

@@ -1,0 +1,8 @@
+CAST5: bloques de datos 64 bits + longitud de clave 64-128 bits
+3DES: bloques de datos 64 bits + longitud de clave 112-128 bits
+IDEA: bloques de datos 64 bits + longitud de clave 128 bits
+AES: (default) bloques de datos 128 bits + longitud de clave 128 bits
+AES256: bloques de datos 128 bits + longitud de clave 256 bits
+CAMELLIA256: bloques de datos 128 bits + longitud de clave 256 bits
+TWOFISH: bloques de datos 128 bits + longitud de clave 128-256 bits
+BLOWFISH: bloques de datos 64 bits + longitud de clave 32-448 bits

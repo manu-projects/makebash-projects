@@ -1,0 +1,4 @@
+gdm3: -
+lightdm: soporta X11 + Wayland + Mir
+lydm: -
+sddm: soporta X11 + Wayland

@@ -1,0 +1,6 @@
+Diferenciar entre Pares de Claves de SSH para Autenticación
+===========================================================
+al crear un Par de Claves de SSH, agregarles un prefijo
+
+- Ej. un prefijo `github_` para autenticar con github
+- Ej. un prefijo `work_` para servidores del trabajo

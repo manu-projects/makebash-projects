@@ -1,0 +1,5 @@
+rsa2048: (soportado en sistemas Legacy) clave de 2048 bits de longitud (2^2048 combinaciones posibles)
+rsa3072: (soportado en sistemas Legacy) clave de 3072 bits de longitud (2^3072 combinaciones posibles)
+rsa4096: (soportado en sistemas Legacy) clave de 4096 bits de longitud (2^4096 combinaciones posibles)
+ed25519: (más rápido y eficiente) (EdDSA) Algoritmo de Firma Digital basado en curvas elípticas para FIRMAR y AUTENTIFICAR
+cv25519: (más rápido y eficiente) (ECC Curve25519) Algoritmo basado en curvas elípticas para ENCRIPTAR

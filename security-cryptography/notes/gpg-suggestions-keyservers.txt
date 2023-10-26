@@ -1,0 +1,8 @@
+Servidor de Claves Públicas PGP
+===============================
+1. Luego de subir nuestra Clave Pública, recibiremos un correo para confirmar nuestra identidad
+(controlan que un impostor no robe nuestra identidad)
+2. Luego de confirmar nuestra identidad, nuestra Clave Pública se podrá buscar ingresando nuestro email
+(Ej. podemos buscarla por linea de comandos con gpg, ó en el sitio web del servidor de claves pgp)
+3. Entre los servidores de claves PGP se comparten la información
+(con subir nuestra clave pública en un servidor, ésta se propagará en los distintos servidores)

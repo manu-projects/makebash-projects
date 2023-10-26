@@ -1,0 +1,34 @@
+Par de Claves Primarias
+=======================
+
+Recordatorios
+-------------
+1. Si revocamos una (pub) Clave Pública, se revocarán todos los Par de Claves Secundarias asociadas
+
+(sec) Clave Privada
+-------------------
+1. [C] (cer) certifica claves secundarias
+2. crea/revoca claves secundarias
+2. crea/revoca uids
+
+(pub) Clave Pública
+-------------------
+
+Par de Claves Secundarias
+=========================
+
+Recordatorios
+-------------
+1. Una (ssb) Clave Privada sólo desencripta lo que encripté la (sub) Clave Pública asociada
+2. Si perdemos un Par de Claves Secundarias, entonces NO podremos desencriptar los mensajes que
+previamente encriptamos con las Claves Privadas Secundarias perdidas
+
+(ssb) Clave Privada
+-------------------
+1. [E] desencripta mensajes
+2. [S] crea firma digitales (firma archivos)
+
+(sub) Clave Pública
+-------------------
+1. [E] (encr) encripta mensajes
+2. [S] (sig) verifica firmas digitales
