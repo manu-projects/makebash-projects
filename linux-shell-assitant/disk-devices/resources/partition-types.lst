@@ -1,0 +1,13 @@
+# https://tldp.org/HOWTO/Partition-Mass-Storage-Definitions-Naming-HOWTO/x190.html
+# https://www.thegeekdiary.com/understanding-linux-fdisk-utility/
+
+# TODO: pendiente revisar, difiere con la lista de mi fdisk
+82: Linux Swap
+83: Linux
+8e: Linux LVM
+
+
+1: EFI System
+2: MBR partition scheme
+4: BIOS boot
+19: Linux Swap

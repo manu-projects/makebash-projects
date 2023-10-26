@@ -1,0 +1,2 @@
+rsa: (soportado en sistemas Legacy) clave de hasta 4096 bits de longitud (2^4096 combinaciones posibles)
+ed25519: (más rápido y eficiente) (EdDSA) Algoritmo de Firma Digital basado en curvas elípticas

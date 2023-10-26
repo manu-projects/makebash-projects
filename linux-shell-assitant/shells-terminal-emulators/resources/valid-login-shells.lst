@@ -1,0 +1,11 @@
+# - esta información la encontramos en /etc/shells
+# - las siguientes son algunas de las LOGIN SHELLS válidas
+# - algunas podrían no aparecer en /etc/shells a menos que las instalemos
+/bin/sh: (1979) The Bourne Shell (original unix shell)
+/bin/bash: (1989) Bourne Again Shell (default GNU shell)
+/bin/zsh: (1990) history shared across terminals + features from bash, ksh, tcsh
+
+/usr/bin/bash:
+/usr/bin/screen:
+/usr/bin/fish: (2005) Friendly Interactive Shell (colors for invalid/correct syntax)
+/usr/bin/zsh

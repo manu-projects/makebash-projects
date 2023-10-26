@@ -1,0 +1,134 @@
+* El archivo /etc/mtab
+  - hace referencia a *tabla de montado de los Filesystems*
+  - contiene información del *montaje DINÁMICO* (en tiempo real) de los dispositivos
+  - contiene la misma información que ejecutar el comando ~mount~ (sin pasarle ningún parámetro)
+  - lo utilizan los Sistemas Operativos para *cargar configuraciones de su Filesystem*
+* El archivo /etc/fstab
+  - hace referencia a *tabla de filesystem*
+  - contiene información del *montaje ESTÁTICO* de los dispositivos
+  - se utiliza para montar *dispositivos con Filesystem de almacenamiento*
+** Cada linea del archivo /etc/fstab
+   - representa a un *dispositivo de bloque*
+   - para más información ejecutar por la linea de comandos el comando de linux ~man fstab~
+   - cada dispositivo se representa con el siguiente formato de campos ~<file system> <mount point> <type> <options> <dump> <pass>~
+** 1º campo <file system>:
+   - representa con el identificador (UUID) del dispositivo (lo obtenemos del campo UUID del comando de linux ~blkid~)
+   - alternativa "no sugerida" al UUID, utilizar el nombre del dispositivo en ~/dev~ (Ej. ~/dev/sda1~ ó ~/dev/sda2~)
+** 2º campo <mount point>: (ó target del filesystem)
+   - representa la ruta utilizada como *Punto de Montaje del Filesystem*
+   - ~/boot/efi~: para la partición EFI con formato FAT32
+   - ~/mnt~: para alguna instalación de un Sistema Operativo
+   - ~/home~: para desacoplar los Sistemas Operativos de los Perfiles de Usuario Linux
+** 3º campo <type>:
+   - representa el tipo de filesystem (ext3, ext4, ntfs, vfat, tmpfs, sysfs, proc, ..)
+   - ~ext3~ ó ~ext4~: para un Sistema de Operativo Linux
+   - ~swap~: espacio en disco que hace de Memoria RAM, es más lento comparado con la RAM
+   - ~vfat~: para la partición UEFI
+
+   #+BEGIN_QUOTE
+   Nota (1):
+   si utilizamos los comandos de linux ~blkid~ ó ~lsblk~ veremos "vfat" en vez de "FAT32" en el campo TYPE,
+   pero no hay problema porque que el formato de filesystem FAT32 es una extensión de fat y vfat
+
+   Nota (2):
+   - si utilizamos algún Gestor de Particionamiento con una interfáz gráfica, elegiremos FAT32 como tipo de filesystem para la partición EFI
+
+   Nota (3):
+   - en ~/etc/fstab~ debemos escribir "vfat" en vez de "FAT32"
+
+   Nota (4):
+   - previamente cambiar desde la BIOS al Modo UEFI en vez del Modo BIOS Legacy
+   #+END_QUOTE
+** 4º campo <options>:
+   #+BEGIN_QUOTE
+   Se utiliza la "coma" como separador de las opciones (Ej. rw, suid, dev, exec, auto, nouser, async)
+   también se pueden utilizar como opciones del comando de linux ~mount~, aunque éste cambio no se persiste en el archivo /etc/fstab
+   (Ej. ~sudo mount -o remount, rw /dev/sda2~)
+   #+END_QUOTE
+*** auto
+    - al iniciar el sistema se monta automáticamente
+*** noauto
+    - lo opuesto a la opción "auto"
+    - noauto es una restricción, habrá que montarlo por linea de comandos con el comando de linux ~mount~
+*** exec
+    - permite ejecutar archivos binarios
+*** noexec
+    - lo opuesto a la opción "exec"
+    - noexec es una restricción, impidiendo ejecutar binarios apesar de que el archivo tenga permisos de ejecución
+*** atime
+    - permite acceder al "último tiempo de acceso" de los archivos
+    - Ej. cuando modificamos un archivo, se guarda una referencia del instante
+*** noatime
+    - lo opuesto a la opción "atime" (NO guarda la referencia de último acceso)
+    - noatime es útil para el uso eficiente Discos de estado sólido, porque reduce los tiempos de acceso de lectura y escritura
+*** diratime
+    - misma intención que la opción "atime", pero enfocada a directorios
+*** nodiratime
+    - misma intención que la opción "noatime", pero enfocada a directorios
+*** owner
+    - permite montar el dispositivo si y sólo si el usuario está asignado como dueño del dispositivo a montar
+*** ro
+    - permisos de sólo lectura (only-read), como protección
+*** rw
+    - permisos de lectura/escritura (read/write)
+*** user
+    - permite que cualquier usuario monte el dispositivo
+*** nouser
+    - lo opuesto a la opción "user"
+    - nouser es una restricción, a menos que el usuario tenga permisos root ó esté habilitada la opción owner y sea propietario del dispositivo
+*** sync
+    - se guardan los cambios del Sistema de forma Sincrónica
+    - poco eficiente, ante cada operación de escritura, se guardan en disco)
+*** async
+    - se guardan los cambios del Sistema de forma Asincrónica
+    - es más eficiente, utiliza un buffer temporal y cuando se llena guarda en disco
+*** remount
+    - en caso de fallar el dispositivo, se vuelve a montar
+*** defaults
+    - agrega varias de las opciones anteriores por defecto (rw, suid, dev, exec, auto, nouser, async)
+** 5º campo <dump>:
+   - hace copias de seguridad de un filesystem (sistema de archivos), toma sólo dos valores 0 y 1
+
+   #+BEGIN_EXAMPLE
+   - valor 0: representa el bit de DESACTIVADO
+   - valor 1: representa el bit de ACTIVADO (se harán los backups)
+   #+END_EXAMPLE
+** 6º campo <pass>:
+   - chequea errores en el disco
+
+   #+BEGIN_EXAMPLE
+   - valor 0: representa el bit de DESACTIVADO
+   - valor 1: sugerido sólo el "Punto de Montaje" / (raíz), para que sea lo primero en chequear
+   - valor 2,3,..: para respetar un orden de prioridad al chequear Filesystem (Ej. distintas distribuciones de Linux)
+   (si no nos interesa el orden podemos dejarle el mismo valor y que el sistema decida)
+   #+END_EXAMPLE
+* TODO Reparar el (GRUB) Sistema de Arranque, podemos crear un (mount bind) en /mnt
+  - el dispositivo "/dev/proc" con un filesytem del tipo "proc" y el punto de montaje es "/proc"
+  - el dispositivo "/dev/sysfs" con un filesytem del tipo "sysfs" y el punto de montaje es "/sys"
+  - el dispositivo "/dev/udev" con un filesytem del tipo "devtmpfs" y el punto de montaje es "/dev"
+  - el dispositivo "/dev/tmpfs" con un filesytem del tipo "tmpfs" y el punto de montaje es "/run"
+  - el dispositivo "/dev/devpts" con un filesytem del tipo "devpts" y el punto de montaje es "/dev/pts"
+
+  #+BEGIN_QUOTE
+  lo anterior se puede observar ejecutando por linea de comandos lo siguiente:
+  ~cat /etc/mtab | grep -E '(proc /proc|sysfs /sys|tmpfs /run|udev /dev|devpts /dev/pts) '~
+  #+END_QUOTE
+* Archivos de Dispositivos en /dev
+** Referencias
+*** Referencias Oficiales
+    1. [[https://www.debian.org/releases/stable/armel/apcs04.es.html][Nombres de dispositivos en Linux (debian.org)]]
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/dev-directory][Understanding the /dev directory in linux (baeldung.com)]]
+* Puntos de Montaje
+** Referencias
+*** Referencias Extraoficiales
+    1. [[https://www.baeldung.com/linux/bind-mounts][understanding bind mounts (baeldung.com)]]
+* Referencias
+** Referencias Oficiales
+   1. [[https://www.pathname.com/fhs/][Filesystem Hierarchy Standard (pathname.com)]]
+   2. [[https://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/c23.html][Linux Filesystem Hierarchy (tldp.org)]]
+   3. [[http://es.tldp.org/Manuales-LuCAS/doc-guia-admin-sis-linux/gasl.pdf][Guia para Administradores de Sistemas GNU/Linux (es.tldp.org)]]
+** Referencias Extraoficiales
+   1. [[https://www.makeuseof.com/linux-directory-structure-explained/][The Linux Directory Structure explained (makeuseof.com)]]
+** Libros Online
+   1. [[http://linux-training.be/linuxsto.pdf][Book Linux Storage by Paul Cobbaut (linux-training.be)]]

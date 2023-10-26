@@ -1,0 +1,5 @@
+Las Shells restrictas se utilizan junto con el comando `chroot` (éste crea una jaula)
+
+Algunas de las restricciones de una Shell restricta
+1) cd .. (NO puede cambiar de directorio, Ej. intente cambiar al directorio padre)
+2) echo "hola" > archivo.txt (NO se puede redireccionar el output, es decir filedescriptor 1)

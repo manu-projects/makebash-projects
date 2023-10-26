@@ -1,0 +1,18 @@
+(sec) Clave Privada Maestra
+===========================
+1. NO compartir, exportar y respaldar en un dispositivo encriptado y externo al Sistema
+2. Luego de importar en el Sistema, borrar el archivo físico
+(para evitar que algún intruso la obtenga)
+
+Estrategia 3-2-1 de Backup
+--------------------------
+- minimiza los riesgos de perder los datos
+- 3 instancias de los datos (el original + dos copias de seguridad)
+- 2 copias en medios de almacenamientos diferentes (Ej. pendrive, disco duro externo, tarjeta SD)
+- 1 copia en un lugar físico distinto (Ej. en la nube)
+
+Exportar con el Programa paperkey
+----------------------------------
+1. con la intención de imprimirla en papel físico
+2. prevee el futuro NO funcionamiento del medio de almacenamiento (Ej. pendrive, disco duro, ..)
+3. asume que ya importamos la clave pública en el sistema (Ej. desde un servidor de claves PGP)

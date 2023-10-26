@@ -1,0 +1,18 @@
+Extensión de los archivos
+==========================
+
+Formato ASCII y Binario
+-----------------------
+- .asc para cualquier archivo de texto plano (por ASCII)
+- .gpg, .sig, .key para archivos en formato binario
+
+Archivos encriptados
+--------------------
+- .gpg para archivos encriptados en formato binario de GPG
+- .asc para archivos encriptados en texto plano (ASCII)
+
+Claves, Certificados y Firmas
+-----------------------------
+- .key si exportamos una Clave (por lo general la Privada)
+- .rev para Certificados de Revocación de un Par de Claves (generados en formato ASCII)
+- .sig para firmas digitales

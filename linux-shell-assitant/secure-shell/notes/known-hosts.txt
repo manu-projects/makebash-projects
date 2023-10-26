@@ -1,0 +1,22 @@
+Listado de Hosts Conocidos
+==========================
+
+Datos de un Host
+-----------------
+- el Hostname suele ser la dirección de IP (Ej. 192.168.0.1) ó el dominio (Ej. github.com)
+- el alias es una forma corta ó más expresiva que el Hostname (Ej. note-casa, github-trabajo)
+- el alias se asigna en el archivo /home/nombre-de-usuario/.ssh/config
+
+Privacidad de las conexiones
+----------------------------
+- los nombres de los Hosts aparecerán con un valor de Hash
+- reducimos el riesgo que intrusos conozcan los hosts a los que nos conectamos
+- verificamos si lo tenemos agregado con `ssh-keygen -H -f alias-del-host`
+
+Pasos previos para establecer una Conexión
+-------------------------------------------
+Breve resumen de los pasos, recordando que tenemos definidos targets que los implementan
+
+1. buscar el (fpr) fingerprint de la (hostkey) Clave Pública de SSH del Host con `ssh-keyscan`
+2. agregar el (fpr) del Host del lado del cliente en /home/nombre-de-usuario/.ssh/known_hosts
+3. copiar nuestra Clave Pública de SSH del lado del Servidor con `ssh-copy-id` en /home/nombre-de-usuario/.ssh/authorized_keys

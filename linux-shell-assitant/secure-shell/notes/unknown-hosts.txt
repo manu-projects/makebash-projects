@@ -1,0 +1,17 @@
+Listado de Hosts desconocidos
+==============================
+nos referimos a quienes no estén en /home/nombre-de-usuario/known_hosts
+
+Datos de un Host
+-----------------
+el formato es nombre-de-usuario@hostname:numero-de-puerto
+
+- el "Hostname" suele ser la dirección de IP (Ej. 192.168.0.1) ó el dominio (Ej. github.com)
+- el "nombre de usuario" es la identificación de una cuenta de usuario del servidor (Ej. root)
+- el "puerto" es opcional, por defecto en el prótocolo SSH es el 22
+
+Métodos de Autenticación
+------------------------
+- con Password, es inseguro porque viaja como texto plano
+- con Clave Pública, es más seguro (antes debemos subir la Clave Pública al Servidor con `ssh-copy-id`)
+- con Clave Pública, utilizamos la Clave Privada para verificar la Identidad del usuario asociado a la Clave Pública

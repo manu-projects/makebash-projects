@@ -1,0 +1,8 @@
+Green: Executable
+Blue: Directory
+Magenta: Symbolic link
+Yellow: FIFO
+Magenta: Socket
+Red: Archive (.tar, .zip, .deb, .rpm)
+Magenta: Images (.jpg, .gif, .png, .tiff)
+Magenta: Audio (.mp3, .ogg, .wav)

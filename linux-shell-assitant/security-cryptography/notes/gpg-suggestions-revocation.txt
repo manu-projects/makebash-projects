@@ -1,0 +1,19 @@
+Certificado de Revocación
+=========================
+
+Cuando Crear + Precauciones
+----------------------------
+1. Crear y respaldar al momento de crear el Par de Claves Primaria (en un dispositivo externo al Sistema)
+(por defecto se guardan en ~/.gnupg/openpgp-revocs.d/)
+2. Si perdemos o nos roban la Clave Privada, entonces NO podremos crear el Certificado
+2. Si el certificado es robado, pueden revocar nuestro Par de Claves, crear otro y hacerse pasar por nosotros
+
+Como utilizar
+-------------
+1. Revocamos una (pub) Clave Pública cuando importamos el Certificado de Revocación
+2. Informamos sobre la revocación a quienes la utilicen, subiendo la Clave Pública a un Servidor de Claves PGP
+
+Cuando Revocar una (pub) Clave Pública Maestra
+-----------------------------------------------
+1. Cuando la (sec) Clave Secreta está comprometida ó porque la perdimos
+2. Previo a borrar una (pub) Clave Pública que ya no utilizaremos

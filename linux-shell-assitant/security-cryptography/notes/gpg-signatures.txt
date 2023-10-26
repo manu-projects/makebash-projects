@@ -1,0 +1,38 @@
+Firma Digital
+==============
+
+Propósito
+---------
+- Validar la integridad del contenido original (no fue modificado/alterado con motivos maliciosos)
+(Ej. un programa ejecutable, un archivo de texto plano, ..)
+- La integridad del contenido original se verifica comparando
+  - el Hash generado por el Remitente (con su clave privada), quien publica/divulga el archivo
+  - el Hash generado por el Destinatario (con la clave pública compartida), quien descarga el archivo
+- Un Hash es una secuencia de valores hexadecimales, creado con un algoritmo de Hash
+- Los algoritmos de Hash también son conocidos como "Algoritmos de Resumen" (digest) ó.. "Algoritmos de Reducción Criptográficos"
+(Ej. SHA256, SHA512, MD5, .., éste último no se considera seguro)
+
+Signature
+---------
+- NO MODIFICA el contenido del archivo
+- contiene el mensaje original (ENCRIPTADO con la Clave Privada del Remitente)
+- mensaje encriptado con intención de mantener la INTEGRIDAD del mensaje original (Ej. no fue manipulado)
+- mensaje original leido por cualquier Destinatario (luego de DESENCRIPTAR con la Clave Pública compartida por el Remitente)
+- la integridad del mensaje original se verifica con 1 archivo (el archivo firmado)
+
+Detached Signature (recomendado por GPG)
+----------------------------------------
+- NO MODIFICA el contenido del archivo
+- contiene el Hash del mensaje original (el Hash es ENCRIPTADO con la Clave Privada del Remitente)
+- separada del archivo que contiene el mensaje (hereda el nombre de archivo, pero con la extensión .sig)
+- mensaje original leído por cualquier Destinatario (es visible por cualquiera, no fue encriptado)
+- la integridad del mensaje original se verifica con dos archivos
+  1. el archivo con el mensaje original
+  2. el archivo con la firma (detached) que NO se adjuntó/incluyó al archivo del mensaje
+
+Clear Signature
+---------------
+- MODIFICA el contenido del archivo (inserta al final la firma)
+- contiene el mensaje original (sin encriptar)
+- mensaje original leído por cualquier Destinatario (no está encriptado, tiene formato ASCII con extensión .asc)
+- la integridad del mensaje original se verifica con 1 archivo (el archivo firmado)

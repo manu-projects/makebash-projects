@@ -1,0 +1,14 @@
+# Minor Number: identifica un tipo específico de dispositivo
+# Major Number: clasifica el tipo de dispositivo
+
+# colocamos los más destacados, hay más en /usr/include/linux/major.h
+MEM_MAJOR: 1 (Ej. /dev/mem)
+RAMDISK_MAJOR: 1
+FLOPPY_MAJOR: 2
+PTY_MASTER_MAJOR: 2
+PTY_SLAVE_MAJOR: 3
+TTY_MAJOR: 4 (Ej. /dev/tty0, /dev/tty1, ..)
+TTYAUX_MAJOR: 5 (Ej. /dev/tty, /dev/console, /dev/ptmx)
+SCSI_DISK0_MAJOR: 8 (Ej. /dev/sda, /dev/sda1, /dev/sda2, .., /dev/sdb, /dev/sdb1, /dev/sdb2, ..)
+INPUT_MAJOR: 13 (Ej. /dev/mouse0, /dev/mice)
+SOUND_MAJOR: 14

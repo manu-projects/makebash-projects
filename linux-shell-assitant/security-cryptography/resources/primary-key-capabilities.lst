@@ -1,0 +1,2 @@
+sign: Firmar archivos (Ej. gpg --sign archivo)
+cert: Certificar/Firmar Claves Públicas con la Clave Privada (Ej. gpg --sign-key id_clave)

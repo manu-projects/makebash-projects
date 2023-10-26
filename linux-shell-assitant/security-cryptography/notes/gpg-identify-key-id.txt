@@ -1,0 +1,12 @@
+Identificar al Par de Claves Primaria (pub/sec)
+===============================================
+- si GPG nos pide el KEY_ID, podemos utilizar: (fpr) FINGERPRINT, ID, (uid) User-ID
+- lo recomendado es utilizar el (fpr) FINGERPRINT, evita ambiguedad si hubieran claves duplicadas
+- el (uid) identifica al usuario propietario (Ej. Carlos, Ramirez <carlitos@gmail.com>)
+- el ID identifica con 16 bits al Par de Claves pública/privada y está incluido en el fingerprint (Ej. 36AB27B1E692A0F2)
+- el (fpr) fingerprint es un Hash de 40 bits de la Clave Pública (Ej. 8959868ED8331DAEBE626E4436AB27B1E692A0F2)
+
+Anillo de Claves Públicas/Privadas (keyring)
+============================================
+- el Anillo de Claves Privadas tiene nuestras claves (somos los propietarios)
+- el Anillo de Claves Públicas tiene claves de otras personas y las nuestras

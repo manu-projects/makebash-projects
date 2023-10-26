@@ -1,0 +1,12 @@
+Los archivos de dispositivos en (/dev) se clasifican en dispositivos de Bloque y dispositivos de Caracter
+
+Dispositivos de BLOQUE (block devices) se utilizan para "almacenar datos"
+- Discos Duros (Ej. /dev/sda1, /dev/sdb, ..)
+- CD-ROM
+- Disquetera
+
+Dispositivos de CARACTER (character devices) se utilizan para "transferir datos"
+- PTYs ó Pseudo terminales esclavas (Ej. /dev/pts/0, /dev/pts/1, ..)
+- Consolas Virtuales (Ej. /dev/tty1, /dev/tty2, ..)
+- Multiplexor de terminales (Ej. /dev/ptmx)
+- puertos serie, puertos paralelos, ... (Ej. /dev/ttyS0, /dev/ttyS1, ..)

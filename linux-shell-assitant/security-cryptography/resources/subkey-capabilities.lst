@@ -1,0 +1,3 @@
+encr: Encriptar contenido de archivos
+sign: Firmar archivos (Ej. gpg --sign archivo)
+auth: Autenticación (Ej. similar a una conexión remota con ssh)

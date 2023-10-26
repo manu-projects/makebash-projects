@@ -1,0 +1,10 @@
+#+BEGIN_COMMENT
+tabla de particiones, particionamiento
+https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/8/html/managing_file_systems/assembly_creating-a-partition-table-on-a-disk_assembly_getting-started-with-partitions
+https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/6/html/installation_guide/s2-diskpartrecommend-x86
+
+bind mount
+https://www.ibiblio.org/pub/linux/docs/LuCaS/Manuales-LuCAS/LIPP2/lipp-2.0-beta-html/node288.html
+https://www.blai.blog/2019/11/bind-mount-linux.html
+https://www.baeldung.com/linux/bind-mounts
+#+END_COMMENT

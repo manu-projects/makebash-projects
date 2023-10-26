@@ -1,0 +1,6 @@
+# para Gestores de Paquetes de Distribuciones de Linux
+apt: nala
+
+# para Gestores de Paquetes de lenguajes de programación
+python: pip
+javascript: yarn, npm

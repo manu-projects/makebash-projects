@@ -1,0 +1,134 @@
+# =============
+# Observaciones
+# =============
+#
+# - Copiar ésta configuración en /home/nombre-de-usuario/.ssh/config si tenemos sólo un usuario
+# - Copiar ésta configuración en /etc/ssh/ssh_config si tenemos varios usuarios
+
+# ========================================
+# Configuración Servidores Remotos propios
+# =========================================
+#
+# 1. chmod 0700 ~/.ssh/ && chmod 0600 ~/.ssh/config
+# 2. ssh-keyscan -H -t tipo-algoritmo-clave-publica nombre-del-host >> ~/.ssh/known_hosts
+# 3. ssh-copy-id -o StrictHostKeyChecking=no -i ~/.ssh/nombre-clave-publica.pub direccion-ip
+#
+
+Host nombre-del-servidor
+     Hostname ip-del-servidor
+     User nombre-de-usuario
+     Port 22
+     IdentityFile ~/.ssh/nombre-clave-privada
+
+# ========================
+# Configuración con GITHUB
+# ========================
+
+# Opciones de ~/.ssh/config y /etc/ssh/ssh_config
+# -----------------------------------------------
+#
+# - el nombre del Host y Hostname deben coincidir diciendo github.com
+# - conexión utilizada cuando hagamos clonemos un repositorio, realizemos commits/push/..
+#
+
+# Establecer Conexión con Github
+# ------------------------------
+#
+# 1. ssh-keyscan -H -t ed25519 github.com >> ~/.ssh/known_hosts # agregará una entrada en ~/.ssh/known_hosts
+# 2. ssh -vT git@github.com # podría agregar una entrada adicional en ~/.ssh/known_hosts
+#
+
+# Múltiples entradas en ~/.ssh/known_hosts
+# -----------------------------------------
+#
+# - la primera columna (dónde aparece el IP ó dominio del Host)
+#
+#   - si tiene valores diferentes podrían ser el "valor Hash" de distintas direcciones de IP de github
+#   - ver en https://api.github.com/meta
+#
+# - el (fpr) Fingerprint de la Clave Pública del Host (hostkey)
+#
+#   - confirmar que coincidan con el que Github publica para los algoritmos de clave pública (rsa, ed25519)
+#   - ver en https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)
+#
+
+Host github.com
+  Hostname github.com
+  User nombre-de-usuario-de-github
+  IdentityFile ~/.ssh/nombre-clave-privada-de-github
+
+# =====================
+# Configuración General
+# =====================
+#
+# - opciones que se agregarán a todos los Host
+#
+
+Host *
+     # - obligará a que nombres de los Hosts estén hasheados para aumentar la privacidad de nuestras conexiones,
+     # - si ya existen Hosts agregados en known_hosts debemos ejecutar `ssh-keygen -H -f ~/.ssh/known_hosts`
+     # - si agregaremos nuevos Hosts debemos ejecutar `ssh-keyscan -H ip-servidor >> ~/.ssh/known_hosts`
+     HashKnownHosts yes
+
+     # - el Cliente SSH, sólo se conectará a los Hosts de ~/.ssh/known_hosts
+     # - si es la primera conexión deshabilitar opción desde la linea de comandos
+     # Ej. ssh -o StrictHostKeyChecking=no nombre-del-host
+     StrictHostKeyChecking yes
+
+     # - archivo regular de la Lista de Hosts (Servidores) conocidos
+     # - el valor por defecto es ~/.ssh/known_hosts (la definimos por si acaso)
+     UserKnownHostsFile ~/.ssh/known_hosts
+
+     # orden de de preferencia que usará el Cliente SSH para elegir algoritmos de Clave Pública para autenticar con el Servidor (de izq. a der)
+     #
+     # - priorizamos autenticar con el algoritmo ed25519, si el Host no tiene generada una pubkey con ese algoritmo, entonces rsa-sha256
+     # - el (fpr) fingerprint de la Clave Pública del Host se agregará en ~/.ssh/known_hosts del lado del Cliente
+     HostKeyAlgorithms ssh-ed25519,ssh-rsa
+     PubkeyAcceptedKeyTypes ssh-ed25519,ssh-rsa
+
+     # orden de preferencia que usará el Cliente SSH para acceder al Servidor (de izquierda a derecha)
+     #
+     # 1. priorizamos la Autenticación con Algoritmo de Clave Pública (si no puede acceder, intentará con Autenticación por Clave)
+     # 2. como segunda alternativa, Autenticación con Clave de texto plano
+     #    - requerido para la 1º instancia de conexión con el Servidor
+     #    - para copiar la Clave Pública del Cliente mediante el comando ``ssh-copy-id`` en el Servidor
+     PreferredAuthentications publickey,password
+     PubkeyAuthentication yes
+
+     # luego de agregar la Clave Pública en el Servidor (y configurarlo),
+     # desactivar desde el lado del Servidor la Autenticacioń con Clave (cambiando su valor a `no` en `/etc/ssh/sshd_config`),
+     # para que el único Método de Autenticación sea con el Par de Claves Pública/Privada (es más seguro)
+     PasswordAuthentication yes
+
+     # el Cliente SSH, utilizará como autenticación un Par de Claves pública/privada (Criptografía Asimétrica)
+     # PreferredAuthentications publickey
+
+     # el Agente SSH recordará las Claves Privadas de SSH, el Cliente SSH le preguntará al Agente SSH las Claves Privadas de SSH
+     AddKeysToAgent yes
+
+     # el Cliente SSH usará la identidad definida en la opción IdentityFile, evitamos que pruebe cada Clave Privada de SSH de ~/.ssh
+     IdentitiesOnly yes
+
+     #
+     TCPKeepAlive no
+
+     #
+     Port 22
+
+     # cuantos segundos esperará el Cliente SSH antes de finalizar, si no se pudo conectar con el Servidor SSH
+     ConnectTimeout 30
+
+     # cada cuantos segundos el Cliente SSH verifica el estado del Servidor SSH, mediante el protocolo SSH
+     ServerAliveInterval 10
+
+     # máxima cantidad de intentos que el Cliente SSH verifica el estado del Servidor SSH, antes de finalizar por falta de respuesta
+     ServerAliveCountMax 5
+
+     # se utiliza el programa gzip, para comprimir los datos transmitidos
+     Compression yes
+
+     #
+     # ForwardAgent no
+     # ForwardX11 no
+     LogLevel ERROR
+     #LogLevel INFO
