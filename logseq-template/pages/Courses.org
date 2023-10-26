@@ -1,0 +1,26 @@
+* [[Courses/ClojureScript/Learn ClojureScript]] #course
+  :PROPERTIES:
+  :type: [[Course]]
+  :level: [[easy]]
+  :language: [[english]]
+  :rating: [[10/10]]
+  :source: [[non-official]]
+  :website: [[https://www.learn-clojurescript.com/]]
+  :book: -
+  :year-publication: 2021
+  :author: Andrew Meredith
+  :tags: [[clojurescript]], [[book]]
+  :END:
+* [[Courses/ClojureScript/ClojureScript Unraveled]] #course
+  :PROPERTIES:
+  :type: [[Course]]
+  :level: [[easy]]
+  :language: [[english]]
+  :rating: [[10/10]]
+  :source: [[non-official]]
+  :website: [[https://funcool.github.io/clojurescript-unraveled/]]
+  :book: -
+  :year-publication: 2019
+  :author: Andrey Antukh, Alejandro Gómez
+  :tags: [[clojurescript]], [[book]]
+  :END:
