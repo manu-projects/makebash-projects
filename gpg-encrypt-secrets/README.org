@@ -1,0 +1,76 @@
+#+TITLE: Git GPG Encryption
+[[file:assets/meme-cryptography.png]]
+* Intro
+** ¿Qué es?
+   - programa sencillo para encriptar archivos "secretos" (no oculta el nombre, sólo los datos)
+   - encripta archivos específicos, todos los archivos de directorios específicos
+** ¿Por qué lo utilizo?
+   - encriptación asimétrica con (gpg) *GNU Privacy Guard*
+   - persistir datos sensibles en un repositorio público
+   - evitar instalación de programas con muchas dependencias ó que requieren muchos pasos de configuración
+** ¿Qué requiere?
+   - crear un par de Claves Primarias de GPG
+   - crear un par de Claves Secundarias para [E]ncriptar (encrypt capability) en el Par de Claves Primarias anterior
+** ¿Qué no pretende hacer?
+   - NO pretende encriptar/desencriptar previo a realizar un commit/push en github
+   - NO pretende ocultar el nombre de los archivos secretos (sólo cifra su contenido)
+* Configuración
+** Inicializar aplicación
+  #+BEGIN_SRC shell
+    # 1. Accedemos a nuestro proyecto y lo clonamos en el mismo directorio
+    cd ~/Documents/git/.my-dotfiles
+    git clone git@github.com:manu-projects/gpg-encrypt-secrets.git
+
+    # 2. inicializamos la aplicación
+    # - actualizará el .gitignore para evitar subir los archivos con datos sensibles
+    # - creará un Makefile (ó bien lo actualizará si existe) para poder utilizar los comandos de la app
+    cd gpg-encrypt-secrets
+    make init
+
+    # 3. Disfrutar de la aplicación, desde el directorio raíz de tu proyecto :)
+    cd ..
+  #+END_SRC
+** Agregar archivos secretos específicos
+   - archivo de configuración ~ruta-tu-proyecto/gpg-encrypt-secrets/secret-files.list~
+   - agregamos *la ruta absoluta* de cada archivo secreto a encriptar/desencriptar
+   - no se recomienda si son varios archivos ó muchos directorios (sólo porque sería una tarea tediosa)
+** Agregar directorios con archivos secretos
+   - archivo de configuración ~ruta-tu-proyecto/gpg-encrypt-secrets/secret-directories.list~
+   - agregamos el directorio/ ó directorio/../subdirectorio con archivos secretos
+   - agrupa todos los archivos secretos de un directorio
+** Clave GPG + Extensión de los archivos secretos y encriptados
+   - Archivo de configuración ~ruta-tu-proyecto/gpg-encrypt-secrets/config.mk~
+
+   #+BEGIN_QUOTE
+   NO olvidar que, si en el proyecto tenemos archivos encriptados con la aplicación,
+   pero luego borramos ó perdemos ó cambiamos el *Par de Claves Secundarias de GPG para encriptar/desencriptar*,
+   entonces NO podremos desencriptar los archivos encriptados (en particular la Clave Secundaria Privada)
+   #+END_QUOTE
+
+   #+BEGIN_SRC makefile
+     # nombre por default, podemos cambiarlo
+     SECRET_FILE_EXTENSION=secrets.txt
+
+     # nosotros elegimos éste nombre, aunque .gpg es la extensión del binario encriptado que asignaría el programa GPG
+     ENCRYPTED_SECRET_EXTENSION=encrypted
+
+     # cambiar por el ID de Par de Claves Secundarias para [E]ncriptar (encrypt capability) que hayas creado
+     GPG_SUBKEY_ENCRYPTED_ID=0x273250B7E54E64CA
+   #+END_SRC
+* Ejemplo de uso
+  - ejecutar los comandos desde el directorio raíz de tú proyecto
+
+  #+BEGIN_SRC shell
+    # encripta los ficheros según los archivos de configuración
+    make encrypted-files-update
+
+    # desencripta los ficheros según los archivos de configuración
+    make decrypted-files-update
+
+    # remueve de forma segura los secretos del proyecto
+    make safely-remove-secrets
+
+    # creamos/borramos template con archivos de ejemplo
+    make generate-template
+    make delete-template
+  #+END_SRC
